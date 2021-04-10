@@ -1,5 +1,4 @@
-// #![deny(warnings)]
-#![cfg_attr(target_feature = "neon", feature(stdsimd,))]
+#![deny(warnings)]
 #![cfg_attr(feature = "hints", feature(core_intrinsics))]
 #![deny(warnings)]
 #![warn(unused_extern_crates)]

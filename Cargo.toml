@@ -8,3 +8,15 @@ license = "Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[features]
+default = []
+
+# Allow fallback to non simd CPUs
+allow-non-simd = []
+
+# don't inline code - used for debugging
+no-inline = []
+
+# use branch hints - requires nightly :(
+hints = [] # requires nightly
