@@ -14,6 +14,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
+        simdfeatures: [avx2, sse4.2]
         toolchain: [stable, nightly]
     steps:
     - uses: actions/checkout@v2
@@ -23,6 +24,8 @@ jobs:
           override: true
     - name: Build
       run: cargo build --verbose
+      env:
+          RUSTFLAGS: -C target-features=+${{ matrix.simdfeatures }}
     - name: Run tests
       run: cargo test --verbose
   clippy_check:
