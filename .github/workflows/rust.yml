@@ -25,7 +25,7 @@ jobs:
     - name: Build
       run: cargo build --verbose
       env:
-          RUSTFLAGS: -C target-features=+${{ matrix.simdfeatures }}
+          RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
     - name: Run tests
       run: cargo test --verbose
   clippy_check:
