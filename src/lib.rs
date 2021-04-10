@@ -49,7 +49,7 @@ pub struct Utf8Error {}
 /// Validates the UTF-8 string
 /// # Errors
 ///
-/// Will return `Err(Utf8Error)` on invalid UTF-8
+/// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 pub fn validate_utf8(input: &[u8]) -> std::result::Result<(), Utf8Error> {
     unsafe {
         let len = input.len();
