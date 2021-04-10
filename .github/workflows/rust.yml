@@ -28,6 +28,8 @@ jobs:
           RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
     - name: Run tests
       run: cargo test --verbose
+      env:
+          RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
   clippy_check:
     runs-on: self-hosted
     steps:
