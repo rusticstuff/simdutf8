@@ -1,6 +1,4 @@
 #![deny(warnings)]
-#![cfg_attr(feature = "hints", feature(core_intrinsics))]
-#![deny(warnings)]
 #![warn(unused_extern_crates)]
 #![deny(
     clippy::all,
@@ -9,8 +7,9 @@
     clippy::pedantic
 )]
 // We might want to revisit inline_always
-#![allow(clippy::module_name_repetitions, clippy::inline_always)]
+#![allow(clippy::inline_always)]
 #![deny(missing_docs)]
+#![cfg_attr(feature = "hints", feature(core_intrinsics))]
 
 //! UTF-8 checking crate
 
@@ -44,13 +43,13 @@ use crate::utf8check::ProcessedUtfBytes;
 
 use std::mem;
 
-/// Utf8Error struct
+/// Error struct
 pub struct Utf8Error {}
 
 /// Validates the UTF-8 string
 /// # Errors
 ///
-/// Will return Err(ErrorType::InvalidUTF8) on invalid UTF-8
+/// Will return `Err(Utf8Error)` on invalid UTF-8
 pub fn validate_utf8(input: &[u8]) -> std::result::Result<(), Utf8Error> {
     unsafe {
         let len = input.len();
