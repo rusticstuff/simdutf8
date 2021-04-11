@@ -11,18 +11,30 @@ fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| std::str::from_utf8(black_box(b"a")))
     });
 
+    let umlaut = "ö".as_bytes();
     c.bench_function("single umlaut", |b| {
-        b.iter(|| validate_utf8(black_box("ö".as_bytes())))
+        b.iter(|| validate_utf8(black_box(umlaut)))
     });
     c.bench_function("single umlaut - stdlib", |b| {
-        b.iter(|| std::str::from_utf8(black_box("ö".as_bytes())))
+        b.iter(|| std::str::from_utf8(black_box(umlaut)))
     });
 
+    let eight_umlauts_string = str::repeat("ö", 8);
+    let eight_umlauts = eight_umlauts_string.as_bytes();
     c.bench_function("eight umlauts", |b| {
-        b.iter(|| validate_utf8(black_box("öööööööö".as_bytes())))
+        b.iter(|| validate_utf8(black_box(eight_umlauts)))
     });
     c.bench_function("eight umlauts - stdlib", |b| {
-        b.iter(|| std::str::from_utf8(black_box("öööööööö".as_bytes())))
+        b.iter(|| std::str::from_utf8(black_box(eight_umlauts)))
+    });
+
+    let thirtytwo_umlauts_string = str::repeat("ö", 32);
+    let thirtytwo_umlauts = thirtytwo_umlauts_string.as_bytes();
+    c.bench_function("32 umlauts", |b| {
+        b.iter(|| validate_utf8(black_box(thirtytwo_umlauts)))
+    });
+    c.bench_function("32 umlauts - stdlib", |b| {
+        b.iter(|| std::str::from_utf8(black_box(thirtytwo_umlauts)))
     });
 
     let fox = b"The quick brown fox jumps over the lazy dog";
