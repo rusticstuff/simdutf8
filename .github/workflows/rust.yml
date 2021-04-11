@@ -55,8 +55,8 @@ jobs:
             override: true
       - uses: actions/cache@v2
         with:
-        path: target/criterion
-        key: criterion
+            path: target/criterion
+            key: criterion
       - name: Run benchmark
         run: cargo bench -- --color=always
         env:
