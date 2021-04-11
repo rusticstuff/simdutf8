@@ -5,7 +5,7 @@ use simdutf8::*;
 
 fn criterion_benchmark(c: &mut Criterion) {
     let core_ids = core_affinity::get_core_ids().unwrap();
-    core_affinity::set_for_current(*core_ids.get(1).unwrap_or(&core_ids[0]));
+    core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
     c.bench_function("single ascii char", |b| {
         b.iter(|| validate_utf8(black_box(b"a")))
