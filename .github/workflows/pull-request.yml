@@ -6,7 +6,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@master
-      - uses: boa-dev/criterion-compare-action@v2.0.0
+      - uses: boa-dev/criterion-compare-action@afc054110be1431e9fd217a82ad0a9cdfab304e0
         with:
           benchName: "benchmark"
           token: ${{ secrets.GITHUB_TOKEN }}
