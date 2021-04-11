@@ -10,4 +10,5 @@ jobs:
         env:
           RUSTFLAGS: -C target-feature=+avx2
         with:
+          benchName: "benchmark"
           token: ${{ secrets.GITHUB_TOKEN }}
