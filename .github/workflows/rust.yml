@@ -54,6 +54,6 @@ jobs:
             toolchain: stable
             override: true
       - name: Run benchmark
-        run: cargo bench
+        run: cargo bench --color=always
         env:
             RUSTFLAGS: -C target-feature=+avx2
