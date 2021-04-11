@@ -17,19 +17,20 @@ jobs:
         simdfeatures: [avx2, sse4.2]
         toolchain: [stable, nightly]
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions-rs/toolchain@v1
-      with:
-          toolchain: ${{ matrix.toolchain }}
-          override: true
-    - name: Build
-      run: cargo build --verbose
-      env:
-          RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
-    - name: Run tests
-      run: cargo test --verbose
-      env:
-          RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.toolchain }}
+            override: true
+      - name: Build
+        run: cargo build --verbose
+        env:
+            RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
+      - name: Run tests
+        run: cargo test --verbose
+        env:
+            RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
+
   clippy_check:
     runs-on: self-hosted
     steps:
@@ -43,3 +44,16 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features
+
+  benchmark:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+      - name: Run benchmark
+        run: cargo bench
+        env:
+            RUSTFLAGS: -C target-feature=+avx2
