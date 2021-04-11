@@ -1,0 +1,11 @@
+on: [pull_request]
+name: benchmark pull requests
+jobs:
+  runBenchmark:
+    name: run benchmark
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@master
+      - uses: jasonwilliams/criterion-compare-action@move_to_actions
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
