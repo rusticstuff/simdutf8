@@ -6,7 +6,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@master
-      - uses: boa-dev/criterion-compare-action@afc054110be1431e9fd217a82ad0a9cdfab304e0
+      - uses: rusticstuff/criterion-compare-action@2ff8ad3151dc26fe91e59c22eee6aa985f5e285b
         with:
           benchName: "benchmark"
           token: ${{ secrets.GITHUB_TOKEN }}
