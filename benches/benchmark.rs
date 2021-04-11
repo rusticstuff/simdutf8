@@ -18,6 +18,13 @@ fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| std::str::from_utf8(black_box("ö".as_bytes())))
     });
 
+    c.bench_function("eight umlauts", |b| {
+        b.iter(|| validate_utf8(black_box("öööööööö".as_bytes())))
+    });
+    c.bench_function("eight umlauts - stdlib", |b| {
+        b.iter(|| std::str::from_utf8(black_box("öööööööö".as_bytes())))
+    });
+
     let fox = b"The quick brown fox jumps over the lazy dog";
     c.bench_function("fox", |b| b.iter(|| validate_utf8(black_box(fox))));
     c.bench_function("fox - stdlib", |b| {
