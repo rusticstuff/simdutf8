@@ -21,6 +21,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: ${{ matrix.toolchain }}
+            profile: minimal
             override: true
       - name: Build
         run: cargo build --verbose
@@ -38,6 +39,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: nightly
+            profile: minimal
             components: clippy
             override: true
       - uses: actions-rs/clippy-check@v1
@@ -52,6 +54,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: stable
+            profile: minimal
             override: true
       - uses: actions/cache@v2
         with:
