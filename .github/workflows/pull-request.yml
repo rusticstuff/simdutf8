@@ -5,6 +5,8 @@ jobs:
     name: run benchmark
     runs-on: self-hosted
     steps:
+      env:
+        RUSTFLAGS: -C target-feature=+avx2
       - uses: actions/checkout@master
       - uses: jasonwilliams/criterion-compare-action@move_to_actions
         with:
