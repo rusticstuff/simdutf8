@@ -9,6 +9,13 @@ license = "Apache-2.0"
 
 [dependencies]
 
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "benchmark"
+harness = false
+
 [features]
 default = []
 
