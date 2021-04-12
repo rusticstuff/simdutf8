@@ -58,10 +58,12 @@ jobs:
             profile: minimal
             override: true
       - name: Run benchmark
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline
+        # run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline new
         env:
             RUSTFLAGS: -C target-feature=+avx2
-      - uses: actions/upload-artifact@v2
-        with:
-          name: criterion-results
-          path: target/criterion/**/baseline
+        run: critcmp baseline new --color=always
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: criterion-results
+      #     path: target/criterion/**/baseline
