@@ -59,7 +59,7 @@ jobs:
             override: true
       - name: Run benchmark
         # run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline new
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline newbase
         env:
             RUSTFLAGS: -C target-feature=+avx2
       - name: Benchmark results
