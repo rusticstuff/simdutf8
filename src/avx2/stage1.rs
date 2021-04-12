@@ -31,12 +31,12 @@ impl SimdInput {
 }
 
 impl SimdInput {
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     pub(crate) fn new_utf8_checking_state() -> Utf8CheckingState<__m256i> {
         ProcessedUtfBytes::<__m256i>::default()
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     pub(crate) fn check_utf8(&self, state: &mut Utf8CheckingState<__m256i>) {
         unsafe {
             ProcessedUtfBytes::<__m256i>::check_bytes(self.v0, state);
@@ -44,14 +44,14 @@ impl SimdInput {
         }
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     pub(crate) fn check_eof(state: &mut Utf8CheckingState<__m256i>) {
         unsafe {
             state.error = ProcessedUtfBytes::<__m256i>::check_eof(state.error, state.incomplete);
         }
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     pub(crate) fn check_utf8_errors(state: &Utf8CheckingState<__m256i>) -> bool {
         unsafe { ProcessedUtfBytes::<__m256i>::has_error(state.error) }
     }

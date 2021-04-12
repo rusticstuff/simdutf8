@@ -15,7 +15,7 @@ use crate::utf8check::{ProcessedUtfBytes, Utf8Check};
 use crate::{mem, static_cast_i8};
 
 impl Default for ProcessedUtfBytes<__m128i> {
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     fn default() -> Self {
         unsafe {
             Self {
@@ -28,27 +28,27 @@ impl Default for ProcessedUtfBytes<__m128i> {
 }
 
 impl Utf8Check<__m128i> for ProcessedUtfBytes<__m128i> {
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn new_processed_bytes() -> ProcessedUtfBytes<__m128i> {
         Self::default()
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn or(a: __m128i, b: __m128i) -> __m128i {
         _mm_or_si128(a, b)
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn is_ascii(input: __m128i) -> bool {
         _mm_movemask_epi8(input) == 0
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn check_eof(error: __m128i, incomplete: __m128i) -> __m128i {
         Self::or(error, incomplete)
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn is_incomplete(input: __m128i) -> __m128i {
         _mm_subs_epu8(
             input,
@@ -78,7 +78,7 @@ impl Utf8Check<__m128i> for ProcessedUtfBytes<__m128i> {
         _mm_alignr_epi8(input, prev, 16 - 1)
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     #[allow(clippy::too_many_lines)]
     unsafe fn check_special_cases(input: __m128i, prev1: __m128i) -> __m128i {
         const TOO_SHORT: u8 = 1 << 0;
@@ -169,7 +169,7 @@ impl Utf8Check<__m128i> for ProcessedUtfBytes<__m128i> {
         _mm_and_si128(_mm_and_si128(byte_1_high, byte_1_low), byte_2_high)
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn check_multibyte_lengths(
         input: __m128i,
         prev: __m128i,
@@ -182,7 +182,7 @@ impl Utf8Check<__m128i> for ProcessedUtfBytes<__m128i> {
         _mm_xor_si128(must23_80, special_cases)
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn must_be_2_3_continuation(prev2: __m128i, prev3: __m128i) -> __m128i {
         let is_third_byte =
             _mm_subs_epu8(prev2, _mm_set1_epi8(static_cast_i8!(0b1110_0000_u8 - 1)));
@@ -194,7 +194,7 @@ impl Utf8Check<__m128i> for ProcessedUtfBytes<__m128i> {
         )
     }
 
-    #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn has_error(error: __m128i) -> bool {
         _mm_testz_si128(error, error) != 1
     }
