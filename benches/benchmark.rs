@@ -43,7 +43,7 @@ fn bench_input(
         BenchmarkId::new("std", format!("{:05}", input.len())),
         &input,
         |b, &slice| {
-            b.iter(|| std::str::from_utf8(slice).unwrap());
+            b.iter(|| assert_eq!(std::str::from_utf8(slice).is_ok(), expected_ok));
         },
     );
 }
