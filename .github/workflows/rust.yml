@@ -63,7 +63,7 @@ jobs:
         env:
             RUSTFLAGS: -C target-feature=+avx2
       - name: Benchmark results
-        run: critcmp baseline new --color=always
+        run: critcmp baseline newbase --color=always
       # - uses: actions/upload-artifact@v2
       #   with:
       #     name: criterion-results
