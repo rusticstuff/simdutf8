@@ -44,6 +44,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         "chinese",
         include_str!("text/Chinese-Lipsum.txt").as_bytes(),
     );
+    bench(c, "emoij", include_str!("text/Emoji-Lipsum.txt").as_bytes());
 }
 
 criterion_group!(benches, criterion_benchmark);
