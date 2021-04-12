@@ -13,7 +13,7 @@ fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
 
 fn bench(c: &mut Criterion, name: &str, bytes: &[u8]) {
     let mut group = c.benchmark_group(name);
-    for i in [1, 8, 64, 512].iter() {
+    for i in [1, 8, 64, 512, 4096].iter() {
         let slice = get_valid_slice_of_len_or_more(bytes, *i);
         group.throughput(Throughput::Bytes(slice.len() as u64));
         group.bench_with_input(
