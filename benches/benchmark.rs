@@ -78,9 +78,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     );
 
     let mut group = c.benchmark_group("x-error");
-    let mut s = b"a".repeat(65535);
-    s.push(b'\xFF');
-    bench_input(&mut group, &s, false, false);
+    bench_input(&mut group, b"\xFF".repeat(65536).as_slice(), false, false);
     group.finish();
 }
 
