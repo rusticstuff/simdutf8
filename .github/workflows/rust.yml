@@ -49,7 +49,7 @@ jobs:
           args: --all-features
 
   benchmark:
-    if: "${{ !startsWith(github.event.commits[0].message, 'save_baseline: ') }}"
+    if: "${{ !startsWith(github.event.commits[0].message, 'export_baseline: ') }}"
     runs-on: hurricane
     steps:
       - uses: actions/checkout@v1
@@ -68,9 +68,9 @@ jobs:
             RUSTFLAGS: -C target-feature=+avx2
       - name: Critcmp comparison
         run: critcmp baseline newbase --color=always
-    
-  save-baseline:
-    if: "${{ startsWith(github.event.commits[0].message, 'save_baseline: ') }}"
+
+  export-baseline:
+    if: "${{ startsWith(github.event.commits[0].message, 'export_baseline: ') }}"
     runs-on: hurricane
     steps:
       - uses: actions/checkout@v1
@@ -79,7 +79,7 @@ jobs:
             toolchain: stable
             profile: minimal
             override: true
-      - name: Save benchmark baseline
+      - name: Create benchmark baseline
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline --noplot
         env:
             RUSTFLAGS: -C target-feature=+avx2
