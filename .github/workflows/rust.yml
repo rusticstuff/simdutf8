@@ -14,13 +14,14 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        simdfeatures: [avx2, sse4.2]
         toolchain: [stable, nightly]
+        arch: [x86_64, i686]
+        simdfeatures: [avx2, sse4.2]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}
+            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
             profile: minimal
             override: true
       - name: Build
