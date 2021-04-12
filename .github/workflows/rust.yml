@@ -49,7 +49,7 @@ jobs:
           args: --all-features
 
   benchmark:
-    if: "${{ !startsWith(github.event.commits[0].message, 'export_baseline: ') }}"
+    if: "${{ !startsWith(github.event.commits[0].message, 'export_baseline:') }}"
     runs-on: hurricane
     steps:
       - uses: actions/checkout@v1
@@ -70,7 +70,7 @@ jobs:
         run: critcmp baseline newbase --color=always
 
   export-baseline:
-    if: "${{ startsWith(github.event.commits[0].message, 'export_baseline: ') }}"
+    if: "${{ startsWith(github.event.commits[0].message, 'export_baseline:') }}"
     runs-on: hurricane
     steps:
       - uses: actions/checkout@v1
