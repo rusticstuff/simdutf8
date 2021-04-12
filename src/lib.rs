@@ -44,6 +44,7 @@ use crate::utf8check::ProcessedUtfBytes;
 use std::mem;
 
 /// Error struct
+#[derive(Debug)]
 pub struct Utf8Error {}
 
 /// Validates the UTF-8 string
