@@ -78,7 +78,7 @@ pub fn validate_utf8(input: &[u8]) -> std::result::Result<(), Utf8Error> {
 
             input.check_utf8(&mut state);
         }
-
+        SimdInput::check_eof(&mut state);
         if SimdInput::check_utf8_errors(&state) {
             Err(Utf8Error {})
         } else {
@@ -125,5 +125,19 @@ mod tests {
         assert!(validate_utf8(b"\xF0").is_err());
         assert!(validate_utf8(b"\xF0\x9F").is_err());
         assert!(validate_utf8(b"\xF0\x9F\x98").is_err());
+    }
+
+    #[test]
+    fn incomplete_on_32nd_byte() {
+        let mut invalid = b"a".repeat(31);
+        invalid.push(b'\xF0');
+        assert!(validate_utf8(&invalid).is_err());
+    }
+
+    #[test]
+    fn incomplete_on_64th_byte() {
+        let mut invalid = b"a".repeat(63);
+        invalid.push(b'\xF0');
+        assert!(validate_utf8(&invalid).is_err());
     }
 }

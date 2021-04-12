@@ -45,6 +45,13 @@ impl SimdInput {
     }
 
     #[cfg_attr(not(feature = "no-inline"), inline(always))]
+    pub(crate) fn check_eof(state: &mut Utf8CheckingState<__m256i>) {
+        unsafe {
+            state.error = ProcessedUtfBytes::<__m256i>::check_eof(state.error, state.incomplete);
+        }
+    }
+
+    #[cfg_attr(not(feature = "no-inline"), inline(always))]
     pub(crate) fn check_utf8_errors(state: &Utf8CheckingState<__m256i>) -> bool {
         unsafe { ProcessedUtfBytes::<__m256i>::has_error(state.error) }
     }
