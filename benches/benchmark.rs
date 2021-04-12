@@ -18,12 +18,17 @@ fn bench(c: &mut Criterion, name: &str, bytes: &[u8]) {
     let mut group = c.benchmark_group(name);
     for i in [1, 8, 64, 512, 4096, 65536].iter() {
         let slice = get_valid_slice_of_len_or_more(bytes, *i);
-        bench_input(&mut group, slice, true);
+        bench_input(&mut group, slice, true, true);
     }
     group.finish();
 }
 
-fn bench_input(group: &mut BenchmarkGroup<WallTime>, input: &[u8], with_throughput: bool) {
+fn bench_input(
+    group: &mut BenchmarkGroup<WallTime>,
+    input: &[u8],
+    with_throughput: bool,
+    expected_ok: bool,
+) {
     if with_throughput {
         group.throughput(Throughput::Bytes(input.len() as u64));
     }
@@ -31,7 +36,7 @@ fn bench_input(group: &mut BenchmarkGroup<WallTime>, input: &[u8], with_throughp
         BenchmarkId::new("simd", format!("{:05}", input.len())),
         &input,
         |b, &slice| {
-            b.iter(|| validate_utf8(slice).unwrap());
+            b.iter(|| assert_eq!(validate_utf8(slice).is_ok(), expected_ok));
         },
     );
     group.bench_with_input(
@@ -48,7 +53,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
     let mut group = c.benchmark_group("0-empty");
-    bench_input(&mut group, b"", false);
+    bench_input(&mut group, b"", false, true);
     group.finish();
 
     bench(
@@ -71,6 +76,12 @@ fn criterion_benchmark(c: &mut Criterion) {
         "4-emoij",
         include_str!("text/Emoji-Lipsum.txt").as_bytes(),
     );
+
+    let mut group = c.benchmark_group("x-error");
+    let mut s = b"a".repeat(65535);
+    s.push(b'\xFF');
+    bench_input(&mut group, &s, false, false);
+    group.finish();
 }
 
 criterion_group!(benches, criterion_benchmark);
