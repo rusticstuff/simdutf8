@@ -66,6 +66,9 @@ pub fn validate_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
              */
             let input = SimdInput::new(input.get_unchecked(idx as usize..));
             input.check_utf8(&mut state);
+            if SimdInput::check_utf8_errors(&state) {
+                return Err(Utf8Error {});
+            }
             idx += SIMDINPUT_LENGTH;
         }
 
@@ -77,9 +80,6 @@ pub fn validate_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
             let input = SimdInput::new(&tmpbuf);
 
             input.check_utf8(&mut state);
-            if SimdInput::check_utf8_errors(&state) {
-                return Err(Utf8Error {});
-            }
         }
         SimdInput::check_eof(&mut state);
         if SimdInput::check_utf8_errors(&state) {
@@ -142,5 +142,10 @@ mod tests {
         let mut invalid = b"a".repeat(63);
         invalid.push(b'\xF0');
         assert!(validate_utf8(&invalid).is_err());
+    }
+
+    #[test]
+    fn early_error() {
+        assert!(validate_utf8(b"\xFF".repeat(65536).as_slice()).is_err());
     }
 }
