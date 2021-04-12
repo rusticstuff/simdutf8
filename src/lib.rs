@@ -51,7 +51,7 @@ pub struct Utf8Error {}
 /// # Errors
 ///
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-pub fn validate_utf8(input: &[u8]) -> std::result::Result<(), Utf8Error> {
+pub fn validate_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
     unsafe {
         let len = input.len();
         let mut state = SimdInput::new_utf8_checking_state();
@@ -82,7 +82,7 @@ pub fn validate_utf8(input: &[u8]) -> std::result::Result<(), Utf8Error> {
         if SimdInput::check_utf8_errors(&state) {
             Err(Utf8Error {})
         } else {
-            Ok(())
+            Ok(std::str::from_utf8_unchecked(input))
         }
     }
 }
