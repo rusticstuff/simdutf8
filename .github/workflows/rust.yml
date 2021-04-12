@@ -59,7 +59,7 @@ jobs:
       - uses: actions/cache@v2
         with:
             path: target/criterion
-            key: criterion-epoch-1
+            key: criterion-epoch-2
       - name: Run benchmark
         run: cargo bench --features=bench -- --color=always
         env:
