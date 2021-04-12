@@ -62,7 +62,7 @@ jobs:
             path: target/criterion
             key: criterion-epoch-2
       - name: Run benchmark
-        run: cargo bench --features=bench -- --color=always --save-baseline commit-${{ env.GITHUB_SHA }}
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline commit-${{ env.GITHUB_SHA }}
         env:
             RUSTFLAGS: -C target-feature=+avx2
       - uses: actions/upload-artifact@v2
