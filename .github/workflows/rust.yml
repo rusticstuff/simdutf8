@@ -57,18 +57,19 @@ jobs:
             toolchain: stable
             profile: minimal
             override: true
-      - name: Run benchmark
-        # run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline newbase
-        env:
-            RUSTFLAGS: -C target-feature=+avx2
-      - name: Criterion comparison
-        run:  cargo bench --bench=benchmark --features=bench -- --color=always --load-baseline newbase --baseline baseline
-        env:
-            RUSTFLAGS: -C target-feature=+avx2
-      - name: Critcmp comparison
-        run: critcmp baseline newbase --color=always
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     name: criterion-results
-      #     path: target/criterion/**/baseline
+      # - name: Run benchmark
+      #   run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline newbase
+      #   env:
+      #       RUSTFLAGS: -C target-feature=+avx2
+      # - name: Criterion comparison
+      #   run:  cargo bench --bench=benchmark --features=bench -- --color=always --load-baseline newbase --baseline baseline
+      #   env:
+      #       RUSTFLAGS: -C target-feature=+avx2
+      # - name: Critcmp comparison
+      #   run: critcmp baseline newbase --color=always
+      - name: Save benchmark baseline
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline
+      - uses: actions/upload-artifact@v2
+        with:
+          name: criterion-results
+          path: target/criterion/**/baseline
