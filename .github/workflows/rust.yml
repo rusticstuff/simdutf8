@@ -69,6 +69,8 @@ jobs:
       #   run: critcmp baseline newbase --color=always
       - name: Save benchmark baseline
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline --noplot
+        env:
+            RUSTFLAGS: -C target-feature=+avx2
       - uses: actions/upload-artifact@v2
         with:
           name: criterion-results
