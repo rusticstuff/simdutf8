@@ -87,4 +87,3 @@ jobs:
         with:
           name: criterion-results
           path: target/criterion/**/baseline
-
