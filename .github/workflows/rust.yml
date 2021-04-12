@@ -57,9 +57,6 @@ jobs:
             toolchain: stable
             profile: minimal
             override: true
-        with:
-            path: target/criterion
-            key: criterion-epoch-2
       - name: Run benchmark
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline master
         env:
