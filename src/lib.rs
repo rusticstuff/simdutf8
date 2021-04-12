@@ -77,6 +77,9 @@ pub fn validate_utf8(input: &[u8]) -> std::result::Result<(), Utf8Error> {
             let input = SimdInput::new(&tmpbuf);
 
             input.check_utf8(&mut state);
+            if SimdInput::check_utf8_errors(&state) {
+                return Err(Utf8Error {});
+            }
         }
         SimdInput::check_eof(&mut state);
         if SimdInput::check_utf8_errors(&state) {
