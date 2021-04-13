@@ -16,7 +16,7 @@ jobs:
       matrix:
         toolchain: [stable, nightly]
         arch: [x86_64, i686]
-        simdfeatures: [avx2, sse4.2]
+        simdfeatures: [avx2, sse42]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -25,13 +25,9 @@ jobs:
             profile: minimal
             override: true
       - name: Build
-        run: cargo build --verbose
-        env:
-            RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
+        run: cargo build --features=force-${{ matrix.simdfeatures }} --verbose
       - name: Run tests
-        run: cargo test --verbose
-        env:
-            RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
+        run: cargo test --features=force-${{ matrix.simdfeatures }} --verbose
 
   clippy_check:
     runs-on: playhouse
