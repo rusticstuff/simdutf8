@@ -33,17 +33,10 @@ fn bench_input(
         group.throughput(Throughput::Bytes(input.len() as u64));
     }
     group.bench_with_input(
-        BenchmarkId::new("simd", format!("{:05}", input.len())),
+        BenchmarkId::from_parameter(format!("{:05}", input.len())),
         &input,
         |b, &slice| {
             b.iter(|| assert_eq!(validate_utf8(slice).is_ok(), expected_ok));
-        },
-    );
-    group.bench_with_input(
-        BenchmarkId::new("std", format!("{:05}", input.len())),
-        &input,
-        |b, &slice| {
-            b.iter(|| assert_eq!(std::str::from_utf8(slice).is_ok(), expected_ok));
         },
     );
 }
@@ -73,7 +66,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     );
     bench(
         c,
-        "4-emoij",
+        "4-emoji",
         include_str!("text/Emoji-Lipsum.txt").as_bytes(),
     );
 

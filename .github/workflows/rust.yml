@@ -59,11 +59,11 @@ jobs:
             profile: minimal
             override: true
       - name: Run benchmark
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline newbase --noplot
-      - name: Criterion comparison
-        run:  cargo bench --bench=benchmark --features=bench -- --color=always --load-baseline newbase --baseline baseline --noplot
+        run: cargo bench --bench benchmark --features=bench,force-avx2 -- --color=always --save-baseline new+avx2 --noplot
+      - name: Run benchmark
+        run: cargo bench --bench benchmark --features=bench,force-sse42 -- --color=always --save-baseline new+sse42 --noplot
       - name: Critcmp comparison
-        run: critcmp baseline newbase --color=always
+        run: critcmp new+avx2 new+sse42 baselines/simd+avx2.json  baselines/simd+sse42.json baselines/std.json --color=always
 
   export-baseline:
     if: "${{ startsWith(github.event.commits[0].message, 'export_baseline:') }}"
@@ -76,9 +76,17 @@ jobs:
             profile: minimal
             override: true
       - name: Create benchmark baseline
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline --noplot
+        run: cargo bench --bench benchmark --features=bench,force-avx2 -- --color=always --save-baseline export_baseline --noplot
+      - name: Critcmp export
+        run: critcmp --export export_baseline > baseline+avx2.json
+      - name: Create benchmark baseline
+        run: cargo bench --bench benchmark --features=bench,force-sse42 -- --color=always --save-baseline export_baseline --noplot
+      - name: Critcmp export
+        run: critcmp --export export_baseline > baseline+sse42.json
       - uses: actions/upload-artifact@v2
         with:
-          name: criterion-results
-          path: target/criterion/**/baseline
+          name: baselines
+          path: |
+            baseline+avx2.json
+            baseline+sse42.json
 
