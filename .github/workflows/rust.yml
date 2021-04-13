@@ -79,12 +79,12 @@ jobs:
             toolchain: stable
             profile: minimal
             override: true
-      # - name: Create benchmark baseline
-      #   run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline export_baseline --noplot
-      #   env:
-      #       RUSTFLAGS: -C target-feature=+avx2
-      # - name: Critcmp export
-      #   run: critcmp --export export_baseline > baseline+avx2.json
+      - name: Create benchmark baseline
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline export_baseline --noplot
+        env:
+            RUSTFLAGS: -C target-feature=+avx2
+      - name: Critcmp export
+        run: critcmp --export export_baseline > baseline+avx2.json
       - name: Create benchmark baseline
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline export_baseline --noplot
         env:
@@ -95,5 +95,6 @@ jobs:
         with:
           name: baselines
           path: |
+            baseline+avx2.json
             baseline+sse42.json
 
