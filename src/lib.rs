@@ -47,7 +47,13 @@ pub fn validate_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
         #[cfg(feature = "force-sse42")]
         return sse42::implementation::validate_utf8_simd(input);
         #[cfg(not(any(feature = "force-avx2", feature = "force-sse42")))]
-        panic!("No implementation specified");
+        if is_x86_feature_detected!("avx2") {
+            avx2::implementation::validate_utf8_simd(input)
+        } else if is_x86_feature_detected!("sse4.2") {
+            sse42::implementation::validate_utf8_simd(input)
+        } else {
+            std::str::from_utf8(input).map_err(|_| Utf8Error {})
+        }
     }
 }
 

@@ -54,12 +54,16 @@ jobs:
             toolchain: stable
             profile: minimal
             override: true
+      # - name: Run benchmark
+      #   run: cargo bench --bench benchmark --features=bench,force-avx2 -- --color=always --save-baseline new+avx2 --noplot
+      # - name: Run benchmark
+      #   run: cargo bench --bench benchmark --features=bench,force-sse42 -- --color=always --save-baseline new+sse42 --noplot
+      # - name: Critcmp comparison
+      #   run: critcmp new+avx2 new+sse42 baselines/simd+avx2.json  baselines/simd+sse42.json baselines/std.json --color=always
       - name: Run benchmark
-        run: cargo bench --bench benchmark --features=bench,force-avx2 -- --color=always --save-baseline new+avx2 --noplot
-      - name: Run benchmark
-        run: cargo bench --bench benchmark --features=bench,force-sse42 -- --color=always --save-baseline new+sse42 --noplot
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline new+avx2 --noplot
       - name: Critcmp comparison
-        run: critcmp new+avx2 new+sse42 baselines/simd+avx2.json  baselines/simd+sse42.json baselines/std.json --color=always
+        run: critcmp new+avx2 baselines/simd+avx2.json  baselines/simd+sse42.json baselines/std.json --color=always
 
   export-baseline:
     if: "${{ startsWith(github.event.commits[0].message, 'export_baseline:') }}"
