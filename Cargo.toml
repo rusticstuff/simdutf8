@@ -26,6 +26,12 @@ default = []
 # Allow fallback to non simd CPUs
 allow-non-simd = []
 
+# Force using AVX2 implementation
+force-avx2 = []
+
+# Force using SSE4.2 implementation
+force-sse42 = []
+
 # don't inline code - used for debugging
 no-inline = []
 

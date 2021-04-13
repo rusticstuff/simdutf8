@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 #[cfg(target_arch = "x86")]
 use std::arch::x86::{
     __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
