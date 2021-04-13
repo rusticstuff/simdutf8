@@ -14,6 +14,8 @@
 * macro_export needed?
 * test cpu feature detection overhead
 
+# LATER
+* test on fast dedicated cloud server
 
 # NEXT
 * emoij
