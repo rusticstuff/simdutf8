@@ -82,7 +82,7 @@ jobs:
       - name: Create benchmark baseline
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline --noplot
         env:
-            RUSTFLAGS: -C target-feature=+avx2
+            RUSTFLAGS: -C target-feature=+sse4.2
       - name: Critcmp export
         run: critcmp --export baseline > baseline.json
       - uses: actions/upload-artifact@v2
