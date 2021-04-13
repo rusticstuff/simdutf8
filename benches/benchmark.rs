@@ -66,7 +66,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     );
     bench(
         c,
-        "4-emoij",
+        "4-emoji",
         include_str!("text/Emoji-Lipsum.txt").as_bytes(),
     );
 
