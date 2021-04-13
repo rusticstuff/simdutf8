@@ -88,4 +88,3 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           path: baseline.json
-
