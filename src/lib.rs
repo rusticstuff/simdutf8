@@ -34,14 +34,20 @@ pub struct Utf8Error {}
 /// # Errors
 ///
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
+///
+/// # Panics
+///
+/// If not implementation is specified
+#[allow(unused_variables)]
 pub fn validate_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
+    #[allow(unused_unsafe)]
     unsafe {
         #[cfg(feature = "force-avx2")]
         return avx2::implementation::validate_utf8_simd(input);
-        #[cfg(feature = "force-sse4.2")]
+        #[cfg(feature = "force-sse42")]
         return sse42::implementation::validate_utf8_simd(input);
-        #[cfg(not(any(feature = "force-avx2", feature = "force-sse4.2")))]
-        return avx2::implementation::validate_utf8_simd(input);
+        #[cfg(not(any(feature = "force-avx2", feature = "force-sse42")))]
+        panic!("No implementation specified");
     }
 }
 
