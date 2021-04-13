@@ -65,7 +65,7 @@ jobs:
       - name: Run benchmark
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline new+sse42 --noplot
         env:
-            RUSTFLAGS: -C target-feature=+sse42
+            RUSTFLAGS: -C target-feature=+sse4.2
       - name: Critcmp comparison
         run: critcmp new+avx2 new+sse42 baselines/simd+avx2.json  baselines/simd+sse42.json baselines/std.json --color=always
 
