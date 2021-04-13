@@ -80,10 +80,18 @@ jobs:
             profile: minimal
             override: true
       - name: Create benchmark baseline
-        run: cargo bench --bench benchmark --features=bench,,allow-non-simd -- --color=always --save-baseline baseline --noplot
+        run: cargo bench --bench benchmark --features=bench,allow-non-simd -- --color=always --save-baseline export_baseline --noplot
       - name: Critcmp export
-        run: critcmp --export baseline > baseline.json
+        run: critcmp --export export_baseline > baseline1.json
+      - name: Create benchmark baseline
+        run: cargo bench --bench benchmark --features=bench,allow-non-simd -- --color=always --save-baseline export_baseline --noplot
+        env:
+            RUSTFLAGS: -C target-feature=+avx2
+      - name: Critcmp export
+        run: critcmp --export export_baseline > baseline2.json
       - uses: actions/upload-artifact@v2
         with:
-          path: baseline.json
+          name: baselines
+          path: baseline1.json
+          path: baseline2.json
 
