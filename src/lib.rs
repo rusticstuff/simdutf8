@@ -6,8 +6,6 @@
     clippy::unnecessary_unwrap,
     clippy::pedantic
 )]
-// We might want to revisit inline_always
-#![allow(clippy::inline_always)]
 #![deny(missing_docs)]
 #![cfg_attr(feature = "hints", feature(core_intrinsics))]
 
