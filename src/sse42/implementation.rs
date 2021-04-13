@@ -203,7 +203,7 @@ impl Utf8CheckingState<__m128i> {
 
     #[target_feature(enable = "sse4.2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
-    check_bytes!(__m128i);
+    check_bytes!("sse4.2", __m128i);
 }
 
 #[derive(Debug)]
@@ -254,5 +254,4 @@ impl SimdInput {
     }
 }
 
-#[target_feature(enable = "sse4.2")]
-validate_utf8_simd!();
+validate_utf8_simd!("sse4.2");

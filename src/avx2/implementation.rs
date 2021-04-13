@@ -270,7 +270,7 @@ impl Utf8CheckingState<__m256i> {
 
     #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
-    check_bytes!(__m256i);
+    check_bytes!("avx2", __m256i);
 }
 
 #[derive(Debug)]
@@ -316,5 +316,4 @@ impl SimdInput {
     }
 }
 
-#[target_feature(enable = "avx2")]
-validate_utf8_simd!();
+validate_utf8_simd!("avx2");

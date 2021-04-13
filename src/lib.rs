@@ -35,12 +35,14 @@ pub struct Utf8Error {}
 ///
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 pub fn validate_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
-    // #[cfg(feature = "force-avx2")]
-    // return avx2::implementation::validate_utf8_simd(input);
-    // #[cfg(feature = "force-sse4.2")]
-    // return sse42::implementation::validate_utf8_simd(input);
-    // #[cfg(not(any(feature = "force-avx2", feature = "force-sse4.2")))]
-    avx2::implementation::validate_utf8_simd(input)
+    unsafe {
+        #[cfg(feature = "force-avx2")]
+        return avx2::implementation::validate_utf8_simd(input);
+        #[cfg(feature = "force-sse4.2")]
+        return sse42::implementation::validate_utf8_simd(input);
+        #[cfg(not(any(feature = "force-avx2", feature = "force-sse4.2")))]
+        return avx2::implementation::validate_utf8_simd(input);
+    }
 }
 
 #[cfg(test)]
