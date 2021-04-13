@@ -92,6 +92,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: baselines
-          path: baseline1.json
-          path: baseline2.json
+          path: |
+            baseline1.json
+            baseline2.json
 
