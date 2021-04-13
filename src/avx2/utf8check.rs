@@ -1,55 +1,51 @@
 #[cfg(target_arch = "x86")]
 use std::arch::x86::{
-    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_movemask_epi8,
-    _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8, _mm256_setr_epi8,
-    _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16, _mm256_subs_epu8,
-    _mm256_testz_si256, _mm256_xor_si256,
+    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
+    _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8,
+    _mm256_setr_epi8, _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16,
+    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::{
-    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_movemask_epi8,
-    _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8, _mm256_setr_epi8,
-    _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16, _mm256_subs_epu8,
-    _mm256_testz_si256, _mm256_xor_si256,
+    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
+    _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8,
+    _mm256_setr_epi8, _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16,
+    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use crate::utf8check::{Utf8Check, Utf8CheckingState};
+use crate::utf8check::Utf8CheckingState;
 use crate::{mem, static_cast_i8};
 
-impl Default for Utf8CheckingState<__m256i> {
+impl Utf8CheckingState<__m256i> {
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
-    fn default() -> Self {
-        unsafe {
-            Self {
-                prev: _mm256_setzero_si256(),
-                incomplete: _mm256_setzero_si256(),
-                error: _mm256_setzero_si256(),
-            }
+    unsafe fn default() -> Self {
+        Self {
+            prev: _mm256_setzero_si256(),
+            incomplete: _mm256_setzero_si256(),
+            error: _mm256_setzero_si256(),
         }
     }
-}
 
-impl Utf8Check<__m256i> for Utf8CheckingState<__m256i> {
-    #[cfg_attr(not(feature = "no-inline"), inline)]
-    unsafe fn new_processed_bytes() -> Utf8CheckingState<__m256i> {
-        Self::default()
-    }
-
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn or(a: __m256i, b: __m256i) -> __m256i {
         _mm256_or_si256(a, b)
     }
 
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn is_ascii(input: __m256i) -> bool {
         _mm256_movemask_epi8(input) == 0
     }
 
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn check_eof(error: __m256i, incomplete: __m256i) -> __m256i {
         Self::or(error, incomplete)
     }
 
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn is_incomplete(input: __m256i) -> __m256i {
         _mm256_subs_epu8(
@@ -91,11 +87,13 @@ impl Utf8Check<__m256i> for Utf8CheckingState<__m256i> {
         )
     }
 
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn prev1(input: __m256i, prev: __m256i) -> __m256i {
         _mm256_alignr_epi8(input, _mm256_permute2x128_si256(prev, input, 0x21), 16 - 1)
     }
 
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     #[allow(clippy::too_many_lines)]
     unsafe fn check_special_cases(input: __m256i, prev1: __m256i) -> __m256i {
@@ -237,6 +235,7 @@ impl Utf8Check<__m256i> for Utf8CheckingState<__m256i> {
         _mm256_and_si256(_mm256_and_si256(byte_1_high, byte_1_low), byte_2_high)
     }
 
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn check_multibyte_lengths(
         input: __m256i,
@@ -250,6 +249,7 @@ impl Utf8Check<__m256i> for Utf8CheckingState<__m256i> {
         _mm256_xor_si256(must23_80, special_cases)
     }
 
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn must_be_2_3_continuation(prev2: __m256i, prev3: __m256i) -> __m256i {
         let is_third_byte =
@@ -262,8 +262,59 @@ impl Utf8Check<__m256i> for Utf8CheckingState<__m256i> {
         )
     }
 
+    #[target_feature(enable = "avx2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn has_error(error: __m256i) -> bool {
         _mm256_testz_si256(error, error) != 1
     }
+
+    #[target_feature(enable = "avx2")]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
+    check_bytes!(__m256i);
 }
+
+#[derive(Debug)]
+struct SimdInput {
+    v0: __m256i,
+    v1: __m256i,
+}
+
+impl SimdInput {
+    #[target_feature(enable = "avx2")]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[allow(clippy::cast_ptr_alignment)]
+    unsafe fn new(ptr: &[u8]) -> Self {
+        Self {
+            v0: _mm256_loadu_si256(ptr.as_ptr().cast::<__m256i>()),
+            v1: _mm256_loadu_si256(ptr.as_ptr().add(32).cast::<__m256i>()),
+        }
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
+    unsafe fn new_utf8_checking_state() -> Utf8CheckingState<__m256i> {
+        Utf8CheckingState::<__m256i>::default()
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
+    unsafe fn check_utf8(&self, state: &mut Utf8CheckingState<__m256i>) {
+        Utf8CheckingState::<__m256i>::check_bytes(self.v0, state);
+        Utf8CheckingState::<__m256i>::check_bytes(self.v1, state);
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
+    unsafe fn check_eof(state: &mut Utf8CheckingState<__m256i>) {
+        state.error = Utf8CheckingState::<__m256i>::check_eof(state.error, state.incomplete);
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[cfg_attr(not(feature = "no-inline"), inline)]
+    unsafe fn check_utf8_errors(state: &Utf8CheckingState<__m256i>) -> bool {
+        Utf8CheckingState::<__m256i>::has_error(state.error)
+    }
+}
+
+#[target_feature(enable = "avx2")]
+validate_utf8_simd!();

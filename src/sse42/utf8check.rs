@@ -11,12 +11,12 @@ use std::arch::x86_64::{
     _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use crate::utf8check::{Utf8Check, Utf8CheckingState};
+use crate::utf8check::Utf8CheckingState;
 use crate::{mem, static_cast_i8};
 
-impl Default for Utf8CheckingState<__m128i> {
+impl Utf8CheckingState<__m128i> {
     #[cfg_attr(not(feature = "no-inline"), inline)]
-    fn default() -> Self {
+    pub(crate) fn default() -> Self {
         unsafe {
             Self {
                 prev: _mm_setzero_si128(),
@@ -24,13 +24,6 @@ impl Default for Utf8CheckingState<__m128i> {
                 error: _mm_setzero_si128(),
             }
         }
-    }
-}
-
-impl Utf8Check<__m128i> for Utf8CheckingState<__m128i> {
-    #[cfg_attr(not(feature = "no-inline"), inline)]
-    unsafe fn new_processed_bytes() -> Utf8CheckingState<__m128i> {
-        Self::default()
     }
 
     #[cfg_attr(not(feature = "no-inline"), inline)]
@@ -44,7 +37,7 @@ impl Utf8Check<__m128i> for Utf8CheckingState<__m128i> {
     }
 
     #[cfg_attr(not(feature = "no-inline"), inline)]
-    unsafe fn check_eof(error: __m128i, incomplete: __m128i) -> __m128i {
+    pub unsafe fn check_eof(error: __m128i, incomplete: __m128i) -> __m128i {
         Self::or(error, incomplete)
     }
 
@@ -195,7 +188,10 @@ impl Utf8Check<__m128i> for Utf8CheckingState<__m128i> {
     }
 
     #[cfg_attr(not(feature = "no-inline"), inline)]
-    unsafe fn has_error(error: __m128i) -> bool {
+    pub unsafe fn has_error(error: __m128i) -> bool {
         _mm_testz_si128(error, error) != 1
     }
+
+    #[cfg_attr(not(feature = "no-inline"), inline)]
+    check_bytes!(__m128i);
 }

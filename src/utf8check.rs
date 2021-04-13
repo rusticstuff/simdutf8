@@ -20,32 +20,3 @@ pub(crate) struct Utf8CheckingState<T> {
     pub incomplete: T,
     pub error: T,
 }
-
-pub(crate) trait Utf8Check<T: Copy> {
-    #[cfg_attr(not(feature = "no-inline"), inline)]
-    unsafe fn check_bytes(current: T, previous: &mut Utf8CheckingState<T>) {
-        if likely!(Self::is_ascii(current)) {
-            previous.error = Self::check_eof(previous.error, previous.incomplete)
-        } else {
-            let prev1 = Self::prev1(current, previous.prev);
-            let sc = Self::check_special_cases(current, prev1);
-            previous.error = Self::or(
-                previous.error,
-                Self::check_multibyte_lengths(current, previous.prev, sc),
-            );
-            previous.incomplete = Self::is_incomplete(current);
-        }
-        previous.prev = current
-    }
-
-    unsafe fn new_processed_bytes() -> Utf8CheckingState<T>;
-    unsafe fn or(a: T, b: T) -> T;
-    unsafe fn is_ascii(input: T) -> bool;
-    unsafe fn check_eof(error: T, incomplete: T) -> T;
-    unsafe fn is_incomplete(input: T) -> T;
-    unsafe fn prev1(input: T, prev: T) -> T;
-    unsafe fn check_special_cases(input: T, prev1: T) -> T;
-    unsafe fn check_multibyte_lengths(input: T, prev: T, special_cases: T) -> T;
-    unsafe fn must_be_2_3_continuation(prev2: T, prev3: T) -> T;
-    unsafe fn has_error(error: T) -> bool;
-}

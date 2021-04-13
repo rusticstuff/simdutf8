@@ -1,4 +1,4 @@
-#![deny(warnings)]
+// #![deny(warnings)]
 #![warn(unused_extern_crates)]
 #![deny(
     clippy::all,
@@ -18,18 +18,18 @@ mod utf8check;
 #[cfg(target_feature = "avx2")]
 mod avx2;
 #[cfg(target_feature = "avx2")]
-use crate::avx2::stage1::{SimdInput, SIMDINPUT_LENGTH};
+use crate::avx2::utf8check::validate_utf8_simd;
 
 #[cfg(all(target_feature = "sse4.2", not(target_feature = "avx2")))]
 mod sse42;
 #[cfg(all(target_feature = "sse4.2", not(target_feature = "avx2")))]
-use crate::sse42::stage1::{SimdInput, SIMDINPUT_LENGTH};
+use crate::sse42::stage1::validate_utf8_simd;
 
 // We import this as generics
 #[cfg(all(not(any(target_feature = "sse4.2", target_feature = "avx2"))))]
 mod sse42;
 #[cfg(all(not(any(target_feature = "sse4.2", target_feature = "avx2"))))]
-use crate::sse42::stage1::{SimdInput, SIMDINPUT_LENGTH};
+use crate::sse42::stage1::validate_utf8_simd;
 
 #[cfg(all(
     not(feature = "allow-non-simd"),
@@ -50,39 +50,7 @@ pub struct Utf8Error {}
 ///
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 pub fn validate_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
-    unsafe {
-        let len = input.len();
-        let mut state = SimdInput::new_utf8_checking_state();
-        let lenminus64: usize = if len < 64 { 0 } else { len as usize - 64 };
-        let mut idx: usize = 0;
-
-        while idx < lenminus64 {
-            /*
-            #ifndef _MSC_VER
-              __builtin_prefetch(buf + idx + 128);
-            #endif
-             */
-            let input = SimdInput::new(input.get_unchecked(idx as usize..));
-            input.check_utf8(&mut state);
-            idx += SIMDINPUT_LENGTH;
-        }
-
-        if idx < len {
-            let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0x20; SIMDINPUT_LENGTH];
-            tmpbuf
-                .as_mut_ptr()
-                .copy_from(input.as_ptr().add(idx), len as usize - idx);
-            let input = SimdInput::new(&tmpbuf);
-
-            input.check_utf8(&mut state);
-        }
-        SimdInput::check_eof(&mut state);
-        if SimdInput::check_utf8_errors(&state) {
-            Err(Utf8Error {})
-        } else {
-            Ok(std::str::from_utf8_unchecked(input))
-        }
-    }
+    validate_utf8_simd(input)
 }
 
 #[cfg(test)]

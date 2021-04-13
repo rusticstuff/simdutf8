@@ -1,16 +1,8 @@
-#![allow(dead_code)]
-use crate::utf8check::Utf8Check;
-
 use crate::Utf8CheckingState;
 #[cfg(target_arch = "x86")]
 use std::arch::x86::{__m128i, _mm_loadu_si128};
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::{__m128i, _mm_loadu_si128};
-
-use std::mem;
-
-pub const SIMDJSON_PADDING: usize = mem::size_of::<__m128i>() * 2;
-pub const SIMDINPUT_LENGTH: usize = 64;
 
 #[derive(Debug)]
 pub(crate) struct SimdInput {
@@ -61,3 +53,5 @@ impl SimdInput {
         unsafe { Utf8CheckingState::<__m128i>::has_error(state.error) }
     }
 }
+
+validate_utf8_simd!();
