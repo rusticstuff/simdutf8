@@ -39,7 +39,7 @@ use crate::sse42::stage1::{SimdInput, SIMDINPUT_LENGTH};
 ))]
 fn please_compile_with_a_simd_compatible_cpu_setting_read_the_simdjonsrs_readme() -> ! {}
 
-use crate::utf8check::ProcessedUtfBytes;
+use crate::utf8check::Utf8CheckingState;
 
 use std::mem;
 
@@ -86,8 +86,6 @@ pub fn validate_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
         }
     }
 }
-
-pub(crate) type Utf8CheckingState<T> = ProcessedUtfBytes<T>;
 
 #[cfg(test)]
 mod tests {

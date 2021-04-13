@@ -15,7 +15,7 @@
  *
  */
 
-pub(crate) struct ProcessedUtfBytes<T> {
+pub(crate) struct Utf8CheckingState<T> {
     pub prev: T,
     pub incomplete: T,
     pub error: T,
@@ -23,7 +23,7 @@ pub(crate) struct ProcessedUtfBytes<T> {
 
 pub(crate) trait Utf8Check<T: Copy> {
     #[cfg_attr(not(feature = "no-inline"), inline)]
-    unsafe fn check_bytes(current: T, previous: &mut ProcessedUtfBytes<T>) {
+    unsafe fn check_bytes(current: T, previous: &mut Utf8CheckingState<T>) {
         if likely!(Self::is_ascii(current)) {
             previous.error = Self::check_eof(previous.error, previous.incomplete)
         } else {
@@ -38,7 +38,7 @@ pub(crate) trait Utf8Check<T: Copy> {
         previous.prev = current
     }
 
-    unsafe fn new_processed_bytes() -> ProcessedUtfBytes<T>;
+    unsafe fn new_processed_bytes() -> Utf8CheckingState<T>;
     unsafe fn or(a: T, b: T) -> T;
     unsafe fn is_ascii(input: T) -> bool;
     unsafe fn check_eof(error: T, incomplete: T) -> T;

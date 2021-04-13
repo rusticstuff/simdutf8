@@ -11,10 +11,10 @@ use std::arch::x86_64::{
     _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use crate::utf8check::{ProcessedUtfBytes, Utf8Check};
+use crate::utf8check::{Utf8Check, Utf8CheckingState};
 use crate::{mem, static_cast_i8};
 
-impl Default for ProcessedUtfBytes<__m128i> {
+impl Default for Utf8CheckingState<__m128i> {
     #[cfg_attr(not(feature = "no-inline"), inline)]
     fn default() -> Self {
         unsafe {
@@ -27,9 +27,9 @@ impl Default for ProcessedUtfBytes<__m128i> {
     }
 }
 
-impl Utf8Check<__m128i> for ProcessedUtfBytes<__m128i> {
+impl Utf8Check<__m128i> for Utf8CheckingState<__m128i> {
     #[cfg_attr(not(feature = "no-inline"), inline)]
-    unsafe fn new_processed_bytes() -> ProcessedUtfBytes<__m128i> {
+    unsafe fn new_processed_bytes() -> Utf8CheckingState<__m128i> {
         Self::default()
     }
 
