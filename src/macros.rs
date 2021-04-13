@@ -86,7 +86,7 @@ macro_rules! static_cast_u64 {
 #[macro_export]
 macro_rules! check_bytes {
     ($t:ident) => {
-        pub(crate) unsafe fn check_bytes(current: $t, previous: &mut Utf8CheckingState<$t>) {
+        unsafe fn check_bytes(current: $t, previous: &mut Utf8CheckingState<$t>) {
             if likely!(Self::is_ascii(current)) {
                 previous.error = Self::check_eof(previous.error, previous.incomplete)
             } else {

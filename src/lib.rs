@@ -1,4 +1,4 @@
-// #![deny(warnings)]
+#![deny(warnings)]
 #![warn(unused_extern_crates)]
 #![deny(
     clippy::all,
@@ -18,26 +18,24 @@ mod utf8check;
 #[cfg(target_feature = "avx2")]
 mod avx2;
 #[cfg(target_feature = "avx2")]
-use crate::avx2::utf8check::validate_utf8_simd;
+use crate::avx2::implementation::validate_utf8_simd;
 
 #[cfg(all(target_feature = "sse4.2", not(target_feature = "avx2")))]
 mod sse42;
 #[cfg(all(target_feature = "sse4.2", not(target_feature = "avx2")))]
-use crate::sse42::stage1::validate_utf8_simd;
+use crate::sse42::implementation::validate_utf8_simd;
 
 // We import this as generics
 #[cfg(all(not(any(target_feature = "sse4.2", target_feature = "avx2"))))]
 mod sse42;
 #[cfg(all(not(any(target_feature = "sse4.2", target_feature = "avx2"))))]
-use crate::sse42::stage1::validate_utf8_simd;
+use crate::sse42::implementation::validate_utf8_simd;
 
 #[cfg(all(
     not(feature = "allow-non-simd"),
     not(any(target_feature = "sse4.2", target_feature = "avx2"))
 ))]
 fn please_compile_with_a_simd_compatible_cpu_setting_read_the_simdjonsrs_readme() -> ! {}
-
-use crate::utf8check::Utf8CheckingState;
 
 use std::mem;
 
