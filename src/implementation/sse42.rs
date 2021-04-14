@@ -12,7 +12,7 @@ use std::arch::x86_64::{
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use super::utf8check::Utf8CheckingState;
+use super::Utf8CheckingState;
 use core::mem;
 
 impl Utf8CheckingState<__m128i> {

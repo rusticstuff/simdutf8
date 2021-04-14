@@ -13,7 +13,7 @@ use std::arch::x86_64::{
     _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use super::utf8check::Utf8CheckingState;
+use super::Utf8CheckingState;
 use core::mem;
 
 impl Utf8CheckingState<__m256i> {
