@@ -77,3 +77,4 @@ jobs:
           path: |
             new+avx2.json
             new+auto.json
+
