@@ -13,8 +13,27 @@ use core::arch::x86_64::{
     _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use super::Utf8CheckingState;
+use super::{Utf8CheckingState, ValidateUtf8Implementation};
 use core::mem;
+
+#[cfg(feature = "std")]
+pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+    if std::is_x86_feature_detected!("avx2") {
+        Some(validate_utf8_simd)
+    } else {
+        None
+    }
+}
+
+#[cfg(all(not(feature = "std"), target_feature = "avx2"))]
+pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+    Some(validate_utf8_simd)
+}
+
+#[cfg(all(not(feature = "std"), not(target_feature = "avx2")))]
+pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+    None
+}
 
 impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]

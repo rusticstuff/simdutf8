@@ -14,26 +14,11 @@ pub(crate) mod sse42;
 
 pub(crate) type ValidateUtf8Implementation = fn(input: &[u8]) -> Result<(), Utf8Error>;
 
-#[cfg(all(feature = "std", any(target_arch = "x86", target_arch = "x86_64")))]
+#[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Implementation {
-    if std::is_x86_feature_detected!("avx2") {
-        avx2::validate_utf8_simd
-    } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_simd
-    } else {
-        validate_utf8_fallback
-    }
-}
-
-#[cfg(all(not(feature = "std"), any(target_arch = "x86", target_arch = "x86_64")))]
-pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Implementation {
-    if cfg!(target_feature = "avx2") {
-        avx2::validate_utf8_simd
-    } else if cfg!(target_feature = "sse4.2") {
-        sse42::validate_utf8_simd
-    } else {
-        validate_utf8_fallback
-    }
+    avx2::get_implementation()
+        .or_else(sse42::get_implementation)
+        .unwrap_or(validate_utf8_fallback)
 }
 
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
@@ -41,7 +26,7 @@ pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Implementati
     validate_utf8_fallback
 }
 
-fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
+pub fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
         Err(_) => Err(Utf8Error {}),

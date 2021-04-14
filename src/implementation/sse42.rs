@@ -12,8 +12,27 @@ use core::arch::x86_64::{
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use super::Utf8CheckingState;
+use super::{Utf8CheckingState, ValidateUtf8Implementation};
 use core::mem;
+
+#[cfg(feature = "std")]
+pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+    if std::is_x86_feature_detected!("avx2") {
+        Some(validate_utf8_simd)
+    } else {
+        None
+    }
+}
+
+#[cfg(all(not(feature = "std"), target_feature = "avx2"))]
+pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+    Some(validate_utf8_simd)
+}
+
+#[cfg(all(not(feature = "std"), not(target_feature = "avx2")))]
+pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+    None
+}
 
 impl Utf8CheckingState<__m128i> {
     #[target_feature(enable = "sse4.2")]
