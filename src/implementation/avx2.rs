@@ -1,3 +1,5 @@
+//! Contains the x86-64/x86 AVX2 UTF-8 validation implementation.
+
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
     __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
@@ -13,11 +15,13 @@ use core::arch::x86_64::{
     _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use super::{Utf8CheckingState, ValidateUtf8Implementation};
+use super::{Utf8CheckingState, ValidateUtf8Fn};
 use core::mem;
 
+/// Returns `Some(implementation)` if CPU supports AVX 2.
 #[cfg(feature = "std")]
-pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+#[must_use]
+pub fn get_implementation() -> Option<ValidateUtf8Fn> {
     if std::is_x86_feature_detected!("avx2") {
         Some(validate_utf8_simd)
     } else {
@@ -25,13 +29,17 @@ pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
     }
 }
 
+/// Always returns `Some(implementation)`.
 #[cfg(all(not(feature = "std"), target_feature = "avx2"))]
-pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+#[must_use]
+pub fn get_implementation() -> Option<ValidateUtf8Fn> {
     Some(validate_utf8_simd)
 }
 
+/// Always returns None.
 #[cfg(all(not(feature = "std"), not(target_feature = "avx2")))]
-pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+#[must_use]
+pub fn get_implementation() -> Option<ValidateUtf8Fn> {
     None
 }
 

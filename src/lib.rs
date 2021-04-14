@@ -12,22 +12,18 @@
 
 //! UTF-8 checking crate
 
+pub mod implementation;
+
 use implementation::get_fastest_available_implementation;
 
-mod implementation;
-
-/// Error struct
+/// UTF-8 validation error
 #[derive(Debug)]
 pub struct Utf8Error {}
 
-/// Validates the UTF-8 string
+/// Checks if the byte sequence is valid UTF-8 and returns `Ok(str)` if it is.
+///
 /// # Errors
-///
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-///
-/// # Panics
-///
-/// If not implementation is specified
 #[allow(unused_variables)]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
     #[allow(unused_unsafe)]

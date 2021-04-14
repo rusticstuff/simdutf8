@@ -1,3 +1,5 @@
+//! Contains the x86-64/x86 SSE4.2 UTF-8 validation implementation.
+
 #[allow(dead_code)]
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
@@ -12,25 +14,31 @@ use core::arch::x86_64::{
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use super::{Utf8CheckingState, ValidateUtf8Implementation};
+use super::{Utf8CheckingState, ValidateUtf8Fn};
 use core::mem;
 
+/// Returns `Some(implementation)` if CPU supports SSE 4.2.
 #[cfg(feature = "std")]
-pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
-    if std::is_x86_feature_detected!("avx2") {
+#[must_use]
+pub fn get_implementation() -> Option<ValidateUtf8Fn> {
+    if std::is_x86_feature_detected!("sse4.2") {
         Some(validate_utf8_simd)
     } else {
         None
     }
 }
 
-#[cfg(all(not(feature = "std"), target_feature = "avx2"))]
-pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+/// Always returns `Some(implementation)`.
+#[cfg(all(not(feature = "std"), target_feature = "sse4.2"))]
+#[must_use]
+pub fn get_implementation() -> Option<ValidateUtf8Fn> {
     Some(validate_utf8_simd)
 }
 
-#[cfg(all(not(feature = "std"), not(target_feature = "avx2")))]
-pub fn get_implementation() -> Option<ValidateUtf8Implementation> {
+/// Always returns None.
+#[cfg(all(not(feature = "std"), not(target_feature = "sse4.2")))]
+#[must_use]
+pub fn get_implementation() -> Option<ValidateUtf8Fn> {
     None
 }
 

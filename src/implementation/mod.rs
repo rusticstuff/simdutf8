@@ -1,3 +1,5 @@
+//! Contains UTF-8 validation implementations.
+
 use crate::Utf8Error;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
@@ -6,16 +8,17 @@ mod macros;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 #[allow(dead_code)]
-mod avx2;
+pub mod avx2;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 #[allow(dead_code)]
-mod sse42;
+pub mod sse42;
 
-pub(crate) type ValidateUtf8Implementation = fn(input: &[u8]) -> Result<(), Utf8Error>;
+/// UTF-8 validation function type
+pub type ValidateUtf8Fn = fn(input: &[u8]) -> Result<(), Utf8Error>;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
-pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Implementation {
+pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
     avx2::get_implementation()
         .or_else(sse42::get_implementation)
         .unwrap_or(validate_utf8_fallback)
@@ -25,6 +28,11 @@ pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Implementati
 pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Implementation {
     validate_utf8_fallback
 }
+
+/// Fallback UTF-8 validation implementation, just calls `core::str::from_utf8(input)`.
+///
+/// # Errors
+/// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 
 pub fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
     match core::str::from_utf8(input) {
