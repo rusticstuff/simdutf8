@@ -20,5 +20,6 @@
 
 # NEXT
 * make benchmarks work again
-* build test: nostd, nostd+target=+avx2, nostd+target=+sse4.2, cross-compile to arm for fallback
+* run test against: sse42, avx2, fallback
+* ci build: nostd, nostd+target=+avx2, nostd+target=+sse4.2, cross-compile to arm for fallback
 * clippy all features, all targets
