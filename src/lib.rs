@@ -35,7 +35,7 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 ///
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-#[cfg(all(feature = "std", target_feature = "no-match"))]
+#[cfg(all(feature = "std", target_feature = "avx2"))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
     unsafe {
         implementation::avx2::validate_utf8_simd(input)?;
@@ -47,7 +47,7 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 ///
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-#[cfg(all(feature = "std"))]
+#[cfg(all(feature = "std", not(target_feature = "avx2")))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
     use implementation::{get_fastest_available_implementation, ValidateUtf8Fn};
     use std::mem;
