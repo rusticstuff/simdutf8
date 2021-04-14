@@ -6,7 +6,7 @@
 
 # TODO
 * restructure implementations -> implementation get_available_implementations(), set_implementation(), default: autodetect, check e.g. memchr impl
-* from_utf8_mut()/run_validation() restructuring
+* add from_utf8_mut()
 * is_valid_until() implementation
 * fuzz testing
 * implementation traits: overhead?
@@ -19,3 +19,6 @@
 * test on fast dedicated cloud server
 
 # NEXT
+* make benchmarks work again
+* build test: nostd, nostd+target=+avx2, nostd+target=+sse4.2, cross-compile to arm for fallback
+* clippy all features, all targets
