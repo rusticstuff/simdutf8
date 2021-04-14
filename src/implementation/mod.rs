@@ -17,10 +17,7 @@ pub mod sse42;
 /// UTF-8 validation function type
 pub type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
 
-#[cfg(all(
-    any(target_arch = "x86", target_arch = "x86_64"),
-    not(target_feature = "avx2")
-))]
+#[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
     avx2::get_implementation()
         .or_else(sse42::get_implementation)
