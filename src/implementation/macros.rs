@@ -65,7 +65,7 @@ macro_rules! validate_utf8_simd {
         #[target_feature(enable = $feat)]
         pub(crate) unsafe fn validate_utf8_simd(
             input: &[u8],
-        ) -> std::result::Result<&str, crate::Utf8Error> {
+        ) -> std::result::Result<(), crate::Utf8Error> {
             const SIMDINPUT_LENGTH: usize = 64;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
@@ -96,7 +96,7 @@ macro_rules! validate_utf8_simd {
             if SimdInput::check_utf8_errors(&state) {
                 Err(crate::Utf8Error {})
             } else {
-                Ok(std::str::from_utf8_unchecked(input))
+                Ok(())
             }
         }
     };
