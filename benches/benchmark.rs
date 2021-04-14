@@ -3,6 +3,7 @@ use criterion::{
     criterion_group, criterion_main, BenchmarkGroup, BenchmarkId, Criterion, Throughput,
 };
 use simdutf8::*;
+use std::time::Duration;
 
 fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
     for i in 0..4 {
@@ -16,6 +17,9 @@ fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
 
 fn bench(c: &mut Criterion, name: &str, bytes: &[u8]) {
     let mut group = c.benchmark_group(name);
+    group.warm_up_time(Duration::from_secs(6));
+    group.measurement_time(Duration::from_secs(10));
+    group.sample_size(1000);
     for i in [1, 8, 64, 512, 4096, 65536].iter() {
         let slice = get_valid_slice_of_len_or_more(bytes, *i);
         bench_input(&mut group, slice, true, true);
@@ -46,6 +50,9 @@ fn criterion_benchmark(c: &mut Criterion) {
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
     let mut group = c.benchmark_group("0-empty");
+    group.warm_up_time(Duration::from_secs(6));
+    group.measurement_time(Duration::from_secs(10));
+    group.sample_size(1000);
     bench_input(&mut group, b"", false, true);
     group.finish();
 
@@ -71,6 +78,9 @@ fn criterion_benchmark(c: &mut Criterion) {
     );
 
     let mut group = c.benchmark_group("x-error");
+    group.warm_up_time(Duration::from_secs(6));
+    group.measurement_time(Duration::from_secs(10));
+    group.sample_size(1000);
     bench_input(&mut group, b"\xFF".repeat(65536).as_slice(), false, false);
     group.finish();
 }
