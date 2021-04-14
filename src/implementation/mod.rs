@@ -6,11 +6,11 @@ mod macros;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 #[allow(dead_code)]
-pub(crate) mod avx2;
+mod avx2;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 #[allow(dead_code)]
-pub(crate) mod sse42;
+mod sse42;
 
 pub(crate) type ValidateUtf8Implementation = fn(input: &[u8]) -> Result<(), Utf8Error>;
 
@@ -34,7 +34,7 @@ pub fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
 }
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
-pub(crate) struct Utf8CheckingState<T> {
+struct Utf8CheckingState<T> {
     pub prev: T,
     pub incomplete: T,
     pub error: T,
