@@ -1,3 +1,6 @@
+#[macro_use]
+mod macros;
+
 #[allow(dead_code)]
 pub(crate) mod avx2;
 

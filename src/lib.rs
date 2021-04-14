@@ -11,8 +11,6 @@
 
 //! UTF-8 checking crate
 
-#[macro_use]
-mod macros;
 mod utf8check;
 
 mod implementation;
