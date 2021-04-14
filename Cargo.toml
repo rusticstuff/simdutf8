@@ -21,7 +21,9 @@ name = "benchmark"
 harness = false
 
 [features]
-default = []
+default = ["std"]
+
+std = []
 
 # Allow fallback to non simd CPUs
 allow-non-simd = []
