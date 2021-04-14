@@ -63,8 +63,10 @@ jobs:
           RUSTFLAGS: -C target-feature=+avx2
       - name: Run benchmark
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline new+auto --noplot
-      - name: Critcmp comparison
-        run: critcmp new+avx2 new+auto baselines/simd+avx2.json baselines/std.json --color=always
+      - name: Critcmp comparison new+avx2 vs new+auto
+        run: critcmp new+avx2 new+auto --color=always
+      - name: Critcmp comparison new+avx2 vs avx2 baseline
+        run: critcmp new+avx2 baselines/simd+avx2.json --color=always
 
   export-baseline:
     if: "${{ startsWith(github.event.commits[0].message, 'export_baseline:') }}"
