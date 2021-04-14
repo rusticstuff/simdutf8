@@ -14,7 +14,7 @@
 
 pub mod implementation;
 
-use implementation::get_fastest_available_implementation;
+use implementation::{get_fastest_available_implementation, ValidateUtf8Fn};
 
 /// UTF-8 validation error
 #[derive(Debug)]
@@ -25,11 +25,37 @@ pub struct Utf8Error {}
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 #[allow(unused_variables)]
+#[cfg(not(feature = "std"))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
-    #[allow(unused_unsafe)]
     get_fastest_available_implementation()(input)?;
     // SAFETY: byte sequence was just validated.
     unsafe { Ok(core::str::from_utf8_unchecked(input)) }
+}
+
+/// Checks if the byte sequence is valid UTF-8 and returns `Ok(str)` if it is.
+///
+/// # Errors
+/// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
+#[cfg(feature = "std")]
+pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
+    use std::mem;
+    use std::sync::atomic::{AtomicPtr, Ordering};
+
+    type FnRaw = *mut ();
+
+    static FN: AtomicPtr<()> = AtomicPtr::new(get_fastest as FnRaw);
+
+    fn get_fastest(input: &[u8]) -> core::result::Result<(), Utf8Error> {
+        let fun = get_fastest_available_implementation();
+        FN.store(fun as FnRaw, Ordering::Relaxed);
+        (fun)(input)
+    }
+
+    unsafe {
+        let fun = FN.load(Ordering::Relaxed);
+        mem::transmute::<FnRaw, ValidateUtf8Fn>(fun)(input)?;
+        Ok(core::str::from_utf8_unchecked(input))
+    }
 }
 
 #[cfg(test)]
