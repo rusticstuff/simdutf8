@@ -14,7 +14,7 @@
 
 pub mod implementation;
 
-use implementation::{get_fastest_available_implementation, ValidateUtf8Fn};
+use implementation::get_fastest_available_implementation;
 
 /// UTF-8 validation error
 #[derive(Debug)]
@@ -38,6 +38,7 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 #[cfg(feature = "std")]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
+    use implementation::ValidateUtf8Fn;
     use std::mem;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
