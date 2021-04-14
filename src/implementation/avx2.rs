@@ -343,9 +343,4 @@ impl SimdInput {
     }
 }
 
-#[cfg_attr(not(feature = "no-inline"), inline)]
-fn validate_utf8_simd(input: &[u8]) -> core::result::Result<(), crate::Utf8Error> {
-    unsafe { validate_utf8_simd_impl(input) }
-}
-
 validate_utf8_simd!("avx2");

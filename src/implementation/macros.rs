@@ -47,7 +47,7 @@ macro_rules! validate_utf8_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]
         #[cfg_attr(not(feature = "no-inline"), inline)]
-        pub(crate) unsafe fn validate_utf8_simd_impl(
+        pub(crate) unsafe fn validate_utf8_simd(
             input: &[u8],
         ) -> core::result::Result<(), crate::Utf8Error> {
             const SIMDINPUT_LENGTH: usize = 64;

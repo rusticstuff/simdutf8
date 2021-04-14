@@ -15,7 +15,7 @@ pub mod avx2;
 pub mod sse42;
 
 /// UTF-8 validation function type
-pub type ValidateUtf8Fn = fn(input: &[u8]) -> Result<(), Utf8Error>;
+pub type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
 
 #[cfg(all(
     any(target_arch = "x86", target_arch = "x86_64"),
