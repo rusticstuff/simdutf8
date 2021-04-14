@@ -67,29 +67,14 @@ jobs:
         run: critcmp new+avx2 new+auto --color=always
       - name: Critcmp comparison new+avx2 vs avx2 baseline
         run: critcmp new+avx2 baselines/simd+avx2.json --color=always
-
-  export-baseline:
-    if: "${{ startsWith(github.event.commits[0].message, 'export_baseline:') }}"
-    runs-on: hurricane
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            profile: minimal
-            override: true
-      - name: Create benchmark baseline
-        run: cargo bench --bench benchmark --features=bench,force-avx2 -- --color=always --save-baseline export_baseline --noplot
       - name: Critcmp export
-        run: critcmp --export export_baseline > baseline+avx2.json
-      - name: Create benchmark baseline
-        run: cargo bench --bench benchmark --features=bench,force-sse42 -- --color=always --save-baseline export_baseline --noplot
+        run: critcmp --export new+avx2 > new+avx2.json
       - name: Critcmp export
-        run: critcmp --export export_baseline > baseline+sse42.json
+        run: critcmp --export new+auto > new+auto.json
       - uses: actions/upload-artifact@v2
         with:
           name: baselines
           path: |
-            baseline+avx2.json
-            baseline+sse42.json
+            new+avx2.json
+            new+auto.json
 
