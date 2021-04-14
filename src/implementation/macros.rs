@@ -45,6 +45,13 @@ macro_rules! check_bytes {
 /// validate_utf8_simd_impl() strategy and wrapper
 macro_rules! validate_utf8_simd {
     ($feat:expr) => {
+        #[cfg_attr(not(feature = "no-inline"), inline)]
+        pub(crate) fn validate_utf8_simd_safe(
+            input: &[u8],
+        ) -> core::result::Result<(), crate::Utf8Error> {
+            unsafe { validate_utf8_simd(input) }
+        }
+
         #[target_feature(enable = $feat)]
         #[cfg_attr(not(feature = "no-inline"), inline)]
         pub(crate) unsafe fn validate_utf8_simd(

@@ -23,7 +23,7 @@ use core::mem;
 #[must_use]
 pub fn get_implementation() -> Option<ValidateUtf8Fn> {
     if std::is_x86_feature_detected!("avx2") {
-        Some(validate_utf8_simd)
+        Some(validate_utf8_simd_safe)
     } else {
         None
     }
@@ -33,7 +33,7 @@ pub fn get_implementation() -> Option<ValidateUtf8Fn> {
 #[cfg(all(not(feature = "std"), target_feature = "avx2"))]
 #[must_use]
 pub fn get_implementation() -> Option<ValidateUtf8Fn> {
-    Some(validate_utf8_simd)
+    Some(validate_utf8_simd_safe)
 }
 
 /// Always returns None.
