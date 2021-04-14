@@ -35,8 +35,10 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 #[cfg(all(feature = "std", target_feature = "avx2"))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
-    implementation::avx2::validate_utf8_simd(input)?;
-    unsafe { Ok(core::str::from_utf8_unchecked(input)) }
+    unsafe {
+        implementation::avx2::validate_utf8_simd_impl(input)?;
+        Ok(core::str::from_utf8_unchecked(input))
+    }
 }
 
 /// Checks if the byte sequence is valid UTF-8 and returns `Ok(str)` if it is.
