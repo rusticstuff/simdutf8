@@ -8,8 +8,11 @@
 )]
 #![deny(missing_docs)]
 #![cfg_attr(feature = "hints", feature(core_intrinsics))]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 //! UTF-8 checking crate
+
+use implementation::get_fastest_available_implementation;
 
 mod implementation;
 
@@ -26,26 +29,11 @@ pub struct Utf8Error {}
 ///
 /// If not implementation is specified
 #[allow(unused_variables)]
-pub fn from_utf8(input: &[u8]) -> std::result::Result<&str, Utf8Error> {
+pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
     #[allow(unused_unsafe)]
-    unsafe {
-        #[cfg(feature = "force-avx2")]
-        implementation::avx2::validate_utf8_simd(input)?;
-
-        #[cfg(feature = "force-sse42")]
-        implementation::sse42::validate_utf8_simd(input)?;
-
-        #[cfg(not(any(feature = "force-avx2", feature = "force-sse42")))]
-        if is_x86_feature_detected!("avx2") {
-            implementation::avx2::validate_utf8_simd(input)?;
-        } else if is_x86_feature_detected!("sse4.2") {
-            implementation::sse42::validate_utf8_simd(input)?;
-        } else {
-            std::str::from_utf8(input).map_err(|_| Utf8Error {})?;
-        }
-
-        Ok(std::str::from_utf8_unchecked(input))
-    }
+    get_fastest_available_implementation()(input)?;
+    // SAFETY: byte sequence was just validated.
+    unsafe { Ok(core::str::from_utf8_unchecked(input)) }
 }
 
 #[cfg(test)]
