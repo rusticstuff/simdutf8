@@ -11,17 +11,7 @@
 
 //! UTF-8 checking crate
 
-mod utf8check;
-
 mod implementation;
-
-// #[cfg(all(
-//     not(feature = "allow-non-simd"),
-//     not(any(target_feature = "sse4.2", target_feature = "avx2"))
-// ))]
-// fn please_compile_with_a_simd_compatible_cpu_setting_read_the_simdjonsrs_readme() -> ! {}
-
-use std::mem;
 
 /// Error struct
 #[derive(Debug)]

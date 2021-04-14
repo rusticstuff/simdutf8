@@ -12,8 +12,8 @@ use std::arch::x86_64::{
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use crate::utf8check::Utf8CheckingState;
-use crate::{mem, static_cast_i8};
+use super::utf8check::Utf8CheckingState;
+use core::mem;
 
 impl Utf8CheckingState<__m128i> {
     #[target_feature(enable = "sse4.2")]

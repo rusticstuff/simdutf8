@@ -13,8 +13,8 @@ use std::arch::x86_64::{
     _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use crate::utf8check::Utf8CheckingState;
-use crate::{mem, static_cast_i8};
+use super::utf8check::Utf8CheckingState;
+use core::mem;
 
 impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]
