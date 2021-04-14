@@ -41,7 +41,11 @@ jobs:
       - uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+          args: --all-targets --all-features
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-targets --no-default-features --features bench
 
   benchmark:
     if: "${{ !startsWith(github.event.commits[0].message, 'export_baseline:') }}"
