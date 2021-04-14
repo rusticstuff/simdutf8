@@ -22,11 +22,14 @@ pub struct Utf8Error {}
 ///
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-#[allow(unused_variables)]
-#[cfg(not(feature = "std"))]
+#[cfg(all(
+    not(feature = "std"),
+    not(target_feature = "avx2"),
+    not(target_feature = "sse4.2")
+))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
     unsafe {
-        implementation::get_fastest_available_implementation()(input)?;
+        implementation::validate_utf8_fallback(input)?;
         Ok(core::str::from_utf8_unchecked(input))
     }
 }
@@ -35,7 +38,23 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 ///
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-#[cfg(all(feature = "std", target_feature = "avx2"))]
+#[cfg(all(
+    not(feature = "std"),
+    not(target_feature = "avx2"),
+    target_feature = "sse4.2"
+))]
+pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
+    unsafe {
+        implementation::sse42::validate_utf8_simd(input)?;
+        Ok(core::str::from_utf8_unchecked(input))
+    }
+}
+
+/// Checks if the byte sequence is valid UTF-8 and returns `Ok(str)` if it is.
+///
+/// # Errors
+/// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
+#[cfg(target_feature = "avx2")]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
     unsafe {
         implementation::avx2::validate_utf8_simd(input)?;
@@ -49,8 +68,8 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
+    use core::mem;
     use implementation::{get_fastest_available_implementation, ValidateUtf8Fn};
-    use std::mem;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
     type FnRaw = *mut ();

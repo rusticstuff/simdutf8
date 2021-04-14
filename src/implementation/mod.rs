@@ -19,7 +19,8 @@ pub type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
 
 #[cfg(all(
     any(target_arch = "x86", target_arch = "x86_64"),
-    not(target_feature = "avx2")
+    not(target_feature = "avx2"),
+    feature = "std"
 ))]
 pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
     avx2::get_implementation()
@@ -27,8 +28,8 @@ pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
         .unwrap_or(validate_utf8_fallback)
 }
 
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
-pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Implementation {
+#[cfg(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "std"))]
+pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
     validate_utf8_fallback
 }
 
@@ -37,6 +38,7 @@ pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Implementati
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 
+#[cfg_attr(not(feature = "no-inline"), inline)]
 pub fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
