@@ -49,7 +49,7 @@ jobs:
 
   benchmark:
     if: "${{ !startsWith(github.event.commits[0].message, 'export_baseline:') }}"
-    runs-on: hurricane
+    runs-on: fisheye
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
