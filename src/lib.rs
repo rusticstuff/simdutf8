@@ -25,8 +25,10 @@ pub struct Utf8Error {}
 #[allow(unused_variables)]
 #[cfg(not(feature = "std"))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
-    implementation::get_fastest_available_implementation()(input)?;
-    unsafe { Ok(core::str::from_utf8_unchecked(input)) }
+    unsafe {
+        implementation::get_fastest_available_implementation()(input)?;
+        Ok(core::str::from_utf8_unchecked(input))
+    }
 }
 
 /// Checks if the byte sequence is valid UTF-8 and returns `Ok(str)` if it is.
@@ -36,7 +38,7 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 #[cfg(all(feature = "std", target_feature = "avx2"))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
     unsafe {
-        implementation::avx2::validate_utf8_simd_impl(input)?;
+        implementation::avx2::validate_utf8_simd(input)?;
         Ok(core::str::from_utf8_unchecked(input))
     }
 }
