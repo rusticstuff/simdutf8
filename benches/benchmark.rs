@@ -46,8 +46,8 @@ fn bench_input(
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    // let core_ids = core_affinity::get_core_ids().unwrap();
-    // core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
+    let core_ids = core_affinity::get_core_ids().unwrap();
+    core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
     let mut group = c.benchmark_group("0-empty");
     group.warm_up_time(Duration::from_secs(6));
