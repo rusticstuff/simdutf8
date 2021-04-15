@@ -37,3 +37,7 @@ hints = [] # requires nightly
 
 # dependencies only needed for cargo bench
 bench = ["criterion", "criterion-cycles-per-byte", "core_affinity"]
+
+[profile.bench]
+lto = true
+codegen-units = 1
