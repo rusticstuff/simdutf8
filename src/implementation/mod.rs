@@ -22,6 +22,7 @@ pub type ValidateUtf8Fn = fn(input: &[u8]) -> Result<(), Utf8Error>;
     not(target_feature = "avx2"),
     feature = "std"
 ))]
+#[allow(dead_code)]
 pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
     avx2::get_implementation()
         .or_else(sse42::get_implementation)

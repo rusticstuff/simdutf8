@@ -68,25 +68,43 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
-    use core::mem;
-    use implementation::{get_fastest_available_implementation, ValidateUtf8Fn};
-    use std::sync::atomic::{AtomicPtr, Ordering};
+    use std::sync::atomic::{AtomicU8, Ordering};
 
-    type FnRaw = *mut ();
+    const UNINIT: u8 = 0;
+    const AVX2: u8 = 1;
+    const SSE42: u8 = 2;
+    const FALLBACK: u8 = 3;
 
-    static FN: AtomicPtr<()> = AtomicPtr::new(get_fastest as FnRaw);
+    static METHOD: AtomicU8 = AtomicU8::new(UNINIT);
 
-    fn get_fastest(input: &[u8]) -> core::result::Result<(), Utf8Error> {
-        let fun = get_fastest_available_implementation();
-        FN.store(fun as FnRaw, Ordering::Relaxed);
-        (fun)(input)
+    match METHOD.load(Ordering::Relaxed) {
+        AVX2 => unsafe {
+            implementation::avx2::validate_utf8_simd(input)?;
+        },
+        SSE42 => unsafe {
+            implementation::sse42::validate_utf8_simd(input)?;
+        },
+        FALLBACK => {
+            implementation::validate_utf8_fallback(input)?;
+        }
+        _ => {
+            if implementation::avx2::get_implementation().is_some() {
+                METHOD.store(AVX2, Ordering::Relaxed);
+                unsafe {
+                    implementation::avx2::validate_utf8_simd(input)?;
+                }
+            } else if implementation::sse42::get_implementation().is_some() {
+                METHOD.store(SSE42, Ordering::Relaxed);
+                unsafe {
+                    implementation::sse42::validate_utf8_simd(input)?;
+                }
+            } else {
+                METHOD.store(FALLBACK, Ordering::Relaxed);
+                implementation::validate_utf8_fallback(input)?;
+            }
+        }
     }
-
-    unsafe {
-        let fun = FN.load(Ordering::Relaxed);
-        mem::transmute::<FnRaw, ValidateUtf8Fn>(fun)(input)?;
-        Ok(core::str::from_utf8_unchecked(input))
-    }
+    unsafe { Ok(core::str::from_utf8_unchecked(input)) }
 }
 
 #[cfg(test)]
