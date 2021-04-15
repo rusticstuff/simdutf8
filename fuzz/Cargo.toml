@@ -1,0 +1,22 @@
+[package]
+name = "simdutf8-fuzz"
+version = "0.0.1"
+authors = ["Hans Kratz <hans@appfour.com>"]
+edition = "2018"
+license = "Apache-2.0"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "*"
+
+[dependencies.simdutf8]
+path = ".."
+
+[[bin]]
+name = "auto"
+path = "targets/auto.rs"
+doc = false
+test = false

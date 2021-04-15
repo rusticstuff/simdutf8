@@ -10,13 +10,14 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test:
     runs-on: playhouse
     strategy:
       matrix:
         toolchain: [stable, nightly]
         arch: [x86_64, i686]
-        simdfeatures: [avx2, sse4.2]
+        features: ["--features std", ""]
+        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -24,14 +25,29 @@ jobs:
             toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
             profile: minimal
             override: true
-      - name: Build
-        run: cargo build --verbose
-        env:
-            RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --no-default-features ${{ matrix.features }} --verbose
         env:
-            RUSTFLAGS: -C target-feature=+${{ matrix.simdfeatures }}
+          RUSTFLAGS: ${{ matrix.rustflags }}
+
+  cross-build:
+    runs-on: playhouse
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+        arch: [x86_64]
+        target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
+        features: ["--features std", ""]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
+            target: ${{ matrix.target }}
+            profile: minimal
+            override: true
+      - name: Build
+        run: cargo build --no-default-features ${{ matrix.features }} --verbose
 
   clippy_check:
     runs-on: playhouse
@@ -46,11 +62,15 @@ jobs:
       - uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+          args: --all-targets --all-features
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --no-default-features
 
   benchmark:
     if: "${{ !startsWith(github.event.commits[0].message, 'export_baseline:') }}"
-    runs-on: hurricane
+    runs-on: fisheye
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
@@ -59,32 +79,25 @@ jobs:
             profile: minimal
             override: true
       - name: Run benchmark
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline newbase --noplot
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline avx2-$GITHUB_SHA --noplot
         env:
-            RUSTFLAGS: -C target-feature=+avx2
-      - name: Criterion comparison
-        run:  cargo bench --bench=benchmark --features=bench -- --color=always --load-baseline newbase --baseline baseline --noplot
-        env:
-            RUSTFLAGS: -C target-feature=+avx2
-      - name: Critcmp comparison
-        run: critcmp baseline newbase --color=always
-
-  export-baseline:
-    if: "${{ startsWith(github.event.commits[0].message, 'export_baseline:') }}"
-    runs-on: hurricane
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            profile: minimal
-            override: true
-      - name: Create benchmark baseline
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline baseline --noplot
-        env:
-            RUSTFLAGS: -C target-feature=+avx2
+          RUSTFLAGS: -C target-feature=+avx2
+      - name: Run benchmark
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline auto-$GITHUB_SHA --noplot
+      - name: Critcmp comparison new+avx2 vs new+auto
+        run: critcmp avx2-$GITHUB_SHA auto-$GITHUB_SHA --color=always
+      - name: Critcmp comparison new+avx2 vs avx2 baseline
+        run: critcmp avx2-$GITHUB_SHA baselines/avx2-long.json --color=always
+      - name: Critcmp comparison new+auto vs auto baseline
+        run: critcmp auto-$GITHUB_SHA baselines/auto-unsafe-long.json --color=always
+      - name: Critcmp export
+        run: critcmp --export avx2-$GITHUB_SHA > avx2-$GITHUB_SHA.json
+      - name: Critcmp export
+        run: critcmp --export auto-$GITHUB_SHA > auto-$GITHUB_SHA.json
       - uses: actions/upload-artifact@v2
         with:
-          name: criterion-results
-          path: target/criterion/**/baseline
+          name: baselines
+          path: |
+            avx2-*.json
+            auto-*.json
 
