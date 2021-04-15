@@ -30,7 +30,8 @@ pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
-pub fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
+#[allow(dead_code)]
+pub(crate) fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
         Err(_) => Err(Utf8Error {}),
