@@ -15,33 +15,8 @@ use core::arch::x86_64::{
     _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use crate::implementation::{Utf8CheckingState, ValidateUtf8Fn};
+use crate::implementation::Utf8CheckingState;
 use core::mem;
-
-/// Returns `Some(implementation)` if CPU supports AVX 2.
-#[cfg(feature = "std")]
-#[must_use]
-pub fn get_implementation() -> Option<ValidateUtf8Fn> {
-    if std::is_x86_feature_detected!("avx2") {
-        Some(validate_utf8_simd)
-    } else {
-        None
-    }
-}
-
-/// Always returns `Some(implementation)`.
-#[cfg(all(not(feature = "std"), target_feature = "avx2"))]
-#[must_use]
-pub fn get_implementation() -> Option<ValidateUtf8Fn> {
-    Some(validate_utf8_simd)
-}
-
-/// Always returns None.
-#[cfg(all(not(feature = "std"), not(target_feature = "avx2")))]
-#[must_use]
-pub fn get_implementation() -> Option<ValidateUtf8Fn> {
-    None
-}
 
 impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]

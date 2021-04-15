@@ -52,9 +52,13 @@ pub(crate) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8Error> {
 ))]
 #[cfg_attr(not(feature = "no-inline"), inline)]
 pub(crate) fn get_fastest_available_implementation() -> super::ValidateUtf8Fn {
-    avx2::get_implementation()
-        .or_else(sse42::get_implementation)
-        .unwrap_or(super::validate_utf8_fallback)
+    if std::is_x86_feature_detected!("avx2") {
+        avx2::validate_utf8_simd
+    } else if std::is_x86_feature_detected!("sse4.2") {
+        sse42::validate_utf8_simd
+    } else {
+        super::validate_utf8_fallback
+    }
 }
 
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]

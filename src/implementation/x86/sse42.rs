@@ -14,33 +14,8 @@ use core::arch::x86_64::{
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use crate::implementation::{Utf8CheckingState, ValidateUtf8Fn};
+use crate::implementation::Utf8CheckingState;
 use core::mem;
-
-/// Returns `Some(implementation)` if CPU supports SSE 4.2.
-#[cfg(feature = "std")]
-#[must_use]
-pub fn get_implementation() -> Option<ValidateUtf8Fn> {
-    if std::is_x86_feature_detected!("sse4.2") {
-        Some(validate_utf8_simd)
-    } else {
-        None
-    }
-}
-
-/// Always returns `Some(implementation)`.
-#[cfg(all(not(feature = "std"), target_feature = "sse4.2"))]
-#[must_use]
-pub fn get_implementation() -> Option<ValidateUtf8Fn> {
-    Some(validate_utf8_simd)
-}
-
-/// Always returns None.
-#[cfg(all(not(feature = "std"), not(target_feature = "sse4.2")))]
-#[must_use]
-pub fn get_implementation() -> Option<ValidateUtf8Fn> {
-    None
-}
 
 impl Utf8CheckingState<__m128i> {
     #[target_feature(enable = "sse4.2")]
