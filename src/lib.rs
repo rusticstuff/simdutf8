@@ -38,11 +38,6 @@ pub fn from_utf8_mut(input: &mut [u8]) -> core::result::Result<&mut str, Utf8Err
         implementation::validate_utf8(input)?;
         Ok(core::str::from_utf8_unchecked_mut(input))
     }
-
-    #[test]
-    fn early_error() {
-        assert!(validate_utf8(b"\xFF".repeat(65536).as_slice()).is_err());
-    }
 }
 
 #[cfg(test)]

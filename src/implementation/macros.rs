@@ -64,6 +64,9 @@ macro_rules! validate_utf8_simd {
                  */
                 let input = SimdInput::new(input.get_unchecked(idx as usize..));
                 input.check_utf8(&mut state);
+                if SimdInput::check_utf8_errors(&state) {
+                    return Err(crate::Utf8Error {});
+                }
                 idx += SIMDINPUT_LENGTH;
             }
 
