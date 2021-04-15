@@ -56,22 +56,22 @@ pub(crate) fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>) {
     bench(
         c,
         "1-latin",
-        include_str!("text/Latin-Lipsum.txt").as_bytes(),
+        include_str!("../text/Latin-Lipsum.txt").as_bytes(),
     );
     bench(
         c,
         "2-cyrillic",
-        include_str!("text/Russian-Lipsum.txt").as_bytes(),
+        include_str!("../text/Russian-Lipsum.txt").as_bytes(),
     );
     bench(
         c,
         "3-chinese",
-        include_str!("text/Chinese-Lipsum.txt").as_bytes(),
+        include_str!("../text/Chinese-Lipsum.txt").as_bytes(),
     );
     bench(
         c,
         "4-emoji",
-        include_str!("text/Emoji-Lipsum.txt").as_bytes(),
+        include_str!("../text/Emoji-Lipsum.txt").as_bytes(),
     );
 
     let mut group = c.benchmark_group("x-error");
