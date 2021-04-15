@@ -250,6 +250,7 @@ impl SimdInput {
         state.error = Utf8CheckingState::<__m128i>::check_eof(state.error, state.incomplete);
     }
 
+    #[target_feature(enable = "sse4.2")]
     #[cfg_attr(not(feature = "no-inline"), inline)]
     unsafe fn check_utf8_errors(state: &Utf8CheckingState<__m128i>) -> bool {
         Utf8CheckingState::<__m128i>::has_error(state.error)
