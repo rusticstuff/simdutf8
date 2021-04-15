@@ -16,6 +16,7 @@ jobs:
       matrix:
         toolchain: [stable, nightly]
         arch: [x86_64, i686]
+        features: ["--features std", ""]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -24,9 +25,28 @@ jobs:
             profile: minimal
             override: true
       - name: Build
-        run: cargo build --verbose
+        run: cargo build --no-default-features ${{ matrix.features }} --verbose
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --no-default-features ${{ matrix.features }} --verbose
+
+  cross-build:
+    runs-on: playhouse
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+        arch: [x86_64]
+        target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
+        features: ["--features std", ""]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
+            target: ${{ matrix.target }}
+            profile: minimal
+            override: true
+      - name: Build
+        run: cargo build --no-default-features ${{ matrix.features }} --verbose
 
   clippy_check:
     runs-on: playhouse
