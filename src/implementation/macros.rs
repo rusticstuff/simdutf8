@@ -14,6 +14,22 @@ macro_rules! likely {
     };
 }
 
+/// possible compiler hint that a branch is unlikely
+#[cfg(feature = "hints")]
+macro_rules! unlikely {
+    ($e:expr) => {
+        std::intrinsics::unlikely($e)
+    };
+}
+
+/// possible compiler hint that a branch is unlikely
+#[cfg(not(feature = "hints"))]
+macro_rules! unlikely {
+    ($e:expr) => {
+        $e
+    };
+}
+
 /// static cast to an i8
 macro_rules! static_cast_i8 {
     ($v:expr) => {
@@ -80,7 +96,7 @@ macro_rules! validate_utf8_simd {
                 input.check_utf8(&mut state);
             }
             SimdInput::check_eof(&mut state);
-            if SimdInput::check_utf8_errors(&state) {
+            if unlikely!(SimdInput::check_utf8_errors(&state)) {
                 Err(crate::Utf8Error {})
             } else {
                 Ok(())
