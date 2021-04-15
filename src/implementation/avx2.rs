@@ -33,7 +33,7 @@ pub fn get_implementation() -> Option<ValidateUtf8Fn> {
 #[cfg(all(not(feature = "std"), target_feature = "avx2"))]
 #[must_use]
 pub fn get_implementation() -> Option<ValidateUtf8Fn> {
-    Some(validate_utf8_simd_safe)
+    Some(validate_utf8_simd)
 }
 
 /// Always returns None.
