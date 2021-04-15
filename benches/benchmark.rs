@@ -1,4 +1,3 @@
-use criterion::measurement::WallTime;
 use criterion::{criterion_group, criterion_main, Criterion};
 
 mod common;
