@@ -79,7 +79,7 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
     fn get_fastest(input: &[u8]) -> core::result::Result<(), Utf8Error> {
         let fun = get_fastest_available_implementation();
         FN.store(fun as FnRaw, Ordering::Relaxed);
-        (fun)(input)
+        unsafe { (fun)(input) }
     }
 
     unsafe {

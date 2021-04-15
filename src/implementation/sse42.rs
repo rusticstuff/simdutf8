@@ -22,7 +22,7 @@ use core::mem;
 #[must_use]
 pub fn get_implementation() -> Option<ValidateUtf8Fn> {
     if std::is_x86_feature_detected!("sse4.2") {
-        Some(validate_utf8_simd_safe)
+        Some(validate_utf8_simd)
     } else {
         None
     }
