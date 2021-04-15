@@ -24,11 +24,6 @@ pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
     validate_utf8_fallback
 }
 
-/// Fallback UTF-8 validation implementation, just calls `core::str::from_utf8(input)`.
-///
-/// # Errors
-/// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[allow(dead_code)]
 pub(crate) fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
@@ -38,7 +33,7 @@ pub(crate) fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
     }
 }
 
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 struct Utf8CheckingState<T> {
     pub prev: T,
     pub incomplete: T,
