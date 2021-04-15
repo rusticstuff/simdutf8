@@ -68,25 +68,8 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
 pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
-    use core::mem;
-    use implementation::{get_fastest_available_implementation, ValidateUtf8Fn};
-    use std::sync::atomic::{AtomicPtr, Ordering};
-
-    type FnRaw = *mut ();
-
-    static FN: AtomicPtr<()> = AtomicPtr::new(get_fastest as FnRaw);
-
-    fn get_fastest(input: &[u8]) -> core::result::Result<(), Utf8Error> {
-        let fun = get_fastest_available_implementation();
-        FN.store(fun as FnRaw, Ordering::Relaxed);
-        (fun)(input)
-    }
-
-    unsafe {
-        let fun = FN.load(Ordering::Relaxed);
-        mem::transmute::<FnRaw, ValidateUtf8Fn>(fun)(input)?;
-        Ok(core::str::from_utf8_unchecked(input))
-    }
+    implementation::get_fastest_available_implementation()(input)?;
+    unsafe { Ok(core::str::from_utf8_unchecked(input)) }
 }
 
 #[cfg(test)]
