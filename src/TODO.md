@@ -4,12 +4,13 @@
 
 # TODO
 * is_valid_until() implementation
-* fuzz testing
 * licensing
 * doc
+* test likely
 
 # LATER
 * test on fast dedicated cloud server
+* automated fuzz testing of all impls
 
 # NEXT
-* run test against: sse42 - how?
+* run benchmark/fuzz against: sse42 - how?
