@@ -2,6 +2,7 @@ use criterion::measurement::WallTime;
 use criterion::{
     criterion_group, criterion_main, BenchmarkGroup, BenchmarkId, Criterion, Throughput,
 };
+use criterion_cycles_per_byte::CyclesPerByte;
 use simdutf8::*;
 use std::time::Duration;
 
@@ -15,7 +16,7 @@ fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
     panic!("Could not get valid slice of {} bytes", len);
 }
 
-fn bench(c: &mut Criterion, name: &str, bytes: &[u8]) {
+fn bench(c: &mut Criterion<CyclesPerByte>, name: &str, bytes: &[u8]) {
     let mut group = c.benchmark_group(name);
     group.warm_up_time(Duration::from_secs(6));
     group.measurement_time(Duration::from_secs(10));
@@ -28,7 +29,7 @@ fn bench(c: &mut Criterion, name: &str, bytes: &[u8]) {
 }
 
 fn bench_input(
-    group: &mut BenchmarkGroup<WallTime>,
+    group: &mut BenchmarkGroup<CyclesPerByte>,
     input: &[u8],
     with_throughput: bool,
     expected_ok: bool,
@@ -45,7 +46,7 @@ fn bench_input(
     );
 }
 
-fn criterion_benchmark(c: &mut Criterion) {
+fn criterion_benchmark(c: &mut Criterion<CyclesPerByte>) {
     let core_ids = core_affinity::get_core_ids().unwrap();
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
@@ -85,5 +86,9 @@ fn criterion_benchmark(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, criterion_benchmark);
+criterion_group!(
+    name = benches;
+    config = Criterion::default().with_measurement(CyclesPerByte);
+    targets = criterion_benchmark
+);
 criterion_main!(benches);
