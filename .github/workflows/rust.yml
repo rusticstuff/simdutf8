@@ -57,18 +57,18 @@ jobs:
             toolchain: stable
             profile: minimal
             override: true
-      - name: Run benchmark
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline new+avx2 --noplot
-        env:
-          RUSTFLAGS: -C target-feature=+avx2
+      # - name: Run benchmark
+      #   run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline new+avx2 --noplot
+      #   env:
+      #     RUSTFLAGS: -C target-feature=+avx2
       - name: Run benchmark
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline new+auto --noplot
-      - name: Critcmp comparison new+avx2 vs new+auto
-        run: critcmp new+avx2 new+auto --color=always
-      - name: Critcmp comparison new+avx2 vs avx2 baseline
-        run: critcmp new+avx2 baselines/simd+avx2.json --color=always
-      - name: Critcmp export
-        run: critcmp --export new+avx2 > new+avx2.json
+      # - name: Critcmp comparison new+avx2 vs new+auto
+      #   run: critcmp new+avx2 new+auto --color=always
+      # - name: Critcmp comparison new+avx2 vs avx2 baseline
+      #   run: critcmp new+avx2 baselines/simd+avx2.json --color=always
+      # - name: Critcmp export
+      #   run: critcmp --export new+avx2 > new+avx2.json
       - name: Critcmp export
         run: critcmp --export new+auto > new+auto.json
       - uses: actions/upload-artifact@v2
