@@ -14,7 +14,7 @@ use core::arch::x86_64::{
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use super::{Utf8CheckingState, ValidateUtf8Fn};
+use crate::implementation::{Utf8CheckingState, ValidateUtf8Fn};
 use core::mem;
 
 /// Returns `Some(implementation)` if CPU supports SSE 4.2.

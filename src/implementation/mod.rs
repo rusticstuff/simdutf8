@@ -7,25 +7,16 @@ use crate::Utf8Error;
 mod macros;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
-#[allow(dead_code)]
-pub mod avx2;
-
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
-#[allow(dead_code)]
-pub mod sse42;
+#[macro_use]
+mod x86;
 
 /// UTF-8 validation function type
 pub type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
 
-#[cfg(all(
-    any(target_arch = "x86", target_arch = "x86_64"),
-    not(target_feature = "avx2"),
-    feature = "std"
-))]
-pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8Fn {
-    avx2::get_implementation()
-        .or_else(sse42::get_implementation)
-        .unwrap_or(validate_utf8_fallback)
+#[cfg_attr(not(feature = "no-inline"), inline)]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub(crate) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8Error> {
+    x86::validate_utf8(input)
 }
 
 #[cfg(all(not(any(target_arch = "x86", target_arch = "x86_64")), feature = "std"))]

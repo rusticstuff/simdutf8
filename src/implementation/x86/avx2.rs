@@ -15,7 +15,7 @@ use core::arch::x86_64::{
     _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use super::{Utf8CheckingState, ValidateUtf8Fn};
+use crate::implementation::{Utf8CheckingState, ValidateUtf8Fn};
 use core::mem;
 
 /// Returns `Some(implementation)` if CPU supports AVX 2.
