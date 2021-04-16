@@ -13,6 +13,15 @@
 * test on fast dedicated cloud server
 * automated fuzz testing of all impls
 * sse42 benchmark
-* ssse2 support?
+* ssse3 support?
 
 # NEXT
+* exact errors
+** impl avx2
+** test
+** fuzz test
+** build everywhere
+** rename _exact -> no suffix, no suffix -> _fast
+** remove .cargo dir
+
+* language: incorrect vs invalid
