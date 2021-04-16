@@ -37,7 +37,7 @@ fn bench_input<M: Measurement>(
         BenchmarkId::from_parameter(format!("{:05}", input.len())),
         &input,
         |b, &slice| {
-            b.iter(|| assert_eq!(from_utf8(slice).is_ok(), expected_ok));
+            b.iter(|| assert_eq!(from_utf8_exact(slice).is_ok(), expected_ok));
         },
     );
 }
