@@ -8,6 +8,8 @@ pub mod avx2;
 #[allow(dead_code)]
 pub mod sse42;
 
+// validate_utf8() implementations
+
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
@@ -73,6 +75,31 @@ pub(crate) fn validate_utf8(input: &[u8]) -> core::result::Result<(), Utf8Error>
         let fun = FN.load(Ordering::Relaxed);
         mem::transmute::<FnRaw, super::ValidateUtf8Fn>(fun)(input)
     }
+}
+
+// validate_utf8_exact() implementations
+
+#[cfg(all(
+    not(feature = "std"),
+    not(target_feature = "avx2"),
+    not(target_feature = "sse4.2")
+))]
+#[cfg_attr(not(feature = "no-inline"), inline)]
+pub(crate) unsafe fn validate_utf8_exact(input: &[u8]) -> Result<(), Utf8ErrorExact> {
+    super::validate_utf8_exact_fallback(input)
+}
+
+#[cfg(any(
+    all(
+        not(feature = "std"),
+        not(target_feature = "avx2"),
+        target_feature = "sse4.2"
+    ),
+    forcesse42
+))]
+#[cfg_attr(not(feature = "no-inline"), inline)]
+pub(crate) unsafe fn validate_utf8_exact(input: &[u8]) -> Result<(), Utf8ErrorExact> {
+    sse42::validate_utf8_exact_simd(input)
 }
 
 #[cfg(target_feature = "avx2")]

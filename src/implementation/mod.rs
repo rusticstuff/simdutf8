@@ -46,8 +46,8 @@ fn validate_utf8_exact_fallback(input: &[u8]) -> Result<(), Utf8ErrorExact> {
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorExact> {
-    use std::convert::TryFrom;
-    match std::str::from_utf8(&input[offset..]) {
+    use core::convert::TryFrom;
+    match core::str::from_utf8(&input[offset..]) {
         Ok(_) => Ok(()),
         Err(err) => Err(Utf8ErrorExact {
             valid_up_to: err.valid_up_to() + offset,
