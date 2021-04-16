@@ -17,11 +17,13 @@
 
 # NEXT
 * exact errors
-** impl avx2
+** benchmark
 ** test
 ** fuzz test
+** impl auto
 ** build everywhere
 ** rename _exact -> no suffix, no suffix -> _fast
 ** remove .cargo dir
+** ? `#[!cold]` or no ?
 
 * language: incorrect vs invalid
