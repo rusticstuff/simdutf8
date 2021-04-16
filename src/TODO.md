@@ -3,27 +3,19 @@
 * avx512 support
 
 # TODO
-* is_valid_until() implementation
 * licensing
 * doc
 * test likely
 * benchmark > 64KiB
+* allow direct calling in no-std?
+* move err to extra module
 
 # LATER
 * test on fast dedicated cloud server
-* automated fuzz testing of all impls
+* fuzz testing of all impls
 * sse42 benchmark
-* ssse3 support?
 
 # NEXT
 * exact errors
-** benchmark
-** test
-** fuzz test
-** impl auto
-** build everywhere
-** rename _exact -> no suffix, no suffix -> _fast
-** remove .cargo dir
+** rename _exact -> no suffix, no suffix -> assume_ok (?)
 ** ? `#[!cold]` or no ?
-
-* language: incorrect vs invalid
