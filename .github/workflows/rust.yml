@@ -88,10 +88,10 @@ jobs:
         run: cargo bench --bench througput-${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-auto-$GITHUB_SHA --noplot
       # - name: Critcmp comparison new+avx2 vs new+auto
       #   run: critcmp avx2-$GITHUB_SHA auto-$GITHUB_SHA --color=always
-      # - name: Critcmp comparison new+avx2 vs avx2 baseline
-      #   run: critcmp avx2-$GITHUB_SHA baselines/avx2.json --color=always
-      # - name: Critcmp comparison new+auto vs auto baseline
-      #   run: critcmp auto-$GITHUB_SHA baselines/auto.json --color=always
+      - name: Critcmp comparison new+avx2 vs avx2 baseline
+        run: critcmp ${{ matrix.benchmark }}-avx2-$GITHUB_SHA baselines/avx2.json --color=always
+      - name: Critcmp comparison new+auto vs auto baseline
+        run: critcmp ${{ matrix.benchmark }}-auto-$GITHUB_SHA baselines/auto.json --color=always
       - name: Critcmp export
         run: critcmp --export ${{ matrix.benchmark }}-avx2-$GITHUB_SHA > ${{ matrix.benchmark }}-avx2-$GITHUB_SHA.json
       - name: Critcmp export
