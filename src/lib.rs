@@ -12,7 +12,7 @@
 
 //! UTF-8 checking crate
 
-pub mod implementation;
+mod implementation;
 
 /// Checks if the byte sequence is valid UTF-8 and returns `Ok(str)` if it is.
 ///
