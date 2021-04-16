@@ -63,22 +63,22 @@ fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorC
 
 #[cold]
 fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
-    if failing_block_pos == 0 {
-        validate_utf8_at_offset(input, 0).unwrap_err()
+    let offset = if failing_block_pos == 0 {
+        // Error must be in this block since it is the first.
+        0
     } else {
-        // previous block is OK except for maybe continuation of the block boundary
-        // so find the starting index for from_utf8()
-        for i in 1..=3 {
-            if input[failing_block_pos - i] >> 6 != 0b10 {
-                // not a continuation byte, so start here
-                return validate_utf8_at_offset(input, failing_block_pos - i).unwrap_err();
-            }
-        }
-        // three continuation bytes found ending the previous block so it must
-        // end with a four byte UTF-8 codepoint meaning that the previous block
-        // is complete and valid UTF-8. Just need to check the current block.
-        validate_utf8_at_offset(input, failing_block_pos).unwrap_err()
-    }
+        // The previous block is OK except for a possible continuation over the block boundary.
+        // We go backwards over the last three bytes of the previous block and find the
+        // last non-continuation byte as a starting point for an std validation. If the last
+        // three bytes are all continuation bytes then the previous block ends with a four byte
+        // UTF-8 codepoint, is thus complete and valid UTF-8. We start the check with the
+        // current block in that case.
+        (1..=3)
+            .into_iter()
+            .find(|i| input[failing_block_pos - i] >> 6 != 0b10)
+            .map_or(failing_block_pos, |i| failing_block_pos - i)
+    };
+    validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
