@@ -1,6 +1,7 @@
 use criterion::{measurement::Measurement, BenchmarkGroup, BenchmarkId, Criterion, Throughput};
 use simdutf8::compat::from_utf8 as compat_from_utf8;
 use simdutf8::pure::from_utf8 as pure_from_utf8;
+use std::io::Write;
 use std::time::Duration;
 
 #[derive(Clone, Copy)]
@@ -11,16 +12,22 @@ pub(super) enum BenchFn {
 }
 
 fn scale_to_one_mib(input: &[u8]) -> Vec<u8> {
-    input.repeat((1024 * 1024 + input.len() - 1) / input.len())
+    let mut res = Vec::with_capacity(2 * 1024 * 1024);
+    assert!((res.as_ptr() as usize) % 64 == 0);
+    let copies = (1024 * 1024 + input.len() - 1) / input.len();
+    for _ in 0..copies {
+        res.write_all(input).unwrap();
+    }
+    res
 }
 
 pub(super) fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: BenchFn) {
-    let core_ids = core_affinity::get_core_ids().unwrap();
-    core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
+    // let core_ids = core_affinity::get_core_ids().unwrap();
+    // core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
-    let mut group = c.benchmark_group("0-empty");
-    bench_input(&mut group, b"", false, true, bench_fn);
-    group.finish();
+    // let mut group = c.benchmark_group("0-empty");
+    // bench_input(&mut group, b"", false, true, bench_fn);
+    // group.finish();
 
     bench(
         c,
