@@ -319,3 +319,5 @@ impl SimdInput {
 }
 
 validate_utf8_simd!("avx2");
+
+validate_utf8_simd_exact!("sse4.2");
