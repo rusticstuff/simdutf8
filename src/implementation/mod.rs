@@ -12,20 +12,20 @@ mod x86;
 
 /// UTF-8 validation function type
 #[allow(dead_code)]
-pub(crate) type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
+type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
 
 #[allow(dead_code)]
-pub(crate) type ValidateUtf8ExactFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorExact>;
+type ValidateUtf8ExactFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorExact>;
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(crate) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8Error> {
+pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8Error> {
     x86::validate_utf8(input)
 }
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(crate) unsafe fn validate_utf8_exact(input: &[u8]) -> Result<(), Utf8ErrorExact> {
+pub(super) unsafe fn validate_utf8_exact(input: &[u8]) -> Result<(), Utf8ErrorExact> {
     x86::validate_utf8_exact(input)
 }
 
@@ -82,7 +82,7 @@ fn get_exact_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorExact {
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 struct Utf8CheckingState<T> {
-    pub prev: T,
-    pub incomplete: T,
-    pub error: T,
+    prev: T,
+    incomplete: T,
+    error: T,
 }

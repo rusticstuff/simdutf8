@@ -65,8 +65,8 @@ pub struct Utf8Error {}
 /// Exact UTF-8 validation error
 #[derive(Debug)]
 pub struct Utf8ErrorExact {
-    pub(crate) valid_up_to: usize,
-    pub(crate) error_len: Option<u8>,
+    valid_up_to: usize,
+    error_len: Option<u8>,
 }
 
 impl Utf8ErrorExact {
