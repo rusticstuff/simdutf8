@@ -20,3 +20,9 @@ name = "auto"
 path = "targets/auto.rs"
 doc = false
 test = false
+
+[[bin]]
+name = "auto_exact"
+path = "targets/auto_exact.rs"
+doc = false
+test = false
