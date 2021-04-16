@@ -81,11 +81,11 @@ jobs:
             profile: minimal
             override: true
       - name: Run benchmark
-        run: cargo bench --bench throughput-${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$GITHUB_SHA --noplot
+        run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$GITHUB_SHA --noplot
         env:
           RUSTFLAGS: -C target-feature=+avx2
       - name: Run benchmark
-        run: cargo bench --bench throughput-${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-auto-$GITHUB_SHA --noplot
+        run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-auto-$GITHUB_SHA --noplot
       # - name: Critcmp comparison new+avx2 vs new+auto
       #   run: critcmp avx2-$GITHUB_SHA auto-$GITHUB_SHA --color=always
       - name: Critcmp comparison new+avx2 vs avx2 baseline
