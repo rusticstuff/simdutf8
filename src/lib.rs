@@ -12,7 +12,7 @@
 
 //! UTF-8 checking crate
 
-pub mod implementation;
+mod implementation;
 
 /// UTF-8 validation error
 #[derive(Debug)]
