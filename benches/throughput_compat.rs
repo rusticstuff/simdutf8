@@ -6,14 +6,14 @@ use criterion::{criterion_group, criterion_main, Criterion};
 mod common;
 use common::*;
 
-fn benchmark_exact<M: Measurement>(c: &mut Criterion<M>) {
-    criterion_benchmark(c, BenchFn::Exact);
+fn benchmark_compat<M: Measurement>(c: &mut Criterion<M>) {
+    criterion_benchmark(c, BenchFn::Compat);
 }
 
 criterion_group!(
     name = benches;
     config = Criterion::default().measurement_time(Duration::from_secs(10)).warm_up_time(Duration::from_secs(6)).sample_size(1000);
-    targets = benchmark_exact
+    targets = benchmark_compat
 );
 
 criterion_main!(benches);

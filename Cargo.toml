@@ -17,19 +17,19 @@ criterion-cycles-per-byte = { version = "0.1.2", optional = true }
 
 
 [[bench]]
-name = "throughput_fast"
+name = "throughput_pure"
 harness = false
 
 [[bench]]
-name = "throughput_exact"
+name = "throughput_compat"
 harness = false
 
 [[bench]]
-name = "cpb_fast"
+name = "cpb_pure"
 harness = false
 
 [[bench]]
-name = "cpb_exact"
+name = "cpb_compat"
 harness = false
 
 [features]

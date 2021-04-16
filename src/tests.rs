@@ -1,19 +1,20 @@
 #![allow(clippy::non_ascii_literal)]
 
-use super::{from_utf8, from_utf8_exact};
+use crate::compat::from_utf8 as compat_from_utf8;
+use crate::pure::from_utf8 as pure_from_utf8;
 
 fn test_valid(input: &[u8]) {
-    assert!(from_utf8(input).is_ok());
-    assert!(from_utf8_exact(input).is_ok());
+    assert!(pure_from_utf8(input).is_ok());
+    assert!(compat_from_utf8(input).is_ok());
 }
 
 fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
-    assert!(from_utf8(input).is_err());
+    assert!(pure_from_utf8(input).is_err());
     assert_eq!(
-        from_utf8_exact(input).unwrap_err().valid_up_to(),
+        compat_from_utf8(input).unwrap_err().valid_up_to(),
         valid_up_to
     );
-    assert_eq!(from_utf8_exact(input).unwrap_err().error_len(), error_len);
+    assert_eq!(compat_from_utf8(input).unwrap_err().error_len(), error_len);
 }
 
 #[test]

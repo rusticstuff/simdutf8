@@ -65,7 +65,7 @@ macro_rules! validate_utf8_simd {
         #[cfg_attr(not(feature = "no-inline"), inline)]
         pub(super) unsafe fn validate_utf8_simd(
             input: &[u8],
-        ) -> core::result::Result<(), crate::Utf8Error> {
+        ) -> core::result::Result<(), crate::pure::Utf8Error> {
             const SIMDINPUT_LENGTH: usize = 64;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
@@ -94,7 +94,7 @@ macro_rules! validate_utf8_simd {
             }
             SimdInput::check_eof(&mut state);
             if unlikely!(SimdInput::check_utf8_errors(&state)) {
-                Err(crate::Utf8Error {})
+                Err(crate::pure::Utf8Error {})
             } else {
                 Ok(())
             }
@@ -102,14 +102,14 @@ macro_rules! validate_utf8_simd {
     };
 }
 
-/// validate_utf8_simd_impl_exact() strategy and wrapper
-macro_rules! validate_utf8_exact_simd {
+/// validate_utf8_simd_impl_compat() strategy and wrapper
+macro_rules! validate_utf8_compat_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]
         #[cfg_attr(not(feature = "no-inline"), inline)]
-        pub(super) unsafe fn validate_utf8_exact_simd(
+        pub(super) unsafe fn validate_utf8_compat_simd(
             input: &[u8],
-        ) -> core::result::Result<(), crate::Utf8ErrorExact> {
+        ) -> core::result::Result<(), crate::compat::Utf8Error> {
             const SIMDINPUT_LENGTH: usize = 64;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
@@ -125,7 +125,7 @@ macro_rules! validate_utf8_exact_simd {
                 let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                 simd_input.check_utf8(&mut state);
                 if SimdInput::check_utf8_errors(&state) {
-                    return Err(crate::implementation::get_exact_error(input, idx));
+                    return Err(crate::implementation::get_compat_error(input, idx));
                 }
                 idx += SIMDINPUT_LENGTH;
             }
@@ -141,7 +141,7 @@ macro_rules! validate_utf8_exact_simd {
             }
             SimdInput::check_eof(&mut state);
             if unlikely!(SimdInput::check_utf8_errors(&state)) {
-                Err(crate::implementation::get_exact_error(input, idx))
+                Err(crate::implementation::get_compat_error(input, idx))
             } else {
                 Ok(())
             }

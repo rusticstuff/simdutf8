@@ -16,13 +16,13 @@ libfuzzer-sys = "*"
 path = ".."
 
 [[bin]]
-name = "auto"
-path = "targets/auto.rs"
+name = "auto_pure"
+path = "targets/auto_pure.rs"
 doc = false
 test = false
 
 [[bin]]
-name = "auto_exact"
-path = "targets/auto_exact.rs"
+name = "auto_compat"
+path = "targets/auto_compat.rs"
 doc = false
 test = false

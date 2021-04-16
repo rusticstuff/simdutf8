@@ -1,6 +1,7 @@
 //! Contains UTF-8 validation implementations.
 
-use crate::{Utf8Error, Utf8ErrorExact};
+type Utf8ErrorCompat = crate::compat::Utf8Error;
+type Utf8ErrorPure = crate::pure::Utf8Error;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 #[macro_use]
@@ -12,44 +13,44 @@ mod x86;
 
 /// UTF-8 validation function type
 #[allow(dead_code)]
-type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
+type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorPure>;
 
 #[allow(dead_code)]
-type ValidateUtf8ExactFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorExact>;
+type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompat>;
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8Error> {
+pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8ErrorPure> {
     x86::validate_utf8(input)
 }
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(super) unsafe fn validate_utf8_exact(input: &[u8]) -> Result<(), Utf8ErrorExact> {
-    x86::validate_utf8_exact(input)
+pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
+    x86::validate_utf8_compat(input)
 }
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[allow(dead_code)]
-fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
+fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8ErrorPure> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
-        Err(_) => Err(Utf8Error {}),
+        Err(_) => Err(Utf8ErrorPure {}),
     }
 }
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[allow(dead_code)]
-fn validate_utf8_exact_fallback(input: &[u8]) -> Result<(), Utf8ErrorExact> {
+fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
     validate_utf8_at_offset(input, 0)
 }
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
-fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorExact> {
+fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
     use core::convert::TryFrom;
     match core::str::from_utf8(&input[offset..]) {
         Ok(_) => Ok(()),
-        Err(err) => Err(Utf8ErrorExact {
+        Err(err) => Err(Utf8ErrorCompat {
             valid_up_to: err.valid_up_to() + offset,
             error_len: err.error_len().map(|len| {
                 #[allow(clippy::unwrap_used)]
@@ -61,7 +62,7 @@ fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorE
 }
 
 #[cold]
-fn get_exact_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorExact {
+fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     if failing_block_pos == 0 {
         validate_utf8_at_offset(input, 0).unwrap_err()
     } else {
