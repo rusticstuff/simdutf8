@@ -3,10 +3,9 @@ use simdutf8::*;
 use std::time::Duration;
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 pub(super) enum BenchFn {
-    #[allow(dead_code)]
     Fast,
-    #[allow(dead_code)]
     Exact,
 }
 
