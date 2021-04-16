@@ -11,7 +11,8 @@ mod macros;
 mod x86;
 
 /// UTF-8 validation function type
-pub type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
+#[allow(dead_code)]
+pub(crate) type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8Error>;
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -37,7 +38,7 @@ pub(crate) fn get_fastest_available_implementation() -> ValidateUtf8ExactFn {
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[allow(dead_code)]
-pub(crate) fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
+fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
         Err(_) => Err(Utf8Error {}),
