@@ -17,6 +17,7 @@
 * avx512 support
 
 # NEXT
+* save new baselines
 * exact errors
 ** ? `#[!cold]` or #inline[] or  nothing ?
 * test nightly again (fast locally???)
