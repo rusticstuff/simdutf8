@@ -30,6 +30,26 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
+  test-inlining:
+    runs-on: playhouse
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+        arch: [x86_64, i686]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
+            profile: minimal
+            override: true
+      - name: Check if the expected fns are inlined (auto)
+        run: cargo asm|grep simdutf8::|diff -u - expected-methods-x86-auto.txt
+      - name: Check if the expected fns are inlined (avx2)
+        run: cargo asm|grep simdutf8::|diff -u - expected-methods-x86-avx2.txt
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
+
   cross-build:
     runs-on: playhouse
     strategy:
