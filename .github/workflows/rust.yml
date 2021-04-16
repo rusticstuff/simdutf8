@@ -80,6 +80,7 @@ jobs:
             toolchain: stable
             profile: minimal
             override: true
+      - name: mkdir new_baselines
         run: mkdir new_baselines
       - name: Run avx2 benchmark
         run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$GITHUB_SHA --noplot
