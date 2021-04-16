@@ -275,7 +275,6 @@ impl Utf8CheckingState<__m256i> {
     check_bytes!("avx2", __m256i);
 }
 
-#[derive(Debug)]
 struct SimdInput {
     v0: __m256i,
     v1: __m256i,

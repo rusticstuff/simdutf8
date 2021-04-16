@@ -208,7 +208,6 @@ impl Utf8CheckingState<__m128i> {
     check_bytes!("sse4.2", __m128i);
 }
 
-#[derive(Debug)]
 struct SimdInput {
     v0: __m128i,
     v1: __m128i,
