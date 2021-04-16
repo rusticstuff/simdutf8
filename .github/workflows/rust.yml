@@ -80,7 +80,7 @@ jobs:
             toolchain: stable
             profile: minimal
             override: true
-      - name: Run benchmark
+      # - name: Run benchmark
         # run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$GITHUB_SHA --noplot
         # env:
         #   RUSTFLAGS: -C target-feature=+avx2
