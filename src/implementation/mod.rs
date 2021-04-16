@@ -45,6 +45,7 @@ fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8Error> {
     }
 }
 
+#[cfg_attr(not(feature = "no-inline"), inline)]
 fn get_error(input: &[u8], offset: usize) -> Utf8ErrorExact {
     use std::convert::TryFrom;
     let err = std::str::from_utf8(&input[offset..]).unwrap_err();
