@@ -17,9 +17,9 @@ pub(super) fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn
     let core_ids = core_affinity::get_core_ids().unwrap();
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
-    // let mut group = c.benchmark_group("0-empty");
-    // bench_input(&mut group, b"", false, true, bench_fn);
-    // group.finish();
+    let mut group = c.benchmark_group("0-empty");
+    bench_input(&mut group, b"", false, true, bench_fn);
+    group.finish();
 
     bench(
         c,
@@ -46,18 +46,18 @@ pub(super) fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn
         bench_fn,
     );
 
-    // let mut group = c.benchmark_group("x-error");
-    // group.warm_up_time(Duration::from_secs(6));
-    // group.measurement_time(Duration::from_secs(10));
-    // group.sample_size(1000);
-    // bench_input(
-    //     &mut group,
-    //     b"\xFF".repeat(65536).as_slice(),
-    //     false,
-    //     false,
-    //     bench_fn,
-    // );
-    // group.finish();
+    let mut group = c.benchmark_group("x-error");
+    group.warm_up_time(Duration::from_secs(6));
+    group.measurement_time(Duration::from_secs(10));
+    group.sample_size(1000);
+    bench_input(
+        &mut group,
+        b"\xFF".repeat(65536).as_slice(),
+        false,
+        false,
+        bench_fn,
+    );
+    group.finish();
 }
 
 fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
@@ -75,8 +75,7 @@ fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_f
     group.warm_up_time(Duration::from_secs(6));
     group.measurement_time(Duration::from_secs(10));
     group.sample_size(1000);
-    // for i in [1, 8, 64, 512, 4096, 65536, 1024 * 1024].iter() {
-    for i in [4096, 65536, 1024 * 1024].iter() {
+    for i in [1, 8, 64, 512, 4096, 65536, 131072].iter() {
         let slice = get_valid_slice_of_len_or_more(bytes, *i);
         bench_input(&mut group, slice, true, true, bench_fn);
     }
