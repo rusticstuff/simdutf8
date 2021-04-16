@@ -69,8 +69,10 @@ jobs:
           args: --no-default-features
 
   benchmark:
-    if: "${{ !startsWith(github.event.commits[0].message, 'export_baseline:') }}"
     runs-on: fisheye
+    strategy:
+      matrix:
+        benchmark: [fast, exact]
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
@@ -79,25 +81,23 @@ jobs:
             profile: minimal
             override: true
       - name: Run benchmark
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline avx2-$GITHUB_SHA --noplot
+        run: cargo bench --bench througput-${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$GITHUB_SHA --noplot
         env:
           RUSTFLAGS: -C target-feature=+avx2
       - name: Run benchmark
-        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline auto-$GITHUB_SHA --noplot
-      - name: Critcmp comparison new+avx2 vs new+auto
-        run: critcmp avx2-$GITHUB_SHA auto-$GITHUB_SHA --color=always
-      - name: Critcmp comparison new+avx2 vs avx2 baseline
-        run: critcmp avx2-$GITHUB_SHA baselines/avx2.json --color=always
-      - name: Critcmp comparison new+auto vs auto baseline
-        run: critcmp auto-$GITHUB_SHA baselines/auto.json --color=always
+        run: cargo bench --bench througput-${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-auto-$GITHUB_SHA --noplot
+      # - name: Critcmp comparison new+avx2 vs new+auto
+      #   run: critcmp avx2-$GITHUB_SHA auto-$GITHUB_SHA --color=always
+      # - name: Critcmp comparison new+avx2 vs avx2 baseline
+      #   run: critcmp avx2-$GITHUB_SHA baselines/avx2.json --color=always
+      # - name: Critcmp comparison new+auto vs auto baseline
+      #   run: critcmp auto-$GITHUB_SHA baselines/auto.json --color=always
       - name: Critcmp export
-        run: critcmp --export avx2-$GITHUB_SHA > avx2-$GITHUB_SHA.json
+        run: critcmp --export ${{ matrix.benchmark }}-avx2-$GITHUB_SHA > ${{ matrix.benchmark }}-avx2-$GITHUB_SHA.json
       - name: Critcmp export
-        run: critcmp --export auto-$GITHUB_SHA > auto-$GITHUB_SHA.json
+        run: critcmp --export ${{ matrix.benchmark }}-auto-$GITHUB_SHA > ${{ matrix.benchmark }}-auto-$GITHUB_SHA.json
       - uses: actions/upload-artifact@v2
         with:
           name: baselines
-          path: |
-            avx2-*.json
-            auto-*.json
+          path: *.json
 
