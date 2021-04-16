@@ -9,51 +9,55 @@ pub(super) enum BenchFn {
     Exact,
 }
 
+fn scale_to_one_mib(input: &[u8]) -> Vec<u8> {
+    input.repeat((1024 * 1024 + input.len() - 1) / input.len())
+}
+
 pub(super) fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: BenchFn) {
     let core_ids = core_affinity::get_core_ids().unwrap();
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
-    let mut group = c.benchmark_group("0-empty");
-    bench_input(&mut group, b"", false, true, bench_fn);
-    group.finish();
+    // let mut group = c.benchmark_group("0-empty");
+    // bench_input(&mut group, b"", false, true, bench_fn);
+    // group.finish();
 
     bench(
         c,
         "1-latin",
-        include_str!("../text/Latin-Lipsum.txt").as_bytes(),
+        &scale_to_one_mib(include_bytes!("../text/Latin-Lipsum.txt")),
         bench_fn,
     );
     bench(
         c,
         "2-cyrillic",
-        include_str!("../text/Russian-Lipsum.txt").as_bytes(),
+        &scale_to_one_mib(include_bytes!("../text/Russian-Lipsum.txt")),
         bench_fn,
     );
     bench(
         c,
         "3-chinese",
-        include_str!("../text/Chinese-Lipsum.txt").as_bytes(),
+        &scale_to_one_mib(include_bytes!("../text/Chinese-Lipsum.txt")),
         bench_fn,
     );
     bench(
         c,
         "4-emoji",
-        include_str!("../text/Emoji-Lipsum.txt").as_bytes(),
+        &scale_to_one_mib(include_bytes!("../text/Emoji-Lipsum.txt")),
         bench_fn,
     );
 
-    let mut group = c.benchmark_group("x-error");
-    group.warm_up_time(Duration::from_secs(6));
-    group.measurement_time(Duration::from_secs(10));
-    group.sample_size(1000);
-    bench_input(
-        &mut group,
-        b"\xFF".repeat(65536).as_slice(),
-        false,
-        false,
-        bench_fn,
-    );
-    group.finish();
+    // let mut group = c.benchmark_group("x-error");
+    // group.warm_up_time(Duration::from_secs(6));
+    // group.measurement_time(Duration::from_secs(10));
+    // group.sample_size(1000);
+    // bench_input(
+    //     &mut group,
+    //     b"\xFF".repeat(65536).as_slice(),
+    //     false,
+    //     false,
+    //     bench_fn,
+    // );
+    // group.finish();
 }
 
 fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
@@ -71,7 +75,8 @@ fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_f
     group.warm_up_time(Duration::from_secs(6));
     group.measurement_time(Duration::from_secs(10));
     group.sample_size(1000);
-    for i in [1, 8, 64, 512, 4096, 65536].iter() {
+    // for i in [1, 8, 64, 512, 4096, 65536, 1024 * 1024].iter() {
+    for i in [4096, 65536, 1024 * 1024].iter() {
         let slice = get_valid_slice_of_len_or_more(bytes, *i);
         bench_input(&mut group, slice, true, true, bench_fn);
     }
