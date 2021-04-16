@@ -82,18 +82,18 @@ jobs:
         run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline avx2-$GITHUB_SHA --noplot
         env:
           RUSTFLAGS: -C target-feature=+avx2
-      # - name: Run benchmark
-      #   run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline auto-$GITHUB_SHA --noplot
-      # - name: Critcmp comparison new+avx2 vs new+auto
-      #   run: critcmp avx2-$GITHUB_SHA auto-$GITHUB_SHA --color=always
+      - name: Run benchmark
+        run: cargo bench --bench benchmark --features=bench -- --color=always --save-baseline auto-$GITHUB_SHA --noplot
+      - name: Critcmp comparison new+avx2 vs new+auto
+        run: critcmp avx2-$GITHUB_SHA auto-$GITHUB_SHA --color=always
       - name: Critcmp comparison new+avx2 vs avx2 baseline
         run: critcmp avx2-$GITHUB_SHA baselines/avx2.json --color=always
-      # - name: Critcmp comparison new+auto vs auto baseline
-      #   run: critcmp auto-$GITHUB_SHA baselines/auto.json --color=always
+      - name: Critcmp comparison new+auto vs auto baseline
+        run: critcmp auto-$GITHUB_SHA baselines/auto.json --color=always
       - name: Critcmp export
         run: critcmp --export avx2-$GITHUB_SHA > avx2-$GITHUB_SHA.json
-      # - name: Critcmp export
-      #   run: critcmp --export auto-$GITHUB_SHA > auto-$GITHUB_SHA.json
+      - name: Critcmp export
+        run: critcmp --export auto-$GITHUB_SHA > auto-$GITHUB_SHA.json
       - uses: actions/upload-artifact@v2
         with:
           name: baselines
