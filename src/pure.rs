@@ -6,7 +6,7 @@ use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};
 use crate::implementation::validate_utf8_pure;
 
 /// Simple UTF-8 error. The SIMD implementation does not provide further information.
-#[derive(Debug)]
+#[derive(Copy, Eq, PartialEq, Clone, Debug)]
 pub struct Utf8Error {}
 
 /// Checks if the byte sequence is valid UTF-8 and returns `Ok(str)` if it is.
