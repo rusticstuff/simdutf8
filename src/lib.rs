@@ -12,7 +12,10 @@
 
 //! UTF-8 checking crate
 
+mod err;
 mod implementation;
+
+use err::{Utf8Error, Utf8ErrorExact};
 
 /// Checks if the byte sequence is valid UTF-8 and returns `Ok(str)` if it is.
 ///
@@ -55,34 +58,6 @@ pub fn from_utf8_mut_exact(input: &mut [u8]) -> core::result::Result<&mut str, U
     unsafe {
         implementation::validate_utf8_exact(input)?;
         Ok(core::str::from_utf8_unchecked_mut(input))
-    }
-}
-
-/// UTF-8 validation error
-#[derive(Debug)]
-pub struct Utf8Error {}
-
-/// Exact UTF-8 validation error
-#[derive(Debug)]
-pub struct Utf8ErrorExact {
-    valid_up_to: usize,
-    error_len: Option<u8>,
-}
-
-impl Utf8ErrorExact {
-    /// Returns the index in the given string up to which valid UTF-8 was
-    /// verified.
-    #[inline]
-    #[must_use]
-    pub fn valid_up_to(&self) -> usize {
-        self.valid_up_to
-    }
-
-    /// Provides more information about the failure.
-    #[inline]
-    #[must_use]
-    pub fn error_len(&self) -> Option<usize> {
-        self.error_len.map(|len| len as usize)
     }
 }
 

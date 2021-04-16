@@ -7,12 +7,13 @@ fn test_valid(input: &[u8]) {
     assert!(from_utf8_exact(input).is_ok());
 }
 
-fn test_invalid(input: &[u8], valid_up_to: usize) {
+fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
     assert!(from_utf8(input).is_err());
     assert_eq!(
         from_utf8_exact(input).unwrap_err().valid_up_to(),
         valid_up_to
     );
+    assert_eq!(from_utf8_exact(input).unwrap_err().error_len(), error_len);
 }
 
 #[test]
@@ -38,29 +39,29 @@ fn simple_valid() {
 
 #[test]
 fn simple_invalid() {
-    test_invalid(b"\xFF", 0);
+    test_invalid(b"\xFF", 0, Some(1));
 
     // incomplete umlaut
-    test_invalid(b"\xC3", 0);
+    test_invalid(b"\xC3", 0, None);
 
     // incomplete emoji
-    test_invalid(b"\xF0", 0);
-    test_invalid(b"\xF0\x9F", 0);
-    test_invalid(b"\xF0\x9F\x98", 0);
+    test_invalid(b"\xF0", 0, None);
+    test_invalid(b"\xF0\x9F", 0, None);
+    test_invalid(b"\xF0\x9F\x98", 0, None);
 }
 
 #[test]
 fn incomplete_on_32nd_byte() {
     let mut invalid = b"a".repeat(31);
     invalid.push(b'\xF0');
-    test_invalid(&invalid, 31)
+    test_invalid(&invalid, 31, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte() {
     let mut invalid = b"a".repeat(63);
     invalid.push(b'\xF0');
-    test_invalid(&invalid, 63)
+    test_invalid(&invalid, 63, None)
 }
 
 #[test]
@@ -68,5 +69,5 @@ fn incomplete_on_64th_byte_65_bytes_total() {
     let mut invalid = b"a".repeat(63);
     invalid.push(b'\xF0');
     invalid.push(b'a');
-    test_invalid(&invalid, 63)
+    test_invalid(&invalid, 63, Some(1))
 }
