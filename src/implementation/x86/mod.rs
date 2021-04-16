@@ -26,10 +26,13 @@ pub(crate) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8Error> {
 ///
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-#[cfg(all(
-    not(feature = "std"),
-    not(target_feature = "avx2"),
-    target_feature = "sse4.2"
+#[cfg(any(
+    all(
+        not(feature = "std"),
+        not(target_feature = "avx2"),
+        target_feature = "sse4.2"
+    ),
+    forcesse42
 ))]
 #[cfg_attr(not(feature = "no-inline"), inline)]
 pub(crate) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8Error> {
@@ -46,12 +49,13 @@ pub(crate) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8Error> {
 }
 
 #[cfg(all(
+    feature = "std",
     any(target_arch = "x86", target_arch = "x86_64"),
     not(target_feature = "avx2"),
-    feature = "std"
+    not(forcesse42)
 ))]
 #[cfg_attr(not(feature = "no-inline"), inline)]
-pub(crate) fn get_fastest_available_implementation() -> super::ValidateUtf8Fn {
+fn get_fastest_available_implementation() -> super::ValidateUtf8Fn {
     if std::is_x86_feature_detected!("avx2") {
         avx2::validate_utf8_simd
     } else if std::is_x86_feature_detected!("sse4.2") {
@@ -61,7 +65,7 @@ pub(crate) fn get_fastest_available_implementation() -> super::ValidateUtf8Fn {
     }
 }
 
-#[cfg(all(feature = "std", not(target_feature = "avx2")))]
+#[cfg(all(feature = "std", not(target_feature = "avx2"), not(forcesse42)))]
 #[cfg_attr(not(feature = "no-inline"), inline)]
 pub(crate) fn validate_utf8(input: &[u8]) -> core::result::Result<(), Utf8Error> {
     use core::mem;

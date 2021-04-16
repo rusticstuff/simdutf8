@@ -7,10 +7,12 @@
 * licensing
 * doc
 * test likely
+* benchmark > 64KiB
 
 # LATER
 * test on fast dedicated cloud server
 * automated fuzz testing of all impls
+* sse42 benchmark
+* ssse2 support?
 
 # NEXT
-* run benchmark/fuzz against: sse42 - how?
