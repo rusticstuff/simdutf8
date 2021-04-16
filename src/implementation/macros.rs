@@ -58,12 +58,12 @@ macro_rules! check_bytes {
     };
 }
 
-/// validate_utf8_simd_impl() strategy and wrapper
-macro_rules! validate_utf8_simd {
+/// validate_utf8_pure_simd_impl() strategy and wrapper
+macro_rules! validate_utf8_pure_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]
         #[cfg_attr(not(feature = "no-inline"), inline)]
-        pub(super) unsafe fn validate_utf8_simd(
+        pub(super) unsafe fn validate_utf8_pure_simd(
             input: &[u8],
         ) -> core::result::Result<(), crate::pure::Utf8Error> {
             const SIMDINPUT_LENGTH: usize = 64;
@@ -102,7 +102,7 @@ macro_rules! validate_utf8_simd {
     };
 }
 
-/// validate_utf8_simd_impl_compat() strategy and wrapper
+/// validate_utf8_pure_simd_impl_compat() strategy and wrapper
 macro_rules! validate_utf8_compat_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]

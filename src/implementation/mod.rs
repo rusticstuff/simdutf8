@@ -20,8 +20,8 @@ type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompa
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8ErrorPure> {
-    x86::validate_utf8(input)
+pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
+    x86::validate_utf8_pure(input)
 }
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
@@ -32,7 +32,7 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorC
 
 #[cfg_attr(not(feature = "no-inline"), inline)]
 #[allow(dead_code)]
-fn validate_utf8_fallback(input: &[u8]) -> Result<(), Utf8ErrorPure> {
+fn validate_utf8_pure_fallback(input: &[u8]) -> Result<(), Utf8ErrorPure> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
         Err(_) => Err(Utf8ErrorPure {}),

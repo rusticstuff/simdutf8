@@ -1,5 +1,7 @@
 //! Compat module for full compatibility with `std::from_utf8`
 
+use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};
+
 use crate::implementation::validate_utf8_compat;
 
 /// UTF-8 validation error compatible with `std::str::err::Utf8Error`
@@ -30,10 +32,10 @@ impl Utf8Error {
 ///
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
+pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
     unsafe {
         validate_utf8_compat(input)?;
-        Ok(core::str::from_utf8_unchecked(input))
+        Ok(from_utf8_unchecked(input))
     }
 }
 
@@ -41,9 +43,9 @@ pub fn from_utf8(input: &[u8]) -> core::result::Result<&str, Utf8Error> {
 ///
 /// # Errors
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
-pub fn from_utf8_mut(input: &mut [u8]) -> core::result::Result<&mut str, Utf8Error> {
+pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
     unsafe {
         validate_utf8_compat(input)?;
-        Ok(core::str::from_utf8_unchecked_mut(input))
+        Ok(from_utf8_unchecked_mut(input))
     }
 }

@@ -9,7 +9,7 @@ mod avx2;
 #[allow(dead_code)]
 mod sse42;
 
-// validate_utf8() implementations
+// validate_utf8_pure() implementations
 
 #[cfg(all(
     not(feature = "std"),
@@ -17,8 +17,8 @@ mod sse42;
     not(target_feature = "sse4.2")
 ))]
 #[cfg_attr(not(feature = "no-inline"), inline)]
-pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8ErrorPure> {
-    super::validate_utf8_fallback(input)
+pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
+    super::validate_utf8_pure_fallback(input)
 }
 
 #[cfg(any(
@@ -30,13 +30,13 @@ pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8ErrorPure> {
     forcesse42
 ))]
 #[cfg_attr(not(feature = "no-inline"), inline)]
-pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8ErrorPure> {
-    sse42::validate_utf8_simd(input)
+pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
+    sse42::validate_utf8_pure_simd(input)
 }
 
 #[cfg(target_feature = "avx2")]
-pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8ErrorPure> {
-    avx2::validate_utf8_simd(input)
+pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
+    avx2::validate_utf8_pure_simd(input)
 }
 
 #[cfg(all(
@@ -48,17 +48,17 @@ pub(super) unsafe fn validate_utf8(input: &[u8]) -> Result<(), Utf8ErrorPure> {
 #[cfg_attr(not(feature = "no-inline"), inline)]
 fn get_fastest_available_implementation() -> super::ValidateUtf8Fn {
     if std::is_x86_feature_detected!("avx2") {
-        avx2::validate_utf8_simd
+        avx2::validate_utf8_pure_simd
     } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_simd
+        sse42::validate_utf8_pure_simd
     } else {
-        super::validate_utf8_fallback
+        super::validate_utf8_pure_fallback
     }
 }
 
 #[cfg(all(feature = "std", not(target_feature = "avx2"), not(forcesse42)))]
 #[cfg_attr(not(feature = "no-inline"), inline)]
-pub(super) unsafe fn validate_utf8(input: &[u8]) -> core::result::Result<(), Utf8ErrorPure> {
+pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> core::result::Result<(), Utf8ErrorPure> {
     use core::mem;
     use std::sync::atomic::{AtomicPtr, Ordering};
 

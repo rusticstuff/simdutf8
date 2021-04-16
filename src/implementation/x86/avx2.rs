@@ -318,6 +318,6 @@ impl SimdInput {
     }
 }
 
-validate_utf8_simd!("avx2");
+validate_utf8_pure_simd!("avx2");
 
 validate_utf8_compat_simd!("avx2");
