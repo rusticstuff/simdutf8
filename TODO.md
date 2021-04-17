@@ -8,6 +8,7 @@
 * test fuzzer against non-initialized single buffer bug (commit f0a2904c769c485e9f6524eaa5698082020a26b8)
 * public repo
 * crates.io
+* bench: move test top-level dir
 
 # LATER
 * cleanup lookup4 source code, make more inline with upstream impl if possible
