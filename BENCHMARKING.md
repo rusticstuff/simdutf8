@@ -9,14 +9,29 @@
 * disable hyper-threading (not sure if needed, my test machine has no hyper threading)
 
 # Factors affecting performance
-* missed inlining plays a huge role of course
+* missed inlining plays a huge role of course, unfortunately one can not use `#[inline(always)] on
+* functions with `#[target_feature(enable = "...")]` and even that would only be a hint. What is needed
+* is an error on non-inlining. Simulating that using [cargo asm](https://github.com/gnzlbg/cargo-asm) to
+* make sure that methods supposed to be inlined do not exist in the rlib.
 * alignment plays a huge role
 * * up to 20% better performance on long but unaligned slices (which are apparently likely at least on Linux)
 * * the added code causes a litte slowdown in compat on shorter inputs
     and unfortunately a large slowdown on pure ASCII for all input sizes (to be investigated)
+
+# Lessons learned
+* Stack-allocated 64-byte arrays are 64-byte-aligned automatically on x86-64 (same code as struct
+  containing the array with
 
 # Tuning criterion
 
 # Laptops
 * Generally more noisy due to power and temperature constraints
 * Beware of BD PROCHOT on aged machines, can cause severe throttling
+
+
+# ideas
+* not 0x20-initialized temp buf but 0-init, check difference
+* base: also test with aligned buffer
+* align simdinput, utf8 state
+* use one temporary buffer
+* benchmark against aligned and unaligned
