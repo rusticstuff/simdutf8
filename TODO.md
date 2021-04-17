@@ -12,7 +12,7 @@
 * fuzz testing of all impls
 
 # NEXT
-* save new baselines
 * test nightly again (fast locally???)
 * test nightly+likely again - any difference?
 * remove codegen-units for bench (should not be needed) -> benchmark to be sure
+* test fuzzer against non-initialized single buffer bug (commit f0a2904c769c485e9f6524eaa5698082020a26b8)

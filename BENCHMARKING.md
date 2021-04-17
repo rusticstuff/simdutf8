@@ -31,9 +31,8 @@
 
 
 # ideas
-* not 0x20-initialized temp buf but 0-init, check difference
-* base: also test with aligned buffer
-* align simdinput, utf8 state
-* use one temporary buffer
-* benchmark against aligned and unaligned
+* in test: 0-initialized temp buf instead of 0x20-initialized (less instructions) -> ✔️ improved perf.
+* in test: single 0-initialized temp buf ->
+* in test: with aligned buffer (same inst count, effect confirmed in assembly) ->
+* future: align simdinput, utf8 state
 * test limit when to start alignment
