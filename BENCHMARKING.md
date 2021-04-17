@@ -11,7 +11,7 @@
 # Factors affecting performance
 * missed inlining plays a huge role of course
 * alignment plays a huge role
-* * up to 20% better performance on long inputs
+* * up to 20% better performance on long but unaligned slices (which are apparently likely at least on Linux)
 * * the added code causes a litte slowdown in compat on shorter inputs
     and unfortunately a large slowdown on pure ASCII for all input sizes (to be investigated)
 
