@@ -92,7 +92,7 @@ jobs:
     runs-on: fisheye
     strategy:
       matrix:
-        benchmark: [pure, compat]
+        benchmark: [pure]
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
@@ -108,7 +108,7 @@ jobs:
         run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$SHORT_SHA --noplot
         env:
           RUSTFLAGS: -C target-feature=+avx2
-      - name: Critcmp comparison new+avx2 vs avx2 baseline
+      - name: Critcmp comparison new+avx2 (${{ env.SHORT_SHA }}) vs avx2 baseline
         run: critcmp ${{ matrix.benchmark }}-avx2-$SHORT_SHA baselines/${{ matrix.benchmark }}-avx2.json --color=always
       - name: Critcmp avx2 export
         run: critcmp --export ${{ matrix.benchmark }}-avx2-$SHORT_SHA > new_baselines/${{ matrix.benchmark }}-avx2-$SHORT_SHA.json
@@ -116,7 +116,7 @@ jobs:
       #   run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-auto-$SHORT_SHA --noplot
       # - name: Critcmp comparison new+avx2 vs new+auto
       #   run: critcmp ${{ matrix.benchmark }}-avx2-$SHORT_SHA ${{ matrix.benchmark }}-auto-$SHORT_SHA --color=always
-      # - name: Critcmp comparison new+auto vs auto baseline
+      # - name: Critcmp comparison new+auto (${{ env.SHORT_SHA }}) vs auto baseline
       #   run: critcmp ${{ matrix.benchmark }}-auto-$SHORT_SHA baselines/${{ matrix.benchmark }}-auto.json --color=always
       # - name: Critcmp auto export
       #   run: critcmp --export ${{ matrix.benchmark }}-auto-$SHORT_SHA > new_baselines/${{ matrix.benchmark }}-auto-$SHORT_SHA.json
