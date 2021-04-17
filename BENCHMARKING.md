@@ -9,8 +9,11 @@
 * disable hyper-threading (not sure if needed, my test machine has no hyper threading)
 
 # Factors affecting performance
-* inlining plays a huge role of course
-* alignment seems to play some role
+* missed inlining plays a huge role of course
+* alignment plays a huge role
+* * up to 20% better performance on long inputs
+* * the added code causes a litte slowdown in compat on shorter inputs
+    and unfortunately a large slowdown on pure ASCII for all input sizes (to be investigated)
 
 # Tuning criterion
 
