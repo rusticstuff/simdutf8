@@ -19,9 +19,10 @@
     and unfortunately a large slowdown on pure ASCII for all input sizes (to be investigated)
 
 # Lessons learned
-* Stack-allocated 64-byte arrays are 64-byte-aligned automatically on x86-64 (same code as struct
-  containing the array with
-* 0-initialized buffers are faster (less instructions)
+* 0-initialized temp buf instead of 0x20-initialized (less instructions) -> ✔️ improved perf.
+* single 0-initialized temp buf -> ❌ not faster
+* single aligned buffer -> ❌ not faster
+* double aligned buffer -> ✔️ improved perf.
 
 # Tuning criterion
 
@@ -31,13 +32,8 @@
 
 
 # ideas
-* in test: 0-initialized temp buf instead of 0x20-initialized (less instructions) -> ✔️ improved perf.
-* in test: single 0-initialized temp buf ->
-* in test: with aligned buffer (same inst count, effect confirmed in assembly) ->
-* future: align simdinput, utf8 state
+* future: align utf8 state
 * test limit when to start alignment
 
-# status
-* main77e4250f2 -> zero bytes instead of 0x20 + single buffer
-* ... aligned_buffer -> zero bytes instead of 0x20 + single buffer + single buffer is aligned
-* ... wo_single_buffer -> zero bytes instead of 0x20 + no other changes
+#test
+* test: aligned SimdInput makes a difference?
