@@ -6,7 +6,7 @@ edition = "2018"
 description = "TBD"
 documentation = "https://docs.rs/simdutf8/"
 homepage = "https://github.com/rusticstuff/simdutf8"
-repository = "hhttps://github.com/rusticstuff/simdutf8"
+repository = "https://github.com/rusticstuff/simdutf8"
 readme = "README.md"
 keywords = ["utf-8", "unicode", "string", "validation", "simd"]
 categories = ["encoding", "algorithms", "no-std"]
@@ -21,48 +21,8 @@ default = ["std"]
 
 std = []
 
+# use branch hints - requires nightly
+hints = []
+
 # don't inline code - used for debugging
 no-inline = []
-
-# use branch hints - requires nightly :(
-hints = [] # requires nightly
-
-# dependencies only needed for cargo bench
-bench = ["criterion", "criterion-cycles-per-byte", "core_affinity"]
-
-[dependencies]
-# benchmarking only, as normally dependencies behind feature flag for faster builds
-core_affinity = { version = "0.5", optional = true }
-criterion = { version = "0.3", optional = true }
-criterion-cycles-per-byte = { version = "0.1.2", optional = true }
-
-[dev-dependencies]
-
-
-[[bench]]
-name = "throughput_pure"
-harness = false
-
-[[bench]]
-name = "throughput_compat"
-harness = false
-
-[[bench]]
-name = "throughput_std"
-harness = false
-
-[[bench]]
-name = "cpb_pure"
-harness = false
-
-[[bench]]
-name = "cpb_compat"
-harness = false
-
-[[bench]]
-name = "cpb_std"
-harness = false
-
-[profile.bench]
-lto = true
-codegen-units = 1

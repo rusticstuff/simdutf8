@@ -1,6 +1,7 @@
 # Blurb
 * no-alloc
 * no-std
+* no-deps
 * Two APIS
 ** 1) 'compat' API fully compatible with `Utf8Error' `core::str::from_utf8()` and `std::str::from_utf8()`
       Meant as a general purpose replacement. Works well with streams as the `Utf8Error::valid_up_to()'

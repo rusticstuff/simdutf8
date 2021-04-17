@@ -1,0 +1,47 @@
+[package]
+name = "simdutf8-bench"
+version = "0.0.1"
+authors = ["Hans Kratz <hans@appfour.com>"]
+edition = "2018"
+description = "simdutf8 benchmark package"
+documentation = "https://docs.rs/simdutf8/"
+homepage = "https://github.com/rusticstuff/simdutf8"
+repository = "https://github.com/rusticstuff/simdutf8"
+license = "Apache-2.0"
+
+[lib]
+bench = false
+
+[dependencies]
+core_affinity = "0.5"
+criterion = "0.3"
+criterion-cycles-per-byte = "0.1.2"
+simdutf8 = { version = "*", path = ".." }
+
+[[bench]]
+name = "throughput_pure"
+harness = false
+
+[[bench]]
+name = "throughput_compat"
+harness = false
+
+[[bench]]
+name = "throughput_std"
+harness = false
+
+[[bench]]
+name = "cpb_pure"
+harness = false
+
+[[bench]]
+name = "cpb_compat"
+harness = false
+
+[[bench]]
+name = "cpb_std"
+harness = false
+
+[profile.bench]
+lto = true
+codegen-units = 1
