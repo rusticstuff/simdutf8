@@ -88,3 +88,6 @@ struct Utf8CheckingState<T> {
     incomplete: T,
     error: T,
 }
+
+#[repr(C, align(64))]
+struct AlignToSixtyFour([u8; 64]);
