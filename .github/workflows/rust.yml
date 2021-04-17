@@ -108,7 +108,7 @@ jobs:
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=`git rev-parse --short ${GITHUB_SHA}`" >> $GITHUB_ENV
       - name: Run avx2 benchmark
-        run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$SHORT_SHA --noplot
+        run: cargo bench --bench throughput_${{ matrix.benchmark }} -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$SHORT_SHA --noplot
         env:
           RUSTFLAGS: -C target-feature=+avx2
       - name: Critcmp comparison new+avx2 (${{ env.SHORT_SHA }}) vs avx2 baseline
@@ -116,7 +116,7 @@ jobs:
       - name: Critcmp avx2 export
         run: critcmp --export ${{ matrix.benchmark }}-avx2-$SHORT_SHA > new_baselines/${{ matrix.benchmark }}-avx2-$SHORT_SHA.json
       - name: Run auto benchmark
-        run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-auto-$SHORT_SHA --noplot
+        run: cargo bench --bench throughput_${{ matrix.benchmark }} -- --color=always --save-baseline ${{ matrix.benchmark }}-auto-$SHORT_SHA --noplot
       - name: Critcmp comparison new+auto (${{ env.SHORT_SHA }}) vs auto baseline
         run: critcmp ${{ matrix.benchmark }}-auto-$SHORT_SHA baselines/${{ matrix.benchmark }}-auto.json --color=always
       - name: Critcmp auto export
