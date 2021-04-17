@@ -98,6 +98,7 @@ macro_rules! validate_utf8_pure_simd {
             }
 
             if idx < len {
+                tmpbuf = [0; 64];
                 tmpbuf
                     .0
                     .as_mut_ptr()
@@ -169,6 +170,7 @@ macro_rules! validate_utf8_compat_simd {
                 idx += SIMDINPUT_LENGTH;
             }
             if idx < len {
+                tmpbuf = [0; 64];
                 tmpbuf
                     .0
                     .as_mut_ptr()
