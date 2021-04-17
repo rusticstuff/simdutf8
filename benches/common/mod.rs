@@ -102,7 +102,7 @@ fn bench_input<M: Measurement>(
     match bench_fn {
         BenchFn::Pure => {
             group.bench_with_input(
-                BenchmarkId::from_parameter(format!("{:05}", input.len())),
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
                 &input,
                 |b, &slice| {
                     b.iter(|| assert_eq!(pure_from_utf8(slice).is_ok(), expected_ok));
@@ -111,7 +111,7 @@ fn bench_input<M: Measurement>(
         }
         BenchFn::Compat => {
             group.bench_with_input(
-                BenchmarkId::from_parameter(format!("{:05}", input.len())),
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
                 &input,
                 |b, &slice| {
                     b.iter(|| assert_eq!(compat_from_utf8(slice).is_ok(), expected_ok));
@@ -120,7 +120,7 @@ fn bench_input<M: Measurement>(
         }
         BenchFn::Std => {
             group.bench_with_input(
-                BenchmarkId::from_parameter(format!("{:05}", input.len())),
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
                 &input,
                 |b, &slice| {
                     b.iter(|| assert_eq!(std_from_utf8(slice).is_ok(), expected_ok));
