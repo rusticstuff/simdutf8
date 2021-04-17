@@ -100,7 +100,7 @@ macro_rules! validate_utf8_pure_simd {
                     .1
                     .as_mut_ptr()
                     .copy_from(input.as_ptr().add(idx), len as usize - idx);
-                let input = SimdInput::new(&tmpbuf.0);
+                let input = SimdInput::new(&tmpbuf.1);
 
                 input.check_utf8(&mut state);
             }
@@ -169,7 +169,7 @@ macro_rules! validate_utf8_compat_simd {
                     .1
                     .as_mut_ptr()
                     .copy_from(input.as_ptr().add(idx), len as usize - idx);
-                let simd_input = SimdInput::new(&tmpbuf.0);
+                let simd_input = SimdInput::new(&tmpbuf.1);
 
                 simd_input.check_utf8(&mut state);
             }
