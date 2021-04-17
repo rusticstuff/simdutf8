@@ -36,3 +36,8 @@
 * in test: with aligned buffer (same inst count, effect confirmed in assembly) ->
 * future: align simdinput, utf8 state
 * test limit when to start alignment
+
+# status
+* main77e4250f2 -> zero bytes instead of 0x20 + single buffer
+* ... aligned_buffer -> zero bytes instead of 0x20 + single buffer + single buffer is aligned
+* ... wo_single_buffer -> zero bytes instead of 0x20 + no other changes
