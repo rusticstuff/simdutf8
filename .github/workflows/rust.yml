@@ -93,6 +93,9 @@ jobs:
     strategy:
       matrix:
         benchmark: [pure, compat]
+    defaults:
+      run:
+        working-directory: bench
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
