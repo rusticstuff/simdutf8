@@ -75,7 +75,7 @@ macro_rules! validate_utf8_pure_simd {
             if lenminus64 >= 16384 {
                 let off = ((input.as_ptr() as usize) & (SIMDINPUT_LENGTH - 1));
                 if off != 0 {
-                    let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0x20; SIMDINPUT_LENGTH];
+                    let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0; SIMDINPUT_LENGTH];
                     tmpbuf[off..]
                         .as_mut_ptr()
                         .copy_from(input.as_ptr(), 64 - off);
@@ -96,7 +96,7 @@ macro_rules! validate_utf8_pure_simd {
             }
 
             if idx < len {
-                let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0x20; SIMDINPUT_LENGTH];
+                let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0; SIMDINPUT_LENGTH];
                 tmpbuf
                     .as_mut_ptr()
                     .copy_from(input.as_ptr().add(idx), len as usize - idx);
@@ -137,7 +137,7 @@ macro_rules! validate_utf8_compat_simd {
             if lenminus64 >= 16384 {
                 let off = ((input.as_ptr() as usize) & (SIMDINPUT_LENGTH - 1));
                 if off != 0 {
-                    let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0x20; SIMDINPUT_LENGTH];
+                    let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0; SIMDINPUT_LENGTH];
                     tmpbuf[off..]
                         .as_mut_ptr()
                         .copy_from(input.as_ptr(), 64 - off);
@@ -164,7 +164,7 @@ macro_rules! validate_utf8_compat_simd {
                 idx += SIMDINPUT_LENGTH;
             }
             if idx < len {
-                let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0x20; SIMDINPUT_LENGTH];
+                let mut tmpbuf: [u8; SIMDINPUT_LENGTH] = [0; SIMDINPUT_LENGTH];
                 tmpbuf
                     .as_mut_ptr()
                     .copy_from(input.as_ptr().add(idx), len as usize - idx);
