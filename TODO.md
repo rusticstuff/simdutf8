@@ -15,7 +15,6 @@
 * test on fast dedicated cloud server
 * test nightly again (fast locally???)
 * test nightly+likely again - any difference?
-* remove codegen-units for bench (should not be needed) -> benchmark to be sure, LTO?
 * feature to make all available impls public as crate::implementation::*::from_utf8() (for non-std and
   benchmarking)?
 
