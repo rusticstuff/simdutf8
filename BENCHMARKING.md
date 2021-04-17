@@ -21,6 +21,7 @@
 # Lessons learned
 * Stack-allocated 64-byte arrays are 64-byte-aligned automatically on x86-64 (same code as struct
   containing the array with
+* 0-initialized buffers are faster (less instructions)
 
 # Tuning criterion
 
@@ -35,3 +36,4 @@
 * align simdinput, utf8 state
 * use one temporary buffer
 * benchmark against aligned and unaligned
+* test limit when to start alignment
