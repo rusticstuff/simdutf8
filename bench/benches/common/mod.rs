@@ -28,43 +28,43 @@ pub(super) fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn
     bench_input(&mut group, b"", false, true, bench_fn);
     group.finish();
 
-    // bench(
-    //     c,
-    //     "1-latin",
-    //     &scale_to_one_mib(include_bytes!("../text/Latin-Lipsum.txt")),
-    //     bench_fn,
-    // );
-    // bench(
-    //     c,
-    //     "2-cyrillic",
-    //     &scale_to_one_mib(include_bytes!("../text/Russian-Lipsum.txt")),
-    //     bench_fn,
-    // );
-    // bench(
-    //     c,
-    //     "3-chinese",
-    //     &scale_to_one_mib(include_bytes!("../text/Chinese-Lipsum.txt")),
-    //     bench_fn,
-    // );
-    // bench(
-    //     c,
-    //     "4-emoji",
-    //     &scale_to_one_mib(include_bytes!("../text/Emoji-Lipsum.txt")),
-    //     bench_fn,
-    // );
+    bench(
+        c,
+        "1-latin",
+        &scale_to_one_mib(include_bytes!("../text/Latin-Lipsum.txt")),
+        bench_fn,
+    );
+    bench(
+        c,
+        "2-cyrillic",
+        &scale_to_one_mib(include_bytes!("../text/Russian-Lipsum.txt")),
+        bench_fn,
+    );
+    bench(
+        c,
+        "3-chinese",
+        &scale_to_one_mib(include_bytes!("../text/Chinese-Lipsum.txt")),
+        bench_fn,
+    );
+    bench(
+        c,
+        "4-emoji",
+        &scale_to_one_mib(include_bytes!("../text/Emoji-Lipsum.txt")),
+        bench_fn,
+    );
 
-    // let mut group = c.benchmark_group("x-error");
-    // group.warm_up_time(Duration::from_secs(6));
-    // group.measurement_time(Duration::from_secs(10));
-    // group.sample_size(1000);
-    // bench_input(
-    //     &mut group,
-    //     b"\xFF".repeat(65536).as_slice(),
-    //     false,
-    //     false,
-    //     bench_fn,
-    // );
-    // group.finish();
+    let mut group = c.benchmark_group("x-error");
+    group.warm_up_time(Duration::from_secs(6));
+    group.measurement_time(Duration::from_secs(10));
+    group.sample_size(1000);
+    bench_input(
+        &mut group,
+        b"\xFF".repeat(65536).as_slice(),
+        false,
+        false,
+        bench_fn,
+    );
+    group.finish();
 }
 
 fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
