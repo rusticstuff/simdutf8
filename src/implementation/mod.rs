@@ -82,7 +82,7 @@ fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[repr(C, align(64))]
 struct Utf8CheckingState<T> {
     prev: T,
     incomplete: T,
