@@ -103,7 +103,7 @@ jobs:
       - name: mkdir new_baselines
         run: mkdir new_baselines
       - name: Add SHORT_SHA env property with commit short sha
-        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+        run: echo "SHORT_SHA=`git rev-parse --short ${GITHUB_SHA}`" >> $GITHUB_ENV
       - name: Run avx2 benchmark
         run: cargo bench --bench throughput_${{ matrix.benchmark }} --features=bench -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$SHORT_SHA --noplot
         env:
