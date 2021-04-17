@@ -1,13 +1,19 @@
 use criterion::{measurement::Measurement, BenchmarkGroup, BenchmarkId, Criterion, Throughput};
 use simdutf8::compat::from_utf8 as compat_from_utf8;
 use simdutf8::pure::from_utf8 as pure_from_utf8;
+
+use std::str::from_utf8 as std_from_utf8;
 use std::time::Duration;
+
+#[macro_use]
+mod macros;
 
 #[derive(Clone, Copy)]
 #[allow(dead_code)]
 pub(super) enum BenchFn {
-    Fast,
+    Pure,
     Compat,
+    Std,
 }
 
 fn scale_to_one_mib(input: &[u8]) -> Vec<u8> {
@@ -94,7 +100,7 @@ fn bench_input<M: Measurement>(
         group.throughput(Throughput::Bytes(input.len() as u64));
     }
     match bench_fn {
-        BenchFn::Fast => {
+        BenchFn::Pure => {
             group.bench_with_input(
                 BenchmarkId::from_parameter(format!("{:05}", input.len())),
                 &input,
@@ -109,6 +115,15 @@ fn bench_input<M: Measurement>(
                 &input,
                 |b, &slice| {
                     b.iter(|| assert_eq!(compat_from_utf8(slice).is_ok(), expected_ok));
+                },
+            );
+        }
+        BenchFn::Std => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:05}", input.len())),
+                &input,
+                |b, &slice| {
+                    b.iter(|| assert_eq!(std_from_utf8(slice).is_ok(), expected_ok));
                 },
             );
         }
