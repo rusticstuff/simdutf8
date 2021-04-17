@@ -23,6 +23,7 @@
 * single 0-initialized temp buf -> ❌ not faster
 * single aligned buffer -> ❌ not faster
 * double aligned buffer -> ✔️ improved perf.
+* Aligment on `Utf8CheckingState<T>` and `SimdInput` -> ❌ not faster, but seems like a good idea nevertheless
 
 # Tuning criterion
 
