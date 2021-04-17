@@ -275,6 +275,7 @@ impl Utf8CheckingState<__m256i> {
     check_bytes!("avx2", __m256i);
 }
 
+#[repr(C, align(64))]
 struct SimdInput {
     v0: __m256i,
     v1: __m256i,
