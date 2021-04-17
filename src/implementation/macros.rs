@@ -122,6 +122,13 @@ macro_rules! validate_utf8_compat_simd {
         pub(super) unsafe fn validate_utf8_compat_simd(
             input: &[u8],
         ) -> core::result::Result<(), crate::compat::Utf8Error> {
+            validate_utf8_compat_simd0(input)
+                .map_err(|idx| crate::implementation::get_compat_error(input, idx))
+        }
+
+        #[target_feature(enable = $feat)]
+        #[cfg_attr(not(feature = "no-inline"), inline)]
+        unsafe fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
             const SIMDINPUT_LENGTH: usize = 64;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
@@ -137,7 +144,7 @@ macro_rules! validate_utf8_compat_simd {
                     let simd_input = SimdInput::new(&tmpbuf);
                     simd_input.check_utf8(&mut state);
                     if SimdInput::check_utf8_errors(&state) {
-                        return Err(crate::implementation::get_compat_error(input, idx));
+                        return Err(idx);
                     }
                     idx += 64 - off;
                 }
@@ -152,7 +159,7 @@ macro_rules! validate_utf8_compat_simd {
                 let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                 simd_input.check_utf8(&mut state);
                 if SimdInput::check_utf8_errors(&state) {
-                    return Err(crate::implementation::get_compat_error(input, idx));
+                    return Err(idx);
                 }
                 idx += SIMDINPUT_LENGTH;
             }
@@ -167,7 +174,7 @@ macro_rules! validate_utf8_compat_simd {
             }
             SimdInput::check_eof(&mut state);
             if unlikely!(SimdInput::check_utf8_errors(&state)) {
-                Err(crate::implementation::get_compat_error(input, idx))
+                Err(idx)
             } else {
                 Ok(())
             }
