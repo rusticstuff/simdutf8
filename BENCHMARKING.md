@@ -1,12 +1,12 @@
 # Measures for reproducible results
 * idle machine
-* performance governor
+* cpufreq performance governor
 * disable turbo mode
 * [cset shield](https://documentation.suse.com/sle-rt/12-SP4/html/SLE-RT-all/cha-shielding-model.html)
 * pin benchmark to one of the shielded cores
 * LTO makes a difference for some reason
-* codegen-units = 1 (most likely not needed)
-* disable hyper-threading (not sure if needed, my test machine has no hyper threading)
+* disable hyper-threading (not sure if necessary, my test machine has no hyper threading)
+* codegen-units = 1 (most likely not necessary)
 
 # Factors affecting performance
 * missed inlining plays a huge role of course, unfortunately one can not use `#[inline(always)] on
@@ -30,11 +30,3 @@
 # Laptops
 * Generally more noisy due to power and temperature constraints
 * Beware of BD PROCHOT on aged machines, can cause severe throttling
-
-
-# ideas
-* future: align utf8 state
-* test limit when to start alignment
-
-#test
-* test: aligned SimdInput makes a difference?
