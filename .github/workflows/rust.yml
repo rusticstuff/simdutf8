@@ -124,5 +124,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: baselines
-          path: new_baselines/*.json
+          path: bench/new_baselines/*.json
 
