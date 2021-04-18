@@ -1,7 +1,7 @@
 # TODO
 * licensing: simdjson, simd-json.rs, simdjson-utf8-bench
 * finish README.md
-* * thanks, licensing, features, pure vs compat, improvements, limitations etc.
+* * thanks, licensing, features, pure vs compat, improvements, limitations, which impl is used under which circumstances, benchmark against simdjson, etc.
 * api doc
 * badges
 * public repo
@@ -12,21 +12,15 @@
 * test on fast dedicated cloud server
 * why is nightly slower on smaller inputs (both compat and pure flavors)
 * test nightly+likely again - any difference?
-* feature to make all available impls public as crate::implementation::*::from_utf8() (for non-std and
-  benchmarking)?
 * test coverage
-* Benchmark against simdjson
 * Benchmark and test aligned and unaligned
-* Check if std can be autovectorized
+* Check if std impl. benefits from AVX 2 (xargo)
 * Test if aligning on SIMD width is sufficient
-* Table, which impl is used under which circumstances
-* libfuzz testing: old testcase
 * fuzz: sse42
 * investigate slowness pure: why is ASCII processing comparred to GCC-compiled simdjson-utf8,
   clang-compiled is as slow
-* expose implementations
+* expose implementations w/ a feature
+* always benchmark with unaligned/aligned input
 
 # NEXT
-* remove indirections via pub(crate) use?
 * run test against all impls
-* always benchmark with unaligned/aligned input
