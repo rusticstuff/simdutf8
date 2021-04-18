@@ -62,7 +62,7 @@ jobs:
             profile: minimal
             override: true
       - name: Build
-        run: cargo build --no-default-features ${{ matrix.features }} --verbose
+        run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
 
   clippy_check:
     runs-on: playhouse
