@@ -8,7 +8,7 @@ mod macros;
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 #[macro_use]
-pub(crate) mod x86;
+mod x86;
 
 /// UTF-8 validation function type
 #[allow(dead_code)]

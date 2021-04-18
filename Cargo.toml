@@ -23,5 +23,3 @@ std = []
 
 # use branch hints - requires nightly
 hints = []
-
-expose_implementations = []
