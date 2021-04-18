@@ -1,4 +1,3 @@
-#[allow(unused_macros)]
 #[macro_export]
 macro_rules! define_throughput_benchmark {
     ($bench_fn:expr) => {
@@ -23,7 +22,6 @@ macro_rules! define_throughput_benchmark {
     };
 }
 
-#[allow(unused_macros)]
 #[macro_export]
 macro_rules! define_cpb_benchmark {
     ($bench_fn:expr) => {

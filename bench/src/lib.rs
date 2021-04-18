@@ -12,7 +12,6 @@ use simdjson_utf8::validate as simdjson_validate;
 mod macros;
 
 #[derive(Clone, Copy)]
-#[allow(dead_code)]
 pub enum BenchFn {
     Pure,
     Compat,
