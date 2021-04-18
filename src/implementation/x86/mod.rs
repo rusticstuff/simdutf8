@@ -2,10 +2,10 @@ use super::Utf8ErrorCompat;
 use super::Utf8ErrorPure;
 
 #[allow(dead_code)]
-mod avx2;
+pub(crate) mod avx2;
 
 #[allow(dead_code)]
-mod sse42;
+pub(crate) mod sse42;
 
 // validate_utf8_pure() std
 
