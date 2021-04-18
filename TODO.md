@@ -24,6 +24,6 @@
 * fuzz: sse42
 
 # NEXT
-* confirm that all is equal and then remove special benchmark for avx2
+* run test against all impls
 * always test with unaligned/aligned input
 * investigate slowness pure: ASCII compared to simdjson
