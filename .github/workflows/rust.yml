@@ -35,6 +35,9 @@ jobs:
       matrix:
         toolchain: [stable, nightly]
         arch: [x86_64, i686]
+    defaults:
+      run:
+        working-directory: inlining
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -47,7 +50,7 @@ jobs:
           cargo clean;cargo asm|diff -u expected-methods-x86-std.txt -
           cargo clean;cargo asm --no-default-features|diff -u expected-methods-x86-nostd-fallback.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-avx2.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-sse4.2.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-sse42.txt -
 
   cross-build:
     runs-on: playhouse
