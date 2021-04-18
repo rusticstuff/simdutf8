@@ -41,6 +41,3 @@ harness = false
 [[bench]]
 name = "cpb_std"
 harness = false
-
-[profile.bench]
-lto = true
