@@ -1,0 +1,11 @@
+[package]
+name = "simdjson-utf8"
+authors = ["Milkey Mouse <milkeymouse@meme.institute>", "Hans Kratz <hans@appfour.com>"]
+license = "APACHE-2.0"
+version = "0.1.0"
+edition = "2018"
+publish = false
+
+[build-dependencies]
+bindgen = "0.54.0"
+cmake = "0.1.44"
