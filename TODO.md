@@ -1,11 +1,13 @@
 # TODO
 * licensing: simdjson, simd-json.rs, simdjson-utf8-bench
 * finish README.md
-* * thanks, licensing, features, pure vs compat, improvements, limitations, which impl is used under which circumstances, benchmark against simdjson, etc.
+  * thanks, licensing, features, pure vs compat, improvements, limitations, which impl is used under whic
+    circumstances, benchmark against simdjson, etc.
 * api doc
 * badges
-* public repo
+* github repo -> public
 * crates.io
+* announce
 
 # LATER
 * cleanup lookup4 source code, make more inline with upstream impl if possible
@@ -23,4 +25,3 @@
 * always benchmark with unaligned/aligned input
 
 # NEXT
-* run test against all impls
