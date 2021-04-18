@@ -22,8 +22,11 @@
 * Table, which impl is used under which circumstances
 * libfuzz testing: old testcase
 * fuzz: sse42
+* investigate slowness pure: why is ASCII processing comparred to GCC-compiled simdjson-utf8,
+  clang-compiled is as slow
+* expose implementations
 
 # NEXT
+* remove indirections via pub(crate) use?
 * run test against all impls
-* always test with unaligned/aligned input
-* investigate slowness pure: ASCII compared to simdjson
+* always benchmark with unaligned/aligned input
