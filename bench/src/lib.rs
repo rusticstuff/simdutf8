@@ -25,9 +25,9 @@ pub fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: Bench
     let core_ids = core_affinity::get_core_ids().unwrap();
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
-    // let mut group = c.benchmark_group("0-empty");
-    // bench_input(&mut group, b"", false, true, bench_fn);
-    // group.finish();
+    let mut group = c.benchmark_group("0-empty");
+    bench_input(&mut group, b"", false, true, bench_fn);
+    group.finish();
 
     bench(
         c,
@@ -35,37 +35,37 @@ pub fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: Bench
         &scale_to_one_mib(include_bytes!("../data/Latin-Lipsum.txt")),
         bench_fn,
     );
-    // bench(
-    //     c,
-    //     "2-cyrillic",
-    //     &scale_to_one_mib(include_bytes!("../data/Russian-Lipsum.txt")),
-    //     bench_fn,
-    // );
-    // bench(
-    //     c,
-    //     "3-chinese",
-    //     &scale_to_one_mib(include_bytes!("../data/Chinese-Lipsum.txt")),
-    //     bench_fn,
-    // );
-    // bench(
-    //     c,
-    //     "4-emoji",
-    //     &scale_to_one_mib(include_bytes!("../data/Emoji-Lipsum.txt")),
-    //     bench_fn,
-    // );
+    bench(
+        c,
+        "2-cyrillic",
+        &scale_to_one_mib(include_bytes!("../data/Russian-Lipsum.txt")),
+        bench_fn,
+    );
+    bench(
+        c,
+        "3-chinese",
+        &scale_to_one_mib(include_bytes!("../data/Chinese-Lipsum.txt")),
+        bench_fn,
+    );
+    bench(
+        c,
+        "4-emoji",
+        &scale_to_one_mib(include_bytes!("../data/Emoji-Lipsum.txt")),
+        bench_fn,
+    );
 
-    // let mut group = c.benchmark_group("x-error");
-    // group.warm_up_time(Duration::from_secs(6));
-    // group.measurement_time(Duration::from_secs(10));
-    // group.sample_size(1000);
-    // bench_input(
-    //     &mut group,
-    //     b"\xFF".repeat(65536).as_slice(),
-    //     false,
-    //     false,
-    //     bench_fn,
-    // );
-    // group.finish();
+    let mut group = c.benchmark_group("x-error");
+    group.warm_up_time(Duration::from_secs(6));
+    group.measurement_time(Duration::from_secs(10));
+    group.sample_size(1000);
+    bench_input(
+        &mut group,
+        b"\xFF".repeat(65536).as_slice(),
+        false,
+        false,
+        bench_fn,
+    );
+    group.finish();
 }
 
 fn scale_to_one_mib(input: &[u8]) -> Vec<u8> {
