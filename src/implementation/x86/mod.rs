@@ -1,6 +1,3 @@
-use super::Utf8ErrorCompat;
-use super::Utf8ErrorPure;
-
 #[allow(dead_code)]
 mod avx2;
 
@@ -11,7 +8,9 @@ mod sse42;
 
 #[cfg(feature = "std")]
 #[inline]
-pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> core::result::Result<(), Utf8ErrorPure> {
+pub(crate) unsafe fn validate_utf8_pure(
+    input: &[u8],
+) -> core::result::Result<(), crate::pure::Utf8Error> {
     use core::mem;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
@@ -19,7 +18,7 @@ pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> core::result::Result<()
 
     static FN: AtomicPtr<()> = AtomicPtr::new(get_fastest as FnRaw);
 
-    unsafe fn get_fastest(input: &[u8]) -> core::result::Result<(), Utf8ErrorPure> {
+    unsafe fn get_fastest(input: &[u8]) -> core::result::Result<(), crate::pure::Utf8Error> {
         let fun = get_fastest_available_implementation_pure();
         FN.store(fun as FnRaw, Ordering::Relaxed);
         (fun)(input)
@@ -33,49 +32,40 @@ pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> core::result::Result<()
 #[inline]
 fn get_fastest_available_implementation_pure() -> super::ValidateUtf8Fn {
     if std::is_x86_feature_detected!("avx2") {
-        avx2::validate_utf8_pure_simd
+        avx2::validate_utf8_pure
     } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_pure_simd
+        sse42::validate_utf8_pure
     } else {
         super::validate_utf8_pure_fallback
     }
 }
 
-// alidate_utf8_pure() no-std implementations
+// validate_utf8_pure() no-std implementations
 
 #[cfg(all(not(feature = "std"), target_feature = "avx2"))]
-#[inline]
-pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
-    avx2::validate_utf8_pure_simd(input)
-}
+pub(crate) use avx2::validate_utf8_pure;
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
     target_feature = "sse4.2"
 ))]
-#[inline]
-pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
-    sse42::validate_utf8_pure_simd(input)
-}
+pub(crate) use sse42::validate_utf8_pure;
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
     not(target_feature = "sse4.2")
 ))]
-#[inline]
-pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
-    super::validate_utf8_pure_fallback(input)
-}
+pub(crate) use super::validate_utf8_pure_fallback as validate_utf8_pure;
 
 // validate_utf8_compat() implementations
 
 #[cfg(feature = "std")]
 #[inline]
-pub(super) unsafe fn validate_utf8_compat(
+pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
-) -> core::result::Result<(), Utf8ErrorCompat> {
+) -> core::result::Result<(), crate::compat::Utf8Error> {
     use core::mem;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
@@ -83,7 +73,7 @@ pub(super) unsafe fn validate_utf8_compat(
 
     static FN: AtomicPtr<()> = AtomicPtr::new(get_fastest as FnRaw);
 
-    unsafe fn get_fastest(input: &[u8]) -> core::result::Result<(), Utf8ErrorCompat> {
+    unsafe fn get_fastest(input: &[u8]) -> core::result::Result<(), crate::compat::Utf8Error> {
         let fun = get_fastest_available_implementation_compat();
         FN.store(fun as FnRaw, Ordering::Relaxed);
         (fun)(input)
@@ -97,9 +87,9 @@ pub(super) unsafe fn validate_utf8_compat(
 #[inline]
 fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn {
     if std::is_x86_feature_detected!("avx2") {
-        avx2::validate_utf8_compat_simd
+        avx2::validate_utf8_compat
     } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_compat_simd
+        sse42::validate_utf8_compat
     } else {
         super::validate_utf8_compat_fallback
     }
@@ -108,27 +98,18 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
 // validate_utf8_compat() no-std implementations
 
 #[cfg(all(not(feature = "std"), target_feature = "avx2"))]
-#[inline]
-pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
-    avx2::validate_utf8_compat_simd(input)
-}
+pub(crate) use avx2::validate_utf8_compat;
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
     target_feature = "sse4.2"
 ))]
-#[inline]
-pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
-    sse42::validate_utf8_compat_simd(input)
-}
+pub(crate) use sse42::validate_utf8_compat;
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
     not(target_feature = "sse4.2")
 ))]
-#[inline]
-pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
-    super::validate_utf8_compat_fallback(input)
-}
+pub(crate) use super::validate_utf8_compat_fallback as validate_utf8_compat;
