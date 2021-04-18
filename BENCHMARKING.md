@@ -4,7 +4,6 @@
 * disable turbo mode
 * [cset shield](https://documentation.suse.com/sle-rt/12-SP4/html/SLE-RT-all/cha-shielding-model.html)
 * pin benchmark to one of the shielded cores
-* LTO makes a difference for some reason, use it.
 * disable hyper-threading (not sure if necessary, my test machine has no hyper threading)
 * codegen-units = 1 (most likely not necessary)
 
