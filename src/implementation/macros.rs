@@ -73,17 +73,17 @@ macro_rules! validate_utf8_pure_simd {
             let mut idx: usize = 0;
             let mut tmpbuf = crate::implementation::AlignToSixtyFour([0; 64], [0; 64]);
 
-            if lenminus64 >= 4096 {
-                let off = ((input.as_ptr() as usize) & (SIMDINPUT_LENGTH - 1));
-                if off != 0 {
-                    tmpbuf.0[off..]
-                        .as_mut_ptr()
-                        .copy_from(input.as_ptr(), 64 - off);
-                    let simd_input = SimdInput::new(&tmpbuf.0);
-                    simd_input.check_utf8(&mut state);
-                    idx += 64 - off;
-                }
-            }
+            // if lenminus64 >= 4096 {
+            //     let off = ((input.as_ptr() as usize) & (SIMDINPUT_LENGTH - 1));
+            //     if off != 0 {
+            //         tmpbuf.0[off..]
+            //             .as_mut_ptr()
+            //             .copy_from(input.as_ptr(), 64 - off);
+            //         let simd_input = SimdInput::new(&tmpbuf.0);
+            //         simd_input.check_utf8(&mut state);
+            //         idx += 64 - off;
+            //     }
+            // }
             while idx < lenminus64 {
                 /*
                 #ifndef _MSC_VER
