@@ -17,7 +17,6 @@ jobs:
         toolchain: [stable, nightly]
         arch: [x86_64, i686]
         features: ["--features std", ""]
-        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -43,12 +42,8 @@ jobs:
             toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
             profile: minimal
             override: true
-      - name: Check if the expected fns are inlined (auto)
-        run: cargo asm|diff -u expected-methods-x86-auto.txt -
-      - name: Check if the expected fns are inlined (avx2)
-        run: cargo asm|diff -u expected-methods-x86-avx2.txt -
-        env:
-          RUSTFLAGS: -C target-feature=+avx2
+      - name: Check if the expected fns are inlined
+        run: cargo asm|diff -u expected-methods-x86.txt -
 
   cross-build:
     runs-on: playhouse
@@ -107,20 +102,12 @@ jobs:
         run: mkdir new_baselines
       - name: Add SHORT_SHA env property with commit short sha
         run: echo "SHORT_SHA=`git rev-parse --short ${GITHUB_SHA}`" >> $GITHUB_ENV
-      - name: Run avx2 benchmark
-        run: cargo bench --bench throughput_${{ matrix.benchmark }} -- --color=always --save-baseline ${{ matrix.benchmark }}-avx2-$SHORT_SHA --noplot
-        env:
-          RUSTFLAGS: -C target-feature=+avx2
-      - name: Critcmp comparison new+avx2 (${{ env.SHORT_SHA }}) vs avx2 baseline
-        run: critcmp ${{ matrix.benchmark }}-avx2-$SHORT_SHA baselines/${{ matrix.benchmark }}-avx2.json --color=always
-      - name: Critcmp avx2 export
-        run: critcmp --export ${{ matrix.benchmark }}-avx2-$SHORT_SHA > new_baselines/${{ matrix.benchmark }}-avx2-$SHORT_SHA.json
-      - name: Run auto benchmark
-        run: cargo bench --bench throughput_${{ matrix.benchmark }} -- --color=always --save-baseline ${{ matrix.benchmark }}-auto-$SHORT_SHA --noplot
-      - name: Critcmp comparison new+auto (${{ env.SHORT_SHA }}) vs auto baseline
-        run: critcmp ${{ matrix.benchmark }}-auto-$SHORT_SHA baselines/${{ matrix.benchmark }}-auto.json --color=always
-      - name: Critcmp auto export
-        run: critcmp --export ${{ matrix.benchmark }}-auto-$SHORT_SHA > new_baselines/${{ matrix.benchmark }}-auto-$SHORT_SHA.json
+      - name: Run benchmark
+        run: cargo bench --bench throughput_${{ matrix.benchmark }} -- --color=always --save-baseline ${{ matrix.benchmark }}-$SHORT_SHA --noplot
+      - name: Critcmp comparison new (${{ env.SHORT_SHA }}) vs baseline
+        run: critcmp ${{ matrix.benchmark }}-$SHORT_SHA baselines/${{ matrix.benchmark }}.json --color=always
+      - name: Critcmp export
+        run: critcmp --export ${{ matrix.benchmark }}-$SHORT_SHA > new_baselines/${{ matrix.benchmark }}-$SHORT_SHA.json
       - uses: actions/upload-artifact@v2
         with:
           name: baselines
