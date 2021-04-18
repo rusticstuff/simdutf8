@@ -9,7 +9,7 @@ pub(crate) mod sse42;
 
 // validate_utf8_pure() std
 
-#[cfg(all(feature = "std", not(std_force_avx2), not(std_force_sse42)))]
+#[cfg(feature = "std")]
 #[inline]
 pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> core::result::Result<(), Utf8ErrorPure> {
     use core::mem;
@@ -29,7 +29,7 @@ pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> core::result::Result<()
     mem::transmute::<FnRaw, super::ValidateUtf8Fn>(fun)(input)
 }
 
-#[cfg(all(feature = "std", not(std_force_avx2), not(std_force_sse42)))]
+#[cfg(feature = "std")]
 #[inline]
 fn get_fastest_available_implementation_pure() -> super::ValidateUtf8Fn {
     if std::is_x86_feature_detected!("avx2") {
@@ -41,25 +41,20 @@ fn get_fastest_available_implementation_pure() -> super::ValidateUtf8Fn {
     }
 }
 
-// alidate_utf8_pure() no-std/std_force_* implementations
+// alidate_utf8_pure() no-std implementations
 
-#[cfg(any(all(not(feature = "std"), target_feature = "avx2"), std_force_avx2))]
+#[cfg(all(not(feature = "std"), target_feature = "avx2"))]
 #[inline]
-#[target_feature(enable = "avx2")]
 pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
     avx2::validate_utf8_pure_simd(input)
 }
 
-#[cfg(any(
-    all(
-        not(feature = "std"),
-        not(target_feature = "avx2"),
-        target_feature = "sse4.2"
-    ),
-    std_force_sse42
+#[cfg(all(
+    not(feature = "std"),
+    not(target_feature = "avx2"),
+    target_feature = "sse4.2"
 ))]
 #[inline]
-#[target_feature(enable = "sse4.2")]
 pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
     sse42::validate_utf8_pure_simd(input)
 }
@@ -76,7 +71,7 @@ pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPur
 
 // validate_utf8_compat() implementations
 
-#[cfg(all(feature = "std", not(std_force_avx2), not(std_force_sse42)))]
+#[cfg(feature = "std")]
 #[inline]
 pub(super) unsafe fn validate_utf8_compat(
     input: &[u8],
@@ -98,7 +93,7 @@ pub(super) unsafe fn validate_utf8_compat(
     mem::transmute::<FnRaw, super::ValidateUtf8CompatFn>(fun)(input)
 }
 
-#[cfg(all(feature = "std", not(std_force_avx2), not(std_force_sse42)))]
+#[cfg(feature = "std")]
 #[inline]
 fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn {
     if std::is_x86_feature_detected!("avx2") {
@@ -110,25 +105,20 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
     }
 }
 
-// validate_utf8_compat() no-std/std_force_* implementations
+// validate_utf8_compat() no-std implementations
 
-#[cfg(any(all(not(feature = "std"), target_feature = "avx2"), std_force_avx2))]
+#[cfg(all(not(feature = "std"), target_feature = "avx2"))]
 #[inline]
-#[target_feature(enable = "avx2")]
 pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
     avx2::validate_utf8_compat_simd(input)
 }
 
-#[cfg(any(
-    all(
-        not(feature = "std"),
-        not(target_feature = "avx2"),
-        target_feature = "sse4.2"
-    ),
-    std_force_sse42
+#[cfg(all(
+    not(feature = "std"),
+    not(target_feature = "avx2"),
+    target_feature = "sse4.2"
 ))]
 #[inline]
-#[target_feature(enable = "sse4.2")]
 pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
     sse42::validate_utf8_compat_simd(input)
 }
