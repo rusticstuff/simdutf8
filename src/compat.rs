@@ -2,6 +2,7 @@
 
 use core::fmt::Display;
 use core::fmt::Formatter;
+
 use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};
 
 use crate::implementation::validate_utf8_compat;
@@ -80,7 +81,7 @@ pub mod imp {
             //! AVX-2 implementation exposed.
 
             use super::super::super::Utf8Error;
-            use crate::implementation::x86::avx2::validate_utf8_compat_simd as validate_utf8_compat;
+            use crate::implementation::x86::avx2::validate_utf8_compat_simd_always_inline as validate_utf8_compat;
             use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};
 
             /// AVX 2 implementation of `crate::compat::from_utf8()`
@@ -110,7 +111,7 @@ pub mod imp {
             //! SSE 4.2 implementation exposed.
 
             use super::super::super::Utf8Error;
-            use crate::implementation::x86::sse42::validate_utf8_compat_simd as validate_utf8_compat;
+            use crate::implementation::x86::sse42::validate_utf8_compat_simd_always_inline as validate_utf8_compat;
             use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};
 
             /// SSE 4.2 implementation of `crate::compat::from_utf8()`

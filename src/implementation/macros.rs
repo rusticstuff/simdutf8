@@ -61,6 +61,13 @@ macro_rules! check_bytes {
 /// validate_utf8_pure_simd_impl() strategy and wrapper
 macro_rules! validate_utf8_pure_simd {
     ($feat:expr) => {
+        #[inline(always)]
+        pub(crate) unsafe fn validate_utf8_pure_simd_always_inline(
+            input: &[u8],
+        ) -> core::result::Result<(), crate::pure::Utf8Error> {
+            validate_utf8_pure_simd(input)
+        }
+
         #[target_feature(enable = $feat)]
         #[inline]
         pub(crate) unsafe fn validate_utf8_pure_simd(
@@ -117,6 +124,14 @@ macro_rules! validate_utf8_pure_simd {
 /// validate_utf8_pure_simd_impl_compat() strategy and wrapper
 macro_rules! validate_utf8_compat_simd {
     ($feat:expr) => {
+        #[inline(always)]
+        pub(crate) unsafe fn validate_utf8_compat_simd_always_inline(
+            input: &[u8],
+        ) -> core::result::Result<(), crate::compat::Utf8Error> {
+            validate_utf8_compat_simd0(input)
+                .map_err(|idx| crate::implementation::get_compat_error(input, idx))
+        }
+
         #[target_feature(enable = $feat)]
         #[inline]
         pub(crate) unsafe fn validate_utf8_compat_simd(

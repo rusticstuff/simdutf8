@@ -41,7 +41,7 @@ pub mod imp {
             //! AVX-2 implementation exposed.
 
             use super::super::super::Utf8Error;
-            use crate::implementation::x86::avx2::validate_utf8_pure_simd as validate_utf8_pure;
+            use crate::implementation::x86::avx2::validate_utf8_pure_simd_always_inline as validate_utf8_pure;
             use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};
 
             /// AVX 2 implementation of `crate::compat::from_utf8()`
@@ -71,7 +71,7 @@ pub mod imp {
             //! SSE 4.2 implementation exposed.
 
             use super::super::super::Utf8Error;
-            use crate::implementation::x86::sse42::validate_utf8_pure_simd as validate_utf8_pure;
+            use crate::implementation::x86::sse42::validate_utf8_pure_simd_always_inline as validate_utf8_pure;
             use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};
 
             /// SSE 4.2 implementation of `crate::compat::from_utf8()`
