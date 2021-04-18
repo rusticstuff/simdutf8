@@ -14,7 +14,14 @@
 * test nightly+likely again - any difference?
 * feature to make all available impls public as crate::implementation::*::from_utf8() (for non-std and
   benchmarking)?
+* test coverage
+* Benchmark against simdjson
+* Benchmark and test aligned and unaligned
+* Check if std can be autovectorized
+* Test if aligning on SIMD width is sufficient
+* Table, which impl is used under which circumstances
+* libfuzz testing: old testcase
+* fuzz: sse42
 
 # NEXT
-* fuzz testing: check results, sse42
 * bench: move test top-level, usr src/ for common
