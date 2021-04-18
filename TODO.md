@@ -24,4 +24,3 @@
 * fuzz: sse42
 
 # NEXT
-* bench: move test top-level, usr src/ for common
