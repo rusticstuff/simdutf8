@@ -1,4 +1,3 @@
-#[macro_use]
-mod common;
+use simdutf8_bench::define_cpb_benchmark;
 
 define_cpb_benchmark!(BenchFn::Compat);

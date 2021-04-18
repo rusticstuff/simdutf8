@@ -1,4 +1,5 @@
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! define_throughput_benchmark {
     ($bench_fn:expr) => {
         use std::time::Duration;
@@ -6,7 +7,7 @@ macro_rules! define_throughput_benchmark {
         use criterion::measurement::Measurement;
         use criterion::{criterion_group, criterion_main, Criterion};
 
-        use common::*;
+        use simdutf8_bench::*;
 
         fn benchmark_compat<M: Measurement>(c: &mut Criterion<M>) {
             criterion_benchmark(c, $bench_fn);
@@ -23,6 +24,7 @@ macro_rules! define_throughput_benchmark {
 }
 
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! define_cpb_benchmark {
     ($bench_fn:expr) => {
         use std::time::Duration;
@@ -31,7 +33,7 @@ macro_rules! define_cpb_benchmark {
         use criterion::{criterion_group, criterion_main, Criterion};
         use criterion_cycles_per_byte::CyclesPerByte;
 
-        use common::*;
+        use simdutf8_bench::*;
 
         fn benchmark_fast<M: Measurement>(c: &mut Criterion<M>) {
             criterion_benchmark(c, $bench_fn);
