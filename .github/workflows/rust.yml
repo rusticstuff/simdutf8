@@ -43,7 +43,10 @@ jobs:
             profile: minimal
             override: true
       - name: Check if the expected fns are inlined
-        run: cargo asm|diff -u expected-methods-x86.txt -
+        run: cargo clean;cargo asm|diff -u expected-methods-x86-std.txt -
+        run: cargo clean;cargo asm --no-default-features|diff -u expected-methods-x86-nostd-fallback.txt -
+        run: cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-avx2.txt -
+        run: cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-sse4.2.txt -
 
   cross-build:
     runs-on: playhouse

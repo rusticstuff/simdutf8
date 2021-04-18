@@ -1,0 +1,11 @@
+<&T as core::fmt::Debug>::fmt
+<() as core::fmt::Debug>::fmt
+<simdutf8::compat::Utf8Error as core::fmt::Debug>::fmt
+<simdutf8::compat::Utf8Error as core::fmt::Display>::fmt
+<simdutf8::pure::Utf8Error as core::fmt::Debug>::fmt
+core::ptr::drop_in_place<&u8>
+simdutf8::compat::from_utf8
+simdutf8::compat::from_utf8_mut
+simdutf8::implementation::get_compat_error
+simdutf8::pure::from_utf8
+simdutf8::pure::from_utf8_mut
