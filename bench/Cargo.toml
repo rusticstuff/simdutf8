@@ -12,11 +12,16 @@ license = "Apache-2.0"
 [lib]
 bench = false
 
+[features]
+simdjson = [ "simdjson-utf8" ]
+
 [dependencies]
 core_affinity = "0.5"
 criterion = "0.3"
 criterion-cycles-per-byte = "0.1.2"
 simdutf8 = { version = "*", path = ".." }
+
+simdjson-utf8 = { version = "*", path = "simdjson-utf8", optional = true }
 
 [[bench]]
 name = "throughput_pure"
@@ -31,6 +36,10 @@ name = "throughput_std"
 harness = false
 
 [[bench]]
+name = "throughput_simdjson"
+harness = false
+
+[[bench]]
 name = "cpb_pure"
 harness = false
 
@@ -40,4 +49,8 @@ harness = false
 
 [[bench]]
 name = "cpb_std"
+harness = false
+
+[[bench]]
+name = "cpb_simdjson"
 harness = false
