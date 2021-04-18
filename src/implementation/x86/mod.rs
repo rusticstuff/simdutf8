@@ -4,7 +4,7 @@ mod avx2;
 #[allow(dead_code)]
 mod sse42;
 
-// validate_utf8_pure() std
+// validate_utf8_pure() std: implementation auto-selection
 
 #[cfg(feature = "std")]
 #[inline]
@@ -40,7 +40,7 @@ fn get_fastest_available_implementation_pure() -> super::ValidateUtf8Fn {
     }
 }
 
-// validate_utf8_pure() no-std implementations
+// validate_utf8_pure() no-std: implementation selection by config
 
 #[cfg(all(not(feature = "std"), target_feature = "avx2"))]
 pub(crate) use avx2::validate_utf8_pure;
@@ -59,7 +59,7 @@ pub(crate) use sse42::validate_utf8_pure;
 ))]
 pub(crate) use super::validate_utf8_pure_fallback as validate_utf8_pure;
 
-// validate_utf8_compat() implementations
+// validate_utf8_compat() std: implementation auto-selection
 
 #[cfg(feature = "std")]
 #[inline]
@@ -95,7 +95,7 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
     }
 }
 
-// validate_utf8_compat() no-std implementations
+// validate_utf8_pure() no-std: implementation selection by config
 
 #[cfg(all(not(feature = "std"), target_feature = "avx2"))]
 pub(crate) use avx2::validate_utf8_compat;

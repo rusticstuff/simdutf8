@@ -6,22 +6,27 @@ type Utf8ErrorPure = crate::pure::Utf8Error;
 #[macro_use]
 mod macros;
 
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
-#[macro_use]
-mod x86;
+// UTF-8 validation function types
 
-/// UTF-8 validation function type
 #[allow(dead_code)]
 type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorPure>;
 
 #[allow(dead_code)]
 type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompat>;
 
+// arch-specific imports
+
+#[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
+#[macro_use]
+mod x86;
+
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(crate) use x86::validate_utf8_pure;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(crate) use x86::validate_utf8_compat;
+
+// fallback methods
 
 #[inline]
 #[allow(dead_code)]
@@ -37,6 +42,8 @@ pub(crate) fn validate_utf8_pure_fallback(input: &[u8]) -> Result<(), Utf8ErrorP
 pub(crate) fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
     validate_utf8_at_offset(input, 0)
 }
+
+// implementation helpers
 
 #[inline]
 fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
