@@ -23,8 +23,6 @@
 * SIMD implementations for x86/x86-64 AVX 2 and SSE 4.2, ports of the neon SIMD implementations for aarch64
   and armv7 are planned.
 
-* force-avx2, force-sse42
-
 
 # Limitations
 
