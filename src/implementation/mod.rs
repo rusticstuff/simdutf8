@@ -3,7 +3,6 @@
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 type Utf8ErrorPure = crate::pure::Utf8Error;
 
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 #[macro_use]
 mod macros;
 
