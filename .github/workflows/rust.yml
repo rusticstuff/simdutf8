@@ -17,6 +17,7 @@ jobs:
         toolchain: [stable, nightly]
         arch: [x86_64, i686]
         features: ["--features std", ""]
+        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
