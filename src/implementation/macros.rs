@@ -62,7 +62,7 @@ macro_rules! check_bytes {
 macro_rules! validate_utf8_pure_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]
-        #[cfg_attr(not(feature = "no-inline"), inline)]
+        #[inline]
         pub(super) unsafe fn validate_utf8_pure_simd(
             input: &[u8],
         ) -> core::result::Result<(), crate::pure::Utf8Error> {
@@ -118,7 +118,7 @@ macro_rules! validate_utf8_pure_simd {
 macro_rules! validate_utf8_compat_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]
-        #[cfg_attr(not(feature = "no-inline"), inline)]
+        #[inline]
         pub(super) unsafe fn validate_utf8_compat_simd(
             input: &[u8],
         ) -> core::result::Result<(), crate::compat::Utf8Error> {
@@ -127,7 +127,7 @@ macro_rules! validate_utf8_compat_simd {
         }
 
         #[target_feature(enable = $feat)]
-        #[cfg_attr(not(feature = "no-inline"), inline)]
+        #[inline]
         unsafe fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
             const SIMDINPUT_LENGTH: usize = 64;
             let len = input.len();

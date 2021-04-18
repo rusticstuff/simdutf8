@@ -19,7 +19,7 @@ use core::mem;
 
 impl Utf8CheckingState<__m128i> {
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn default() -> Self {
         Self {
             prev: _mm_setzero_si128(),
@@ -29,25 +29,25 @@ impl Utf8CheckingState<__m128i> {
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn or(a: __m128i, b: __m128i) -> __m128i {
         _mm_or_si128(a, b)
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn is_ascii(input: __m128i) -> bool {
         _mm_movemask_epi8(input) == 0
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_eof(error: __m128i, incomplete: __m128i) -> __m128i {
         Self::or(error, incomplete)
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn is_incomplete(input: __m128i) -> __m128i {
         _mm_subs_epu8(
             input,
@@ -73,13 +73,13 @@ impl Utf8CheckingState<__m128i> {
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn prev1(input: __m128i, prev: __m128i) -> __m128i {
         _mm_alignr_epi8(input, prev, 16 - 1)
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     #[allow(clippy::too_many_lines)]
     unsafe fn check_special_cases(input: __m128i, prev1: __m128i) -> __m128i {
         const TOO_SHORT: u8 = 1 << 0;
@@ -171,7 +171,7 @@ impl Utf8CheckingState<__m128i> {
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_multibyte_lengths(
         input: __m128i,
         prev: __m128i,
@@ -185,7 +185,7 @@ impl Utf8CheckingState<__m128i> {
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn must_be_2_3_continuation(prev2: __m128i, prev3: __m128i) -> __m128i {
         let is_third_byte =
             _mm_subs_epu8(prev2, _mm_set1_epi8(static_cast_i8!(0b1110_0000_u8 - 1)));
@@ -198,13 +198,13 @@ impl Utf8CheckingState<__m128i> {
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn has_error(error: __m128i) -> bool {
         _mm_testz_si128(error, error) != 1
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     check_bytes!("sse4.2", __m128i);
 }
 
@@ -218,7 +218,7 @@ struct SimdInput {
 
 impl SimdInput {
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn new(ptr: &[u8]) -> Self {
         Self {
@@ -230,13 +230,13 @@ impl SimdInput {
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn new_utf8_checking_state() -> Utf8CheckingState<__m128i> {
         Utf8CheckingState::<__m128i>::default()
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_utf8(&self, state: &mut Utf8CheckingState<__m128i>) {
         Utf8CheckingState::<__m128i>::check_bytes(self.v0, state);
         Utf8CheckingState::<__m128i>::check_bytes(self.v1, state);
@@ -245,13 +245,13 @@ impl SimdInput {
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_eof(state: &mut Utf8CheckingState<__m128i>) {
         state.error = Utf8CheckingState::<__m128i>::check_eof(state.error, state.incomplete);
     }
 
     #[target_feature(enable = "sse4.2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_utf8_errors(state: &Utf8CheckingState<__m128i>) -> bool {
         Utf8CheckingState::<__m128i>::has_error(state.error)
     }

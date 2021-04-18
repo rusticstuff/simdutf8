@@ -20,7 +20,7 @@ use core::mem;
 
 impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn default() -> Self {
         Self {
             prev: _mm256_setzero_si256(),
@@ -30,25 +30,25 @@ impl Utf8CheckingState<__m256i> {
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn or(a: __m256i, b: __m256i) -> __m256i {
         _mm256_or_si256(a, b)
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn is_ascii(input: __m256i) -> bool {
         _mm256_movemask_epi8(input) == 0
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_eof(error: __m256i, incomplete: __m256i) -> __m256i {
         Self::or(error, incomplete)
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn is_incomplete(input: __m256i) -> __m256i {
         _mm256_subs_epu8(
             input,
@@ -90,13 +90,13 @@ impl Utf8CheckingState<__m256i> {
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn prev1(input: __m256i, prev: __m256i) -> __m256i {
         _mm256_alignr_epi8(input, _mm256_permute2x128_si256(prev, input, 0x21), 16 - 1)
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     #[allow(clippy::too_many_lines)]
     unsafe fn check_special_cases(input: __m256i, prev1: __m256i) -> __m256i {
         const TOO_SHORT: u8 = 1 << 0;
@@ -238,7 +238,7 @@ impl Utf8CheckingState<__m256i> {
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_multibyte_lengths(
         input: __m256i,
         prev: __m256i,
@@ -252,7 +252,7 @@ impl Utf8CheckingState<__m256i> {
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn must_be_2_3_continuation(prev2: __m256i, prev3: __m256i) -> __m256i {
         let is_third_byte =
             _mm256_subs_epu8(prev2, _mm256_set1_epi8(static_cast_i8!(0b1110_0000_u8 - 1)));
@@ -265,13 +265,13 @@ impl Utf8CheckingState<__m256i> {
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn has_error(error: __m256i) -> bool {
         _mm256_testz_si256(error, error) != 1
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     check_bytes!("avx2", __m256i);
 }
 
@@ -283,7 +283,7 @@ struct SimdInput {
 
 impl SimdInput {
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn new(ptr: &[u8]) -> Self {
         Self {
@@ -293,26 +293,26 @@ impl SimdInput {
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn new_utf8_checking_state() -> Utf8CheckingState<__m256i> {
         Utf8CheckingState::<__m256i>::default()
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_utf8(&self, state: &mut Utf8CheckingState<__m256i>) {
         Utf8CheckingState::<__m256i>::check_bytes(self.v0, state);
         Utf8CheckingState::<__m256i>::check_bytes(self.v1, state);
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_eof(state: &mut Utf8CheckingState<__m256i>) {
         state.error = Utf8CheckingState::<__m256i>::check_eof(state.error, state.incomplete);
     }
 
     #[target_feature(enable = "avx2")]
-    #[cfg_attr(not(feature = "no-inline"), inline)]
+    #[inline]
     unsafe fn check_utf8_errors(state: &Utf8CheckingState<__m256i>) -> bool {
         Utf8CheckingState::<__m256i>::has_error(state.error)
     }

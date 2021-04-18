@@ -30,7 +30,7 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorC
     x86::validate_utf8_compat(input)
 }
 
-#[cfg_attr(not(feature = "no-inline"), inline)]
+#[inline]
 #[allow(dead_code)]
 fn validate_utf8_pure_fallback(input: &[u8]) -> Result<(), Utf8ErrorPure> {
     match core::str::from_utf8(input) {
@@ -39,13 +39,13 @@ fn validate_utf8_pure_fallback(input: &[u8]) -> Result<(), Utf8ErrorPure> {
     }
 }
 
-#[cfg_attr(not(feature = "no-inline"), inline)]
+#[inline]
 #[allow(dead_code)]
 fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
     validate_utf8_at_offset(input, 0)
 }
 
-#[cfg_attr(not(feature = "no-inline"), inline)]
+#[inline]
 fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
     use core::convert::TryFrom;
     match core::str::from_utf8(&input[offset..]) {
