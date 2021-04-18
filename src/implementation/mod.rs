@@ -3,6 +3,7 @@
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 type Utf8ErrorPure = crate::pure::Utf8Error;
 
+#[allow(unused_macros)]
 #[macro_use]
 mod macros;
 
@@ -14,7 +15,7 @@ type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorPure>;
 #[allow(dead_code)]
 type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompat>;
 
-// arch-specific imports
+// arch-specific functions
 
 #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
 #[macro_use]
@@ -36,7 +37,15 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorC
     x86::validate_utf8_compat(input)
 }
 
-// fallback methods
+// fallback for non-x86
+
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+pub(super) use validate_utf8_pure_fallback as validate_utf8_pure;
+
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;
+
+// fallback method implementions
 
 #[inline]
 #[allow(dead_code)]
@@ -72,6 +81,7 @@ fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorC
 }
 
 #[cold]
+#[allow(dead_code)]
 fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     let offset = if failing_block_pos == 0 {
         // Error must be in this block since it is the first.
@@ -92,6 +102,7 @@ fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
 }
 
 #[repr(C, align(64))]
+#[allow(dead_code)]
 struct Utf8CheckingState<T> {
     prev: T,
     incomplete: T,
@@ -99,4 +110,5 @@ struct Utf8CheckingState<T> {
 }
 
 #[repr(C, align(64))]
+#[allow(dead_code)]
 struct AlignToSixtyFour([u8; 64], [u8; 64]);
