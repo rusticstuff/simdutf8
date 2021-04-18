@@ -23,6 +23,3 @@ std = []
 
 # use branch hints - requires nightly
 hints = []
-
-# don't inline code - used for debugging
-no-inline = []
