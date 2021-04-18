@@ -1,5 +1,5 @@
 # TODO
-* licensing
+* licensing: simdjson, simd-json.rs, simdjson-utf8-bench
 * finish README.md
 * * thanks, licensing, features, pure vs compat, improvements, limitations etc.
 * api doc
