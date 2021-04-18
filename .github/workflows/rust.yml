@@ -92,7 +92,7 @@ jobs:
     runs-on: fisheye
     strategy:
       matrix:
-        benchmark: [compat]
+        benchmark: [pure, compat]
     defaults:
       run:
         working-directory: bench
