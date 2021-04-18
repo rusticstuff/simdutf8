@@ -24,3 +24,7 @@
 * fuzz: sse42
 
 # NEXT
+* remove special benchmark for avx2
+* always test with unaligned/aligned input
+* investigate slowness pure: ASCII compared to simdjson
+* investigate slowness compat: avx2 compared vs auto
