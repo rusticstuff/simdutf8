@@ -20,11 +20,21 @@ type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompa
 #[macro_use]
 mod x86;
 
+/// Fn needed of re-import, otherwise not inlined in non-std case
+#[allow(clippy::inline_always)]
+#[inline(always)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(crate) use x86::validate_utf8_pure;
+pub(super) unsafe fn validate_utf8_pure(input: &[u8]) -> Result<(), Utf8ErrorPure> {
+    x86::validate_utf8_pure(input)
+}
 
+/// Fn needed of re-import, otherwise not inlined in non-std case
+#[allow(clippy::inline_always)]
+#[inline(always)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(crate) use x86::validate_utf8_compat;
+pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
+    x86::validate_utf8_compat(input)
+}
 
 // fallback methods
 
