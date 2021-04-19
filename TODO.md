@@ -12,19 +12,18 @@
 # LATER
 * cleanup lookup4 source code, make more inline with upstream impl if possible
 * test on fast dedicated cloud server
-* why is nightly slower on smaller inputs (both compat and pure flavors)
+* why is nightly slower on smaller inputs (both compat and pure flavors) -> benchmark again
 * test nightly+likely again - any difference?
 * test coverage
 * Benchmark and test aligned and unaligned
 * Check if std impl. benefits from AVX 2 (xargo)
-* Test if aligning on SIMD width is sufficient
 * fuzz: sse42
 * investigate slowness pure: why is ASCII processing comparred to GCC-compiled simdjson-utf8,
   clang-compiled is as slow
-* expose implementations w/ a feature
-* always benchmark with unaligned/aligned input
 
 # NEXT
 * rename pure?
 * cargo doc in CI
-* test imp
+* test public_imp
+* rename public_imp
+* inline tests for public_imp
