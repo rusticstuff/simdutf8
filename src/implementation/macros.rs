@@ -74,14 +74,15 @@ macro_rules! validate_utf8_pure_simd {
             let mut tmpbuf = crate::implementation::AlignToSixtyFour([0; 64], [0; 64]);
 
             if lenminus64 >= 4096 {
-                let off = ((input.as_ptr() as usize) & (SIMDINPUT_LENGTH - 1));
+                let off = ((input.as_ptr() as usize) & 31);
                 if off != 0 {
+                    let to_copy = 32 - off;
                     tmpbuf.0[off..]
                         .as_mut_ptr()
-                        .copy_from(input.as_ptr(), 64 - off);
+                        .copy_from(input.as_ptr(), to_copy);
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     simd_input.check_utf8(&mut state);
-                    idx += 64 - off;
+                    idx += to_copy;
                 }
             }
             while idx < lenminus64 {

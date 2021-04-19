@@ -101,7 +101,7 @@ fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
-#[repr(C, align(64))]
+#[repr(C, align(32))]
 #[allow(dead_code)]
 struct Utf8CheckingState<T> {
     prev: T,
@@ -109,6 +109,6 @@ struct Utf8CheckingState<T> {
     error: T,
 }
 
-#[repr(C, align(64))]
+#[repr(C, align(32))]
 #[allow(dead_code)]
 struct AlignToSixtyFour([u8; 64], [u8; 64]);
