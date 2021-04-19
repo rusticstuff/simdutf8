@@ -64,6 +64,12 @@ macro_rules! validate_utf8_pure_simd {
         #[target_feature(enable = $feat)]
         #[inline]
         /// impl-specific fn
+        ///
+        /// # Errors
+        /// tbd
+        ///
+        /// # Safety
+        /// tbd
         pub unsafe fn validate_utf8_pure(
             input: &[u8],
         ) -> core::result::Result<(), crate::pure::Utf8Error> {
@@ -118,6 +124,12 @@ macro_rules! validate_utf8_pure_simd {
 macro_rules! validate_utf8_compat_simd {
     ($feat:expr) => {
         /// impl-specific fn
+        ///
+        /// # Errors
+        /// tbd
+        ///
+        /// # Safety
+        /// tbd
         #[target_feature(enable = $feat)]
         #[inline]
         pub unsafe fn validate_utf8_compat(
