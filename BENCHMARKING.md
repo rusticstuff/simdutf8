@@ -28,3 +28,8 @@
 # Laptops
 * Generally more noisy due to power and temperature constraints
 * Beware of BD PROCHOT on aged machines, can cause severe throttling
+
+# Test machines
+* Intel(R) Xeon(R) CPU E3-1225 v3 @ 3.20GHz (Sandy bridge)
+* Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz (Skylake)
+* Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz (Comet Lake)
