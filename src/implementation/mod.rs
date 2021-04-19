@@ -123,7 +123,7 @@ unsafe fn memcpy_unaligned_nonoverlapping_inline(
     }
 }
 
-#[repr(C, align(64))]
+#[repr(C, align(32))]
 #[allow(dead_code)]
 struct Utf8CheckingState<T> {
     prev: T,
@@ -131,6 +131,6 @@ struct Utf8CheckingState<T> {
     error: T,
 }
 
-#[repr(C, align(64))]
+#[repr(C, align(32))]
 #[allow(dead_code)]
-struct AlignToSixtyFour([u8; 64], [u8; 64]);
+struct Temp2x64A32([u8; 64], [u8; 64]);
