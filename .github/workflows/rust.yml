@@ -92,7 +92,7 @@ jobs:
           args: --no-default-features
 
   benchmark:
-    runs-on: fisheye
+    runs-on: amd64virt
     strategy:
       matrix:
         benchmark: [pure, compat]
