@@ -77,7 +77,7 @@ macro_rules! validate_utf8_pure_simd {
                 let off = ((input.as_ptr() as usize) & 31);
                 if off != 0 {
                     let to_copy = 32 - off;
-                    tmpbuf.0[off..]
+                    tmpbuf.0[32 + off..]
                         .as_mut_ptr()
                         .copy_from(input.as_ptr(), to_copy);
                     let simd_input = SimdInput::new(&tmpbuf.0);
