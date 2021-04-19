@@ -25,3 +25,4 @@
 * always benchmark with unaligned/aligned input
 
 # NEXT
+* maybe remove own memcpy from compat again
