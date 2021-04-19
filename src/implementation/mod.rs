@@ -102,6 +102,7 @@ fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
 }
 
 #[inline]
+#[allow(dead_code)]
 unsafe fn memcpy_unaligned_nonoverlapping_inline(
     mut src: *const u8,
     mut dest: *mut u8,
