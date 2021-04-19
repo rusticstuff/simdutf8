@@ -71,7 +71,7 @@ macro_rules! validate_utf8_pure_simd {
             let mut state = SimdInput::new_utf8_checking_state();
             let lenminus64: usize = if len < 64 { 0 } else { len as usize - 64 };
             let mut idx: usize = 0;
-            let mut tmpbuf = crate::implementation::AlignToSixtyFour([0; 64], [0; 64]);
+            let mut tmpbuf = crate::implementation::Temp2x64A32([0; 64], [0; 64]);
 
             if lenminus64 >= 4096 {
                 let off = ((input.as_ptr() as usize) & 31);
@@ -130,20 +130,21 @@ macro_rules! validate_utf8_compat_simd {
             let mut state = SimdInput::new_utf8_checking_state();
             let lenminus64: usize = if len < 64 { 0 } else { len as usize - 64 };
             let mut idx: usize = 0;
-            let mut tmpbuf = crate::implementation::AlignToSixtyFour([0; 64], [0; 64]);
+            let mut tmpbuf = crate::implementation::Temp2x64A32([0; 64], [0; 64]);
 
             if lenminus64 >= 4096 {
-                let off = ((input.as_ptr() as usize) & (SIMDINPUT_LENGTH - 1));
+                let off = ((input.as_ptr() as usize) & 31);
                 if off != 0 {
-                    tmpbuf.0[off..]
+                    let to_copy = 32 - off;
+                    tmpbuf.0[32 + off..]
                         .as_mut_ptr()
-                        .copy_from(input.as_ptr(), 64 - off);
+                        .copy_from(input.as_ptr(), to_copy);
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     simd_input.check_utf8(&mut state);
                     if SimdInput::check_utf8_errors(&state) {
                         return Err(idx);
                     }
-                    idx += 64 - off;
+                    idx += to_copy;
                 }
             }
 
