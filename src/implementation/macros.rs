@@ -58,7 +58,7 @@ macro_rules! check_bytes {
     };
 }
 
-/// validate_utf8_pure_simd_impl() strategy and wrapper
+/// validate_utf8_pure_simd() strategy and wrapper
 macro_rules! validate_utf8_pure_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]
@@ -85,11 +85,6 @@ macro_rules! validate_utf8_pure_simd {
                 }
             }
             while idx < lenminus64 {
-                /*
-                #ifndef _MSC_VER
-                  __builtin_prefetch(buf + idx + 128);
-                #endif
-                 */
                 let input = SimdInput::new(input.get_unchecked(idx as usize..));
                 input.check_utf8(&mut state);
                 idx += SIMDINPUT_LENGTH;
@@ -114,7 +109,7 @@ macro_rules! validate_utf8_pure_simd {
     };
 }
 
-/// validate_utf8_pure_simd_impl_compat() strategy and wrapper
+/// validate_utf8_compat_simd() strategy and wrapper
 macro_rules! validate_utf8_compat_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]
@@ -152,11 +147,6 @@ macro_rules! validate_utf8_compat_simd {
             }
 
             while idx < lenminus64 {
-                /*
-                #ifndef _MSC_VER
-                  __builtin_prefetch(buf + idx + 128);
-                #endif
-                 */
                 let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                 simd_input.check_utf8(&mut state);
                 if SimdInput::check_utf8_errors(&state) {
