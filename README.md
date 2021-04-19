@@ -22,7 +22,7 @@
 * 50+ Gib/sec. performance on ASCII strings, xx times faster than stdlib
 * SIMD implementations for x86/x86-64 AVX 2 and SSE 4.2, ports of the neon SIMD implementations for aarch64
   and armv7 are planned.
-
+* document `RUSTFLAGS="-C target-feature=+avx2"` and `RUSTFLAGS="-C target-cpu=native"` std code selection
 
 # Limitations
 
