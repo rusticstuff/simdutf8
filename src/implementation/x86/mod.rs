@@ -6,7 +6,7 @@ mod sse42;
 
 // validate_utf8_pure() std: implementation auto-selection
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
 pub(crate) unsafe fn validate_utf8_pure(
     input: &[u8],
@@ -28,7 +28,7 @@ pub(crate) unsafe fn validate_utf8_pure(
     mem::transmute::<FnRaw, super::ValidateUtf8Fn>(fun)(input)
 }
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
 fn get_fastest_available_implementation_pure() -> super::ValidateUtf8Fn {
     if std::is_x86_feature_detected!("avx2") {
@@ -42,7 +42,7 @@ fn get_fastest_available_implementation_pure() -> super::ValidateUtf8Fn {
 
 // validate_utf8_pure() no-std: implementation selection by config
 
-#[cfg(all(not(feature = "std"), target_feature = "avx2"))]
+#[cfg(target_feature = "avx2")]
 pub(crate) use avx2::validate_utf8_pure;
 
 #[cfg(all(
@@ -61,6 +61,7 @@ pub(crate) use super::validate_utf8_pure_fallback as validate_utf8_pure;
 
 // validate_utf8_compat() std: implementation auto-selection
 
+#[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[cfg(feature = "std")]
 #[inline]
 pub(crate) unsafe fn validate_utf8_compat(
@@ -83,7 +84,7 @@ pub(crate) unsafe fn validate_utf8_compat(
     mem::transmute::<FnRaw, super::ValidateUtf8CompatFn>(fun)(input)
 }
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
 fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn {
     if std::is_x86_feature_detected!("avx2") {
@@ -97,7 +98,7 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
 
 // validate_utf8_pure() no-std: implementation selection by config
 
-#[cfg(all(not(feature = "std"), target_feature = "avx2"))]
+#[cfg(target_feature = "avx2")]
 pub(crate) use avx2::validate_utf8_compat;
 
 #[cfg(all(
