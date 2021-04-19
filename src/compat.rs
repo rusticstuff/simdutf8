@@ -70,3 +70,19 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
         Ok(from_utf8_unchecked_mut(input))
     }
 }
+/// imp mod
+#[cfg(feature = "public_imp")]
+pub mod imp {
+    /// x86 mod
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
+    pub mod x86 {
+        /// avx2 mod
+        pub mod avx2 {
+            pub use crate::implementation::x86::avx2::validate_utf8_compat as validate_utf8;
+        }
+        /// sse42 mod
+        pub mod sse42 {
+            pub use crate::implementation::x86::sse42::validate_utf8_compat as validate_utf8;
+        }
+    }
+}
