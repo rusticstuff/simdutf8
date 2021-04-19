@@ -139,9 +139,11 @@ macro_rules! validate_utf8_compat_simd {
                 let off = ((input.as_ptr() as usize) & 31);
                 if off != 0 {
                     let to_copy = 32 - off;
-                    tmpbuf.0[32 + off..]
-                        .as_mut_ptr()
-                        .copy_from(input.as_ptr(), to_copy);
+                    crate::implementation::memcpy_unaligned_nonoverlapping_inline(
+                        input.as_ptr(),
+                        tmpbuf.0[32 + off..].as_mut_ptr(),
+                        to_copy,
+                    );
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     simd_input.check_utf8(&mut state);
                     if SimdInput::check_utf8_errors(&state) {
@@ -160,10 +162,11 @@ macro_rules! validate_utf8_compat_simd {
                 idx += SIMDINPUT_LENGTH;
             }
             if idx < len {
-                tmpbuf
-                    .1
-                    .as_mut_ptr()
-                    .copy_from(input.as_ptr().add(idx), len as usize - idx);
+                crate::implementation::memcpy_unaligned_nonoverlapping_inline(
+                    input.as_ptr().add(idx),
+                    tmpbuf.1.as_mut_ptr(),
+                    len as usize - idx,
+                );
                 let simd_input = SimdInput::new(&tmpbuf.1);
 
                 simd_input.check_utf8(&mut state);
