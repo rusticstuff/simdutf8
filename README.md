@@ -1,3 +1,5 @@
+[![][license img]][license]
+
 # Blurb
 * no-alloc
 * no-std
@@ -29,3 +31,18 @@
 # License
 
 # Thanks
+
+
+simdutf8 - High-speed UTF-8 validation for Rust
+===============================================
+
+
+Features
+--------
+
+
+License
+-------
+This code is made available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
+
+It is based on code distributed with simd-json.rs, the Rust port of simdjson. Simdjson itself is  licensed under the Apache License 2.0 license.
