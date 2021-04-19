@@ -107,7 +107,7 @@ unsafe fn memcpy_unaligned_nonoverlapping_inline(
     mut dest: *mut u8,
     mut len: usize,
 ) {
-    while len > 8 {
+    while len >= 8 {
         #[allow(clippy::cast_ptr_alignment)]
         dest.cast::<u64>()
             .write_unaligned(src.cast::<u64>().read_unaligned());
