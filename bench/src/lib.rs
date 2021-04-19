@@ -21,13 +21,19 @@ pub enum BenchFn {
     Simdjson,
 }
 
+#[derive(Clone, Copy)]
+struct Alignment {
+    boundary: usize,
+    offset: usize,
+}
+
 pub fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: BenchFn) {
     let core_ids = core_affinity::get_core_ids().unwrap();
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
-    let mut group = c.benchmark_group("0-empty");
-    bench_input(&mut group, b"", false, true, bench_fn);
-    group.finish();
+    // let mut group = c.benchmark_group("0-empty");
+    // bench_input(&mut group, b"", false, true, bench_fn);
+    // group.finish();
 
     bench(
         c,
@@ -81,6 +87,23 @@ fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
     }
     panic!("Could not get valid slice of {} bytes", len);
 }
+fn get_valid_slice_of_len_or_more_aligned(
+    s: &[u8],
+    len: usize,
+    alignment: Alignment,
+) -> (Vec<u8>, usize) {
+    let valid_utf8 = get_valid_slice_of_len_or_more(s, len);
+    let mut vec = Vec::with_capacity(len + alignment.boundary);
+    let cur_off = (vec.as_ptr() as usize) % alignment.boundary;
+    let padding = if cur_off == alignment.offset {
+        0
+    } else {
+        (alignment.offset + alignment.boundary - cur_off) % alignment.boundary
+    };
+    vec.resize(padding, 0);
+    vec.extend_from_slice(valid_utf8);
+    (vec, padding)
+}
 
 fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_fn: BenchFn) {
     let mut group = c.benchmark_group(name);
@@ -88,7 +111,16 @@ fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_f
     group.measurement_time(Duration::from_secs(10));
     group.sample_size(1000);
     for i in [1, 8, 64, 512, 4096, 65536, 131072].iter() {
-        let slice = get_valid_slice_of_len_or_more(bytes, *i);
+        let alignment = Alignment {
+            boundary: 64,
+            offset: 1, // unaligned
+        };
+        let (vec, offset) = get_valid_slice_of_len_or_more_aligned(bytes, *i, alignment);
+        let slice = &vec[offset..];
+        assert_eq!(
+            (slice.as_ptr() as usize) % alignment.boundary,
+            alignment.offset
+        );
         bench_input(&mut group, slice, true, true, bench_fn);
     }
     group.finish();
