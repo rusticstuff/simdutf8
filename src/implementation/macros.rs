@@ -76,9 +76,11 @@ macro_rules! validate_utf8_pure_simd {
             if lenminus64 >= 4096 {
                 let off = ((input.as_ptr() as usize) & (SIMDINPUT_LENGTH - 1));
                 if off != 0 {
-                    tmpbuf.0[off..]
-                        .as_mut_ptr()
-                        .copy_from(input.as_ptr(), 64 - off);
+                    crate::implementation::memcpy_unaligned_nonoverlapping_inline(
+                        input.as_ptr(),
+                        tmpbuf.0[off..].as_mut_ptr(),
+                        64 - off,
+                    );
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     simd_input.check_utf8(&mut state);
                     idx += 64 - off;
@@ -91,10 +93,11 @@ macro_rules! validate_utf8_pure_simd {
             }
 
             if idx < len {
-                tmpbuf
-                    .1
-                    .as_mut_ptr()
-                    .copy_from(input.as_ptr().add(idx), len as usize - idx);
+                crate::implementation::memcpy_unaligned_nonoverlapping_inline(
+                    input.as_ptr().add(idx),
+                    tmpbuf.1.as_mut_ptr(),
+                    len as usize - idx,
+                );
                 let input = SimdInput::new(&tmpbuf.1);
 
                 input.check_utf8(&mut state);

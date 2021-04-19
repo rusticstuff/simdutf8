@@ -101,6 +101,28 @@ fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
+#[inline]
+unsafe fn memcpy_unaligned_nonoverlapping_inline(
+    mut src: *const u8,
+    mut dest: *mut u8,
+    mut len: usize,
+) {
+    while len > 8 {
+        #[allow(clippy::cast_ptr_alignment)]
+        dest.cast::<u64>()
+            .write_unaligned(src.cast::<u64>().read_unaligned());
+        src = src.offset(8);
+        dest = dest.offset(8);
+        len -= 8;
+    }
+    while len > 0 {
+        *dest = *src;
+        src = src.offset(1);
+        dest = dest.offset(1);
+        len -= 1;
+    }
+}
+
 #[repr(C, align(64))]
 #[allow(dead_code)]
 struct Utf8CheckingState<T> {
