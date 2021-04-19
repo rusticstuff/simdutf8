@@ -113,7 +113,7 @@ fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_f
     for i in [1, 8, 64, 512, 4096, 65536, 131072].iter() {
         let alignment = Alignment {
             boundary: 64,
-            offset: 1, // unaligned
+            offset: 8, // 8 is the default alignment on 64-bit, so this is what can be expected worst-case
         };
         let (vec, offset) = get_valid_slice_of_len_or_more_aligned(bytes, *i, alignment);
         let slice = &vec[offset..];
