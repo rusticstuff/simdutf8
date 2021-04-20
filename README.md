@@ -85,12 +85,12 @@ Windows with Rust 1.51.0.
 ![critcmp stimdutf8 basic vs std lib](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-std.png)
 simdutf8 performs better except for inputs ≤ 64 bytes.
 
-### std library vs simdjson UTF-8 validation
+### simdutf8 vs simdjson UTF-8 validation
 ![critcmp st lib vs stimdutf8 basic](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-simdjson.png)
 simdutf8 is faster than simdjson except for some crazy optimization by clang for the pure ASCII
 loop (to be investigated). simdjson is compiled using clang and gcc from MSYS.
 
-### simdjson basic vs simdjson UTF-8 validation
+### simdutf8 basic vs simdutf8 compat UTF-8 validation
 ![critcmp st lib vs stimdutf8 basic](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-compat.png)
 There is a small performance penalty to continuously checking the error status while processing data but detecting
 errors early provides a huge benefit for the _x-error/66536_ benchmark.
