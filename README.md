@@ -36,7 +36,7 @@ instead.
 * Supports AVX2 and SIMD implementations on x86 and x86-64, ARMv7 and ARMv8 neon support is planned
 * Selects the fastest implementation at runtime based on CPU support
 * No dependencies
-* Non-std support
+* No-std support
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a plug-in replacement for `std::str::from_utf8()`
 * Falls back onto the excellent std implementation if SIMD extensions are not supported
@@ -59,7 +59,7 @@ The fastest implementation is selected at runtime using the `std::is_x86_feature
 CPU supports AVX 2. Since this is the fastest implementation it is called directly. So if you compile with
 `RUSTFLAGS=-C target-cpu=native` on a recent machine the AVX 2 implementation is used automatically.
 
-For non-std support (compiled with `--no-default-features`) the implementation is selected based on the supported
+For no-std support (compiled with `--no-default-features`) the implementation is selected based on the supported
 target features. Use `RUSTFLAGS=-C target-cpu=avx2` to use the AVX 2 implementation or `RUSTFLAGS=-C target-cpu=sse4.2`
 for the SSE 4.2 implementation.
 
