@@ -1,8 +1,6 @@
 # TODO
-* finish README.md: benchmarks, proofread
+* more fuzz testing
 * api doc
-* github repo -> public
-* crates.io
 * announce
 
 # LATER
@@ -20,7 +18,5 @@
 
 
 # NEXT
-* rename basic?
-* cargo doc in CI
-* rename public_imp
+* publish action?
 * inline tests for public_imp
