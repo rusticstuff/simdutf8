@@ -21,7 +21,7 @@ Use it just like `std::str::from_utf8`:
 ```rust
 use simdutf8::basic::{from_utf8, Utf8Error};
 fn main() {
-    println!("{}", from_utf8(b"I \xEE\x80\xA2 UTF-8!").unwrap());
+    println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 }
 ```
 

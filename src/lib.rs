@@ -17,7 +17,7 @@
 //! ```
 //! use simdutf8::basic::from_utf8;
 //!
-//! println!("{}", from_utf8(b"I \xEE\x80\xA2 UTF-8!").unwrap());
+//! println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 //! ```
 
 pub mod basic;
