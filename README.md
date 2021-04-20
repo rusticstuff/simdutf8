@@ -39,7 +39,7 @@ instead.
 * No-std support
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a plug-in replacement for `std::str::from_utf8()`
-* Falls back onto the excellent std implementation if SIMD extensions are not supported
+* Falls back to the excellent std implementation if SIMD extensions are not supported
 
 ## APIs
 
@@ -51,7 +51,7 @@ is not valid UTF-8. `simdutf8::basic::Utf8Error` is a zero-sized error struct.
 ### Compat flavor
 The `compat` flavor is fully API-compatible with `std::str::from_utf8`. In particular `simdutf8::compat::from_utf8()`
 returns a `simdutf8::compat::Utf8Error` which has the `valid_up_to()` and `error_len()` methods. The first is useful
-for verification of streamed data. It fails early: errors are checked on-the-fly as the string is processed and once
+for verification of streamed data. It also fails early: errors are checked on-the-fly as the string is processed and once
 an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
 
 ## Implementation selection
@@ -77,7 +77,7 @@ instead. This library uses unsafe code which has not been battle-tested and shou
 The implementation is similar to the one in simdjson except that it aligns reads to the block size of the
 SIMD extension leading to better peak performance compared to the implementation in simdjson. Since this alignment
 means that an incomplete block needs to be processed before the aligned data is read this would lead to worse
-performance on short byte sequences. Thus, aligned reads are only used with 2048 bytes data or more. Incomplete
+performance on short byte sequences. Thus, aligned reads are only used with 2048 bytes of data or more. Incomplete
 reads for the first unaligned and the last incomplete block are done in two aligned 64-byte buffers.
 
 For the compat API we need to check the error buffer on each 64-byte block instead of just aggregating it. If an
