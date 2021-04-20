@@ -1,5 +1,6 @@
 [![CI](https://github.com/rusticstuff/simdutf8/actions/workflows/ci.yml/badge.svg)](https://github.com/rusticstuff/simdutf8/actions/workflows/ci.yml)
-
+[![crates.io](https://img.shields.io/crates/v/simdutf8.svg)](https://crates.io/crates/simdutf8)
+ 
 # simdutf8 – High-speed UTF-8 validation for Rust
 
 Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
