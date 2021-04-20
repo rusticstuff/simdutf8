@@ -36,6 +36,10 @@ name = "throughput_std"
 harness = false
 
 [[bench]]
+name = "throughput_std_noinline"
+harness = false
+
+[[bench]]
 name = "throughput_simdjson"
 harness = false
 
@@ -49,6 +53,10 @@ harness = false
 
 [[bench]]
 name = "cpb_std"
+harness = false
+
+[[bench]]
+name = "cpb_std_noinline"
 harness = false
 
 [[bench]]
