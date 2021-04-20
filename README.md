@@ -74,7 +74,7 @@ instead. This library uses unsafe code which has not been battle-tested and shou
 
 The benchmarks have been done with [criterion](https://bheisler.github.io/criterion.rs/book/index.html), the tables
 are created with [critcmp](https://github.com/BurntSushi/critcmp). Source code and data are in the 
-[bench directory](https://github.com/rusticstuff/simdutf8/tree/main/bench)
+[bench directory](https://github.com/rusticstuff/simdutf8/tree/main/bench).
 
 The name schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/66536_ is a 64KiB slice where the very 
 first character is invalid UTF-8. All benchmarks were run on a Laptop with an Intel Core i7-10750H CPU (Comet Lake) on
@@ -82,16 +82,17 @@ Windows with Rust 1.51.0.
 
 ### std library vs simdutf8 basic UTF-8 validation
 ![critcmp stimdutf8 basic vs std lib](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-std.png)
-simdutf-8 performs better except for inputs < 64 bytes.
+simdutf8 performs better except for inputs ≤ 64 bytes.
 
 ### std library vs simdjson UTF-8 validation
 ![critcmp st lib vs stimdutf8 basic](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-simdjson.png)
-simdutf-8 performs better compared with the simdjson except for some crazy optimization by clang for the pure ASCII
-loop (to be investigated). simdjson is compiled using clang and gcc provided with MSYS.
+simdutf8 is faster than simdjson except for some crazy optimization by clang for the pure ASCII
+loop (to be investigated). simdjson is compiled using clang and gcc from MSYS.
 
 ### simdjson basic vs simdjson UTF-8 validation
 ![critcmp st lib vs stimdutf8 basic](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-compat.png)
-There is a performance penalty to continuously checking the error status while processing data.
+There is a small performance penalty to continuously checking the error status while processing data but detecting
+errors early provides a huge benefit for the _x-error/66536_ benchmark.
 
 ## Technical details
 The implementation is similar to the one in simdjson except that it aligns reads to the block size of the
