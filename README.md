@@ -20,9 +20,8 @@ simdutf8 = { version = "0.0.1"}
 Use it just like `std::str::from_utf8`:
 ```rust
 use simdutf8::basic::{from_utf8, Utf8Error};
-fn main() {
-    println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
-}
+
+println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 ```
 
 Put `simdutf8 = "0.1.0"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
