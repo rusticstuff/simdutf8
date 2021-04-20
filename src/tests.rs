@@ -6,6 +6,28 @@ use crate::pure::from_utf8 as pure_from_utf8;
 fn test_valid(input: &[u8]) {
     assert!(pure_from_utf8(input).is_ok());
     assert!(compat_from_utf8(input).is_ok());
+
+    #[cfg(feature = "public_imp")]
+    test_valid_public_imp(input);
+}
+
+#[cfg(feature = "public_imp")]
+fn test_valid_public_imp(input: &[u8]) {
+    #[allow(clippy::collapsible_if)]
+    if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+        if cfg!(target_feature = "avx2") {
+            unsafe {
+                assert!(crate::pure::imp::x86::avx2::validate_utf8(input).is_ok());
+                assert!(crate::compat::imp::x86::avx2::validate_utf8(input).is_ok());
+            }
+        }
+        if cfg!(target_feature = "sse4.2") {
+            unsafe {
+                assert!(crate::pure::imp::x86::sse42::validate_utf8(input).is_ok());
+                assert!(crate::compat::imp::x86::sse42::validate_utf8(input).is_ok());
+            }
+        }
+    }
 }
 
 fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
@@ -15,6 +37,50 @@ fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
         valid_up_to
     );
     assert_eq!(compat_from_utf8(input).unwrap_err().error_len(), error_len);
+
+    #[cfg(feature = "public_imp")]
+    test_invalid_public_imp(input, valid_up_to, error_len);
+}
+
+#[cfg(feature = "public_imp")]
+fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
+    #[allow(clippy::collapsible_if)]
+    if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+        if cfg!(target_feature = "avx2") {
+            unsafe {
+                assert!(crate::pure::imp::x86::avx2::validate_utf8(input).is_err());
+                assert_eq!(
+                    crate::compat::imp::x86::avx2::validate_utf8(input)
+                        .unwrap_err()
+                        .valid_up_to(),
+                    valid_up_to
+                );
+                assert_eq!(
+                    crate::compat::imp::x86::avx2::validate_utf8(input)
+                        .unwrap_err()
+                        .error_len(),
+                    error_len
+                );
+            }
+        }
+        if cfg!(target_feature = "sse4.2") {
+            unsafe {
+                assert!(crate::pure::imp::x86::sse42::validate_utf8(input).is_err());
+                assert_eq!(
+                    crate::compat::imp::x86::sse42::validate_utf8(input)
+                        .unwrap_err()
+                        .valid_up_to(),
+                    valid_up_to
+                );
+                assert_eq!(
+                    crate::compat::imp::x86::sse42::validate_utf8(input)
+                        .unwrap_err()
+                        .error_len(),
+                    error_len
+                );
+            }
+        }
+    }
 }
 
 #[test]
