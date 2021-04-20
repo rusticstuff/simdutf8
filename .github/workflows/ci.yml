@@ -11,7 +11,6 @@ env:
 
 jobs:
   test:
-    runs-on: playhouse
     strategy:
       matrix:
         toolchain: [stable, nightly]
@@ -31,7 +30,6 @@ jobs:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
   test-inlining:
-    runs-on: playhouse
     strategy:
       matrix:
         toolchain: [stable, nightly]
@@ -46,6 +44,8 @@ jobs:
             toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
             profile: minimal
             override: true
+      - name: Install cargo-asm
+        run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
         run: |
           cargo clean;cargo asm|diff -u expected-methods-x86-std.txt -
@@ -54,7 +54,7 @@ jobs:
           cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-sse42.txt -
 
   cross-build:
-    runs-on: playhouse
+    if: false
     strategy:
       matrix:
         toolchain: [stable, nightly]
@@ -73,7 +73,6 @@ jobs:
         run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
 
   clippy_check:
-    runs-on: playhouse
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
