@@ -1,6 +1,6 @@
 # simdutf8 – High-speed UTF-8 validation for Rust
 
-Blazingly fast API-compatible UTF-8 validation for Rust based on the implementation in
+Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
 [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simdjson.rs](https://simdjson.rs).
 
 ## Disclaimer
@@ -18,9 +18,8 @@ simdutf8 = { version = "0.0.1"}
 Use it just like `std::str::from_utf8`:
 ```rust
 use simdutf8::basic::{from_utf8, Utf8Error};
-
 fn main() {
-    println!("{}", from_utf8(b"I 	\xEE\x80\xA2 UTF-8!").unwrap());
+    println!("{}", from_utf8(b"I \xEE\x80\xA2 UTF-8!").unwrap());
 }
 ```
 
@@ -86,7 +85,7 @@ error is found the last bytes of the previous block are checked for a cross-bloc
 Care is taken that all functions are properly inlined up to the public interface.
 
 ## Thanks
-* to Daniel Lemire and the autors of [simdjson] for coming up with the high-performance SIMD implementation.
+* to the authors of [simdjson] for coming up with the high-performance SIMD implementation.
 * to the authors of the [simdjson Rust port]() who did most of the heavy lifting of porting the C++ code to Rust.
 
 
