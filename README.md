@@ -1,22 +1,42 @@
-# simdutf8 - High-speed UTF-8 validation for Rust
+# simdutf8 – High-speed UTF-8 validation for Rust
 
 ## Quick start
+Add the dependency to your Cargo.toml file:
+```toml
+[dependencies]
+simdutf8 = { version = "0.0.1"}
+```
+
+Use it just like `std::str::from_utf8`:
+```rs
+use simdutf8::basic::{from_utf8, Utf8Error};
+
+fn main() {
+    println!("{}", from_utf8(b"I 	\xEE\x80\xA2 UTF-8!").unwrap());
+    c.bench_function("fib 20", |b| b.iter(|| fibonacci(black_box(20))));
+}
+
+criterion_group!(benches, criterion_benchmark);
+criterion_main!(benches);
+
+```
+
 Put `simdutf8 = "0.1.0"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
 `std::str::from_utf8()`. If you need the extended information on validation failures use `simdutf8::compat::from_utf8`
 instead.
 
 ## Features
-* Written in pure Rust.
-* Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII.
-* Up to 28 % faster than the original simdjson implementation.
-* Supports AVX2 and SIMD implementations on x86 and x86-64, ARMv7 and ARMv8 neon support is planned.
-* Selects the fastest implementation at runtime based on CPU support.
-* No dependencies.
+* Written in pure Rust
+* Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII
+* Up to 28 % faster on non-ASCII input compared to the original simdjson implementation
+* Supports AVX2 and SIMD implementations on x86 and x86-64, ARMv7 and ARMv8 neon support is planned
+* Selects the fastest implementation at runtime based on CPU support
+* No dependencies
 * No-std support
-* `Basic` API for the fastest validation, optimized for valid UTF-8
-* `Compat` API as a plug-in replacement for `std::str::from_utf8()`.
-* Fallback to the excellent std implementation if SIMD extensions are not supported.
-* Fuzz-tested.
+* `basic` API for the fastest validation, optimized for valid UTF-8
+* `compat` API as a plug-in replacement for `std::str::from_utf8()`
+* Falls back to the excellent std implementation if SIMD extensions are not supported
+* Fuzz-tested
 
 ## APIs
 
@@ -65,7 +85,7 @@ Care is taken that all functions are properly inlined up to the public interface
 
 ## Thanks
 * to Daniel Lemire and the autors of [simdjson] for coming up with the high-performance SIMD implementation.
-* to the authors of the [simdjson Rust port]() for doing the main work by porting the C++ code to Rust.
+* to the authors of the [simdjson Rust port]() who did most of the heavy lifting of porting the C++ code to Rust.
 
 
 ## License
@@ -73,11 +93,3 @@ This code is made available under the [Apache License 2.0](https://www.apache.or
 
 It is based on code distributed with [simd-json.rs, the Rust port of simdjson. Simdjson itself is distributed under
 the Apache License 2.0.
-
-* fallback uses the standard core/std implementation, which is quite fast for a scalar implementation, in particular on ASCII
-* fuzz-tested
-* 10 GiB/sec. performance on non-ASCII strings, xx times faster than stdlib
-* 50+ Gib/sec. performance on ASCII strings, xx times faster than stdlib
-* SIMD implementations for x86/x86-64 AVX 2 and SSE 4.2, ports of the neon SIMD implementations for aarch64
-  and armv7 are planned.
-* document `RUSTFLAGS="-C target-feature=+avx2"` and `RUSTFLAGS="-C target-cpu=native"` std code selection
