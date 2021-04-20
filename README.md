@@ -1,7 +1,9 @@
 # simdutf8 – High-speed UTF-8 validation for Rust
 
-TBD.
+Blazingly fast API-compatible UTF-8 validation for Rust based on the implementation in
+[simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simdjson.rs](https://simdjson.rs).
 
+## Disclaimer
 This software should be considered alpha quality and should not (yet) be used in production though it has been tested
 with sample data as well a fuzzer and there are no known bugs. It will be tested more rigorously before the first
 production release.
