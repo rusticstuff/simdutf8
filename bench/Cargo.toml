@@ -1,6 +1,6 @@
 [package]
 name = "simdutf8-bench"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Hans Kratz <hans@appfour.com>"]
 edition = "2018"
 description = "simdutf8 benchmark package"

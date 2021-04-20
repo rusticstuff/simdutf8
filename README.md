@@ -1,6 +1,6 @@
 [![CI](https://github.com/rusticstuff/simdutf8/actions/workflows/ci.yml/badge.svg)](https://github.com/rusticstuff/simdutf8/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/simdutf8.svg)](https://crates.io/crates/simdutf8)
- 
+
 # simdutf8 – High-speed UTF-8 validation for Rust
 
 Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
@@ -27,7 +27,7 @@ production release.
 Add the dependency to your Cargo.toml file:
 ```toml
 [dependencies]
-simdutf8 = { version = "0.0.1"}
+simdutf8 = { version = "0.0.2"}
 ```
 
 Use it just like `std::str::from_utf8`:
@@ -37,7 +37,7 @@ use simdutf8::basic::{from_utf8, Utf8Error};
 println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 ```
 
-Put `simdutf8 = "0.0.1"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
+Put `simdutf8 = "0.0.2"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
 `std::str::from_utf8()`. If you need the extended information on validation failures use `simdutf8::compat::from_utf8`
 instead.
 
@@ -74,10 +74,10 @@ instead. This library uses unsafe code which has not been battle-tested and shou
 ## Benchmarks
 
 The benchmarks have been done with [criterion](https://bheisler.github.io/criterion.rs/book/index.html), the tables
-are created with [critcmp](https://github.com/BurntSushi/critcmp). Source code and data are in the 
+are created with [critcmp](https://github.com/BurntSushi/critcmp). Source code and data are in the
 [bench directory](https://github.com/rusticstuff/simdutf8/tree/main/bench).
 
-The name schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/66536_ is a 64KiB slice where the very 
+The name schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/66536_ is a 64KiB slice where the very
 first character is invalid UTF-8. All benchmarks were run on a Laptop with an Intel Core i7-10750H CPU (Comet Lake) on
 Windows with Rust 1.51.0.
 
