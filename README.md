@@ -7,13 +7,16 @@ instead.
 
 ## Features
 * Written in pure Rust.
-* Supports AVX2 and SIMD implementations on x86 and x86-64, ARM neon support is planned.
+* Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII.
+* Up to 28 % faster than the original simdjson implementation.
+* Supports AVX2 and SIMD implementations on x86 and x86-64, ARMv7 and ARMv8 neon support is planned.
 * Selects the fastest implementation at runtime based on CPU support.
 * No dependencies.
 * No-std support
 * `Basic` API for the fastest validation, optimized for valid UTF-8
 * `Compat` API as a plug-in replacement for `std::str::from_utf8()`.
 * Fallback to the excellent std implementation if SIMD extensions are not supported.
+* Fuzz-tested.
 
 ## APIs
 
@@ -58,6 +61,8 @@ For the compat API we need to check the error buffer on each 64-byte block inste
 error is found the last bytes of the previous block are checked for a cross-block continuation and then
 `std::str::from_utf8()` is run to find the exact location of the error.
 
+Care is taken that all functions are properly inlined up to the public interface.
+
 ## Thanks
 * to Daniel Lemire and the autors of [simdjson] for coming up with the high-performance SIMD implementation.
 * to the authors of the [simdjson Rust port]() for doing the main work by porting the C++ code to Rust.
@@ -69,9 +74,6 @@ This code is made available under the [Apache License 2.0](https://www.apache.or
 It is based on code distributed with [simd-json.rs, the Rust port of simdjson. Simdjson itself is distributed under
 the Apache License 2.0.
 
-* std API uses autodetection of CPU features to select the best implementation.
-* All functions are fully inlined.
-* Use hints features on nightly (test if any faster) to make use of likely/unlikely intrinsics
 * fallback uses the standard core/std implementation, which is quite fast for a scalar implementation, in particular on ASCII
 * fuzz-tested
 * 10 GiB/sec. performance on non-ASCII strings, xx times faster than stdlib
