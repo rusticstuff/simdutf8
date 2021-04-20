@@ -24,6 +24,5 @@
 # NEXT
 * rename pure?
 * cargo doc in CI
-* test public_imp
 * rename public_imp
 * inline tests for public_imp
