@@ -7,7 +7,7 @@ Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, b
 
 ## Disclaimer
 This software should be considered alpha quality and should not (yet) be used in production though it has been tested
-with sample data as well a fuzzer and there are no known bugs. It will be tested more rigorously before the first
+with sample data as well as a fuzzer and there are no known bugs. It will be tested more rigorously before the first
 production release.
 
 ## Quick start
@@ -36,10 +36,10 @@ instead.
 * Supports AVX2 and SIMD implementations on x86 and x86-64, ARMv7 and ARMv8 neon support is planned
 * Selects the fastest implementation at runtime based on CPU support
 * No dependencies
-* No-std support
+* Non-std support
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a plug-in replacement for `std::str::from_utf8()`
-* Falls back to the excellent std implementation if SIMD extensions are not supported
+* Falls back onto the excellent std implementation if SIMD extensions are not supported
 
 ## APIs
 
@@ -51,8 +51,8 @@ is not valid UTF-8. `simdutf8::basic::Utf8Error` is a zero-sized error struct.
 ### Compat flavor
 The `compat` flavor is fully API-compatible with `std::str::from_utf8`. In particular `simdutf8::compat::from_utf8()`
 returns a `simdutf8::compat::Utf8Error` which has the `valid_up_to()` and `error_len()` methods. The first is useful
-for verification of streamed data. Also it fails fast: Errors are checked on-the-fly as the string is processed so
-if there is an invalid UTF-8 sequence at the beginning of the data it returns without processing the rest of the data.
+for verification of streamed data. It fails early: errors are checked on-the-fly as the string is processed and once
+an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
 
 ## Implementation selection
 The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the targeted
@@ -60,10 +60,10 @@ CPU supports AVX 2. Since this is the fastest implementation it is called direct
 `RUSTFLAGS=-C target-cpu=native` on a recent machine the AVX 2 implementation is used automatically.
 
 For non-std support (compiled with `--no-default-features`) the implementation is selected based on the supported
-target features, use `RUSTFLAGS=-C target-cpu=avx2` to use the AVX 2 implementation or `RUSTFLAGS=-C target-cpu=sse4.2`
+target features. Use `RUSTFLAGS=-C target-cpu=avx2` to use the AVX 2 implementation or `RUSTFLAGS=-C target-cpu=sse4.2`
 for the SSE 4.2 implementation.
 
-If you want to be able to call the individual implementation directly use the `public_imp` feature flag. The validation
+If you want to be able to call the individual implementation directly, use the `public_imp` feature flag. The validation
 implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(avx2|sse42)::validate_utf8()`.
 
 ## When not to use
@@ -77,7 +77,7 @@ instead. This library uses unsafe code which has not been battle-tested and shou
 The implementation is similar to the one in simdjson except that it aligns reads to the block size of the
 SIMD extension leading to better peak performance compared to the implementation in simdjson. Since this alignment
 means that an incomplete block needs to be processed before the aligned data is read this would lead to worse
-performance on short byte sequences. Thus aligned reads are only used with 2048 bytes data or more. Incomplete
+performance on short byte sequences. Thus, aligned reads are only used with 2048 bytes data or more. Incomplete
 reads for the first unaligned and the last incomplete block are done in two aligned 64-byte buffers.
 
 For the compat API we need to check the error buffer on each 64-byte block instead of just aggregating it. If an
