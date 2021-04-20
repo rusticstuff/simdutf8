@@ -51,6 +51,10 @@ fn main() {
     let dst = cmake::Config::new(&simdjson_dir)
         .define("SIMDJSON_JUST_LIBRARY", "ON")
         .define("SIMDJSON_BUILD_STATIC", "ON")
+        // .define("CMAKE_CXX_COMPILER", "clang")
+        // .define("CMAKE_C_COMPILER", "clang")
+        .define("CMAKE_CXX_COMPILER", "gcc")
+        .define("CMAKE_C_COMPILER", "gcc")
         .uses_cxx11()
         .build();
     eprintln!("building done");
