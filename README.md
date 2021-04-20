@@ -1,3 +1,5 @@
+[![][license img]][license]
+
 # simdutf8 – High-speed UTF-8 validation for Rust
 
 Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
