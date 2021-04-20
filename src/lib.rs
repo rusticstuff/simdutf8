@@ -10,15 +10,14 @@
 #![cfg_attr(feature = "hints", feature(core_intrinsics))]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-//! UTF-8 checking crate
+//! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
+//! simdjson.
 //!
 //! Quick start:
 //! ```
-//! use simdutf8::basic::{from_utf8, Utf8Error};
+//! use simdutf8::basic::from_utf8;
 //!
-//! fn main() {
-//!     println!("{}", from_utf8(b"I \xEE\x80\xA2 UTF-8!").unwrap());
-//! }
+//! println!("{}", from_utf8(b"I \xEE\x80\xA2 UTF-8!").unwrap());
 //! ```
 
 pub mod basic;
