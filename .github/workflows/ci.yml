@@ -90,34 +90,3 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --no-default-features
-
-  benchmark:
-    runs-on: fisheye
-    strategy:
-      matrix:
-        benchmark: [basic, compat]
-    defaults:
-      run:
-        working-directory: bench
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            profile: minimal
-            override: true
-      - name: mkdir new_baselines
-        run: mkdir new_baselines
-      - name: Add SHORT_SHA env property with commit short sha
-        run: echo "SHORT_SHA=`git rev-parse --short ${GITHUB_SHA}`" >> $GITHUB_ENV
-      - name: Run benchmark
-        run: cargo bench --bench throughput_${{ matrix.benchmark }} -- --color=always --save-baseline ${{ matrix.benchmark }}-$SHORT_SHA --noplot
-      - name: Critcmp comparison new (${{ env.SHORT_SHA }}) vs baseline
-        run: critcmp ${{ matrix.benchmark }}-$SHORT_SHA baselines/${{ matrix.benchmark }}.json --color=always
-      - name: Critcmp export
-        run: critcmp --export ${{ matrix.benchmark }}-$SHORT_SHA > new_baselines/${{ matrix.benchmark }}-$SHORT_SHA.json
-      - uses: actions/upload-artifact@v2
-        with:
-          name: baselines
-          path: bench/new_baselines/*.json
-
