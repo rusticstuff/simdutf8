@@ -24,7 +24,7 @@ use simdutf8::basic::{from_utf8, Utf8Error};
 println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 ```
 
-Put `simdutf8 = "0.1.0"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
+Put `simdutf8 = "0.0.1"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
 `std::str::from_utf8()`. If you need the extended information on validation failures use `simdutf8::compat::from_utf8`
 instead.
 
