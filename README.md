@@ -3,7 +3,7 @@
 # simdutf8 – High-speed UTF-8 validation for Rust
 
 Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
-[simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simdjson.rs](https://simdjson.rs).
+[simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs).
 
 ## Disclaimer
 This software should be considered alpha quality and should not (yet) be used in production though it has been tested
