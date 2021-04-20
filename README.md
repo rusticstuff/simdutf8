@@ -37,11 +37,13 @@ For non-std support (compiled with `--no-default-features`) the implementation i
 target features, use `RUSTFLAGS=-C target-cpu=avx2` to use the AVX 2 implementation or `RUSTFLAGS=-C target-cpu=sse4.2`
 for the SSE 4.2 implementation.
 
-If you want to be able to call the individual implementation directly use the `public_imp` feature flag.
+If you want to be able to call the individual implementation directly use the `public_imp` feature flag. The validation
+implementations are then accessible via `simdutf8::(compat|pure)::imp::x86::(avx2|sse42)::validate_utf8()`.
 
 ## When not to use
 If you are only processing short byte sequences (less than 64 bytes) the excellent scalar algorithm in standard
-library is faster. If there is no native implementation for your platform use the standard library support instead.
+library is likely faster. If there is no native implementation for your platform (yet) use the standard library
+instead.
 
 ## Benchmarks
 
@@ -77,17 +79,3 @@ the Apache License 2.0.
 * SIMD implementations for x86/x86-64 AVX 2 and SSE 4.2, ports of the neon SIMD implementations for aarch64
   and armv7 are planned.
 * document `RUSTFLAGS="-C target-feature=+avx2"` and `RUSTFLAGS="-C target-cpu=native"` std code selection
-
-# Limitations
-
-# License
-
-# Thanks
-
-
-[![][license img]][license]
-
-
-Features
---------
-
