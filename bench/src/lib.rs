@@ -31,9 +31,9 @@ pub fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: Bench
     let core_ids = core_affinity::get_core_ids().unwrap();
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
-    // let mut group = c.benchmark_group("0-empty");
-    // bench_input(&mut group, b"", false, true, bench_fn);
-    // group.finish();
+    let mut group = c.benchmark_group("0-empty");
+    bench_input(&mut group, b"", false, true, bench_fn);
+    group.finish();
 
     bench(
         c,
