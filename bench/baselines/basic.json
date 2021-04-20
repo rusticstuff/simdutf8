@@ -1,9 +1,9 @@
 {
-  "name": "pure-b9bbda9",
+  "name": "basic-b9bbda9",
   "benchmarks": {
     "1-latin/000001": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/1-latin/000001",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/1-latin/000001",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -64,8 +64,8 @@
       }
     },
     "1-latin/000008": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/1-latin/000008",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/1-latin/000008",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -126,8 +126,8 @@
       }
     },
     "1-latin/000064": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/1-latin/000064",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/1-latin/000064",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -188,8 +188,8 @@
       }
     },
     "1-latin/000512": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/1-latin/000512",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/1-latin/000512",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -250,8 +250,8 @@
       }
     },
     "1-latin/004096": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/1-latin/004096",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/1-latin/004096",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -312,8 +312,8 @@
       }
     },
     "1-latin/065536": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/1-latin/065536",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/1-latin/065536",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -374,8 +374,8 @@
       }
     },
     "1-latin/131072": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/1-latin/131072",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/1-latin/131072",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -436,8 +436,8 @@
       }
     },
     "2-cyrillic/000002": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/2-cyrillic/000002",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/2-cyrillic/000002",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -498,8 +498,8 @@
       }
     },
     "2-cyrillic/000008": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/2-cyrillic/000008",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/2-cyrillic/000008",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -560,8 +560,8 @@
       }
     },
     "2-cyrillic/000065": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/2-cyrillic/000065",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/2-cyrillic/000065",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -622,8 +622,8 @@
       }
     },
     "2-cyrillic/000513": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/2-cyrillic/000513",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/2-cyrillic/000513",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -684,8 +684,8 @@
       }
     },
     "2-cyrillic/004096": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/2-cyrillic/004096",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/2-cyrillic/004096",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -746,8 +746,8 @@
       }
     },
     "2-cyrillic/065536": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/2-cyrillic/065536",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/2-cyrillic/065536",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -808,8 +808,8 @@
       }
     },
     "2-cyrillic/131072": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/2-cyrillic/131072",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/2-cyrillic/131072",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -870,8 +870,8 @@
       }
     },
     "3-chinese/000003": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/3-chinese/000003",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/3-chinese/000003",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -932,8 +932,8 @@
       }
     },
     "3-chinese/000009": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/3-chinese/000009",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/3-chinese/000009",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -994,8 +994,8 @@
       }
     },
     "3-chinese/000066": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/3-chinese/000066",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/3-chinese/000066",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1056,8 +1056,8 @@
       }
     },
     "3-chinese/000512": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/3-chinese/000512",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/3-chinese/000512",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1118,8 +1118,8 @@
       }
     },
     "3-chinese/004096": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/3-chinese/004096",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/3-chinese/004096",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1180,8 +1180,8 @@
       }
     },
     "3-chinese/065538": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/3-chinese/065538",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/3-chinese/065538",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1242,8 +1242,8 @@
       }
     },
     "3-chinese/131072": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/3-chinese/131072",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/3-chinese/131072",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1304,8 +1304,8 @@
       }
     },
     "4-emoji/000003": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/4-emoji/000003",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/4-emoji/000003",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1366,8 +1366,8 @@
       }
     },
     "4-emoji/000011": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/4-emoji/000011",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/4-emoji/000011",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1428,8 +1428,8 @@
       }
     },
     "4-emoji/000067": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/4-emoji/000067",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/4-emoji/000067",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1490,8 +1490,8 @@
       }
     },
     "4-emoji/000515": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/4-emoji/000515",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/4-emoji/000515",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1552,8 +1552,8 @@
       }
     },
     "4-emoji/004099": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/4-emoji/004099",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/4-emoji/004099",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1614,8 +1614,8 @@
       }
     },
     "4-emoji/065538": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/4-emoji/065538",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/4-emoji/065538",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1676,8 +1676,8 @@
       }
     },
     "4-emoji/131072": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/4-emoji/131072",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/4-emoji/131072",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1738,8 +1738,8 @@
       }
     },
     "x-error/065536": {
-      "baseline": "pure-b9bbda9",
-      "fullname": "pure-b9bbda9/x-error/065536",
+      "baseline": "basic-b9bbda9",
+      "fullname": "basic-b9bbda9/x-error/065536",
       "criterion_benchmark_v1": {
         "group_id": "x-error",
         "function_id": null,

@@ -58,8 +58,8 @@ macro_rules! check_bytes {
     };
 }
 
-/// validate_utf8_pure_simd() strategy and wrapper
-macro_rules! validate_utf8_pure_simd {
+/// validate_utf8_basic_simd() strategy and wrapper
+macro_rules! validate_utf8_basic_simd {
     ($feat:expr) => {
         #[target_feature(enable = $feat)]
         #[inline]
@@ -70,9 +70,9 @@ macro_rules! validate_utf8_pure_simd {
         ///
         /// # Safety
         /// tbd
-        pub unsafe fn validate_utf8_pure(
+        pub unsafe fn validate_utf8_basic(
             input: &[u8],
-        ) -> core::result::Result<(), crate::pure::Utf8Error> {
+        ) -> core::result::Result<(), crate::basic::Utf8Error> {
             const SIMDINPUT_LENGTH: usize = 64;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
@@ -112,7 +112,7 @@ macro_rules! validate_utf8_pure_simd {
             }
             SimdInput::check_eof(&mut state);
             if unlikely!(SimdInput::check_utf8_errors(&state)) {
-                Err(crate::pure::Utf8Error {})
+                Err(crate::basic::Utf8Error {})
             } else {
                 Ok(())
             }

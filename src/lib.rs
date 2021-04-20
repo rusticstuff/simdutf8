@@ -21,9 +21,9 @@
 //! }
 //! ```
 
+pub mod basic;
 pub mod compat;
 mod implementation;
-pub mod pure;
 
 #[cfg(test)]
 mod tests;

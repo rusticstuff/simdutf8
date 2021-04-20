@@ -1,9 +1,9 @@
 {
-  "name": "pure-std64",
+  "name": "basic-std64",
   "benchmarks": {
     "0-empty/000000": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/0-empty/000000",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/0-empty/000000",
       "criterion_benchmark_v1": {
         "group_id": "0-empty",
         "function_id": null,
@@ -61,8 +61,8 @@
       }
     },
     "1-latin/000001": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/1-latin/000001",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/1-latin/000001",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -123,8 +123,8 @@
       }
     },
     "1-latin/000008": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/1-latin/000008",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/1-latin/000008",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -185,8 +185,8 @@
       }
     },
     "1-latin/000064": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/1-latin/000064",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/1-latin/000064",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -247,8 +247,8 @@
       }
     },
     "1-latin/000512": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/1-latin/000512",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/1-latin/000512",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -309,8 +309,8 @@
       }
     },
     "1-latin/004096": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/1-latin/004096",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/1-latin/004096",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -371,8 +371,8 @@
       }
     },
     "1-latin/065536": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/1-latin/065536",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/1-latin/065536",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -433,8 +433,8 @@
       }
     },
     "1-latin/131072": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/1-latin/131072",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/1-latin/131072",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -495,8 +495,8 @@
       }
     },
     "2-cyrillic/000002": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/2-cyrillic/000002",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/2-cyrillic/000002",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -557,8 +557,8 @@
       }
     },
     "2-cyrillic/000008": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/2-cyrillic/000008",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/2-cyrillic/000008",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -619,8 +619,8 @@
       }
     },
     "2-cyrillic/000065": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/2-cyrillic/000065",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/2-cyrillic/000065",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -681,8 +681,8 @@
       }
     },
     "2-cyrillic/000513": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/2-cyrillic/000513",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/2-cyrillic/000513",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -743,8 +743,8 @@
       }
     },
     "2-cyrillic/004096": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/2-cyrillic/004096",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/2-cyrillic/004096",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -805,8 +805,8 @@
       }
     },
     "2-cyrillic/065536": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/2-cyrillic/065536",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/2-cyrillic/065536",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -867,8 +867,8 @@
       }
     },
     "2-cyrillic/131072": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/2-cyrillic/131072",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/2-cyrillic/131072",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -929,8 +929,8 @@
       }
     },
     "3-chinese/000003": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/3-chinese/000003",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/3-chinese/000003",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -991,8 +991,8 @@
       }
     },
     "3-chinese/000009": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/3-chinese/000009",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/3-chinese/000009",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1053,8 +1053,8 @@
       }
     },
     "3-chinese/000066": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/3-chinese/000066",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/3-chinese/000066",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1115,8 +1115,8 @@
       }
     },
     "3-chinese/000514": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/3-chinese/000514",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/3-chinese/000514",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1177,8 +1177,8 @@
       }
     },
     "3-chinese/004097": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/3-chinese/004097",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/3-chinese/004097",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1239,8 +1239,8 @@
       }
     },
     "3-chinese/065538": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/3-chinese/065538",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/3-chinese/065538",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1301,8 +1301,8 @@
       }
     },
     "3-chinese/131073": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/3-chinese/131073",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/3-chinese/131073",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1363,8 +1363,8 @@
       }
     },
     "4-emoji/000003": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/4-emoji/000003",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/4-emoji/000003",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1425,8 +1425,8 @@
       }
     },
     "4-emoji/000011": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/4-emoji/000011",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/4-emoji/000011",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1487,8 +1487,8 @@
       }
     },
     "4-emoji/000067": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/4-emoji/000067",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/4-emoji/000067",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1549,8 +1549,8 @@
       }
     },
     "4-emoji/000515": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/4-emoji/000515",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/4-emoji/000515",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1611,8 +1611,8 @@
       }
     },
     "4-emoji/004099": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/4-emoji/004099",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/4-emoji/004099",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1673,8 +1673,8 @@
       }
     },
     "4-emoji/065538": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/4-emoji/065538",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/4-emoji/065538",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1735,8 +1735,8 @@
       }
     },
     "4-emoji/131072": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/4-emoji/131072",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/4-emoji/131072",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1797,8 +1797,8 @@
       }
     },
     "x-error/065536": {
-      "baseline": "pure-std64",
-      "fullname": "pure-std64/x-error/065536",
+      "baseline": "basic-std64",
+      "fullname": "basic-std64/x-error/065536",
       "criterion_benchmark_v1": {
         "group_id": "x-error",
         "function_id": null,

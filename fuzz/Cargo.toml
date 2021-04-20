@@ -16,8 +16,8 @@ libfuzzer-sys = "*"
 path = ".."
 
 [[bin]]
-name = "auto_pure"
-path = "targets/auto_pure.rs"
+name = "auto_basic"
+path = "targets/auto_basic.rs"
 doc = false
 test = false
 

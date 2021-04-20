@@ -3,7 +3,7 @@
 
 use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};
 
-use crate::implementation::validate_utf8_pure;
+use crate::implementation::validate_utf8_basic;
 
 /// Simple UTF-8 error. The SIMD implementation does not provide further information.
 #[derive(Copy, Eq, PartialEq, Clone, Debug)]
@@ -15,7 +15,7 @@ pub struct Utf8Error {}
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
     unsafe {
-        validate_utf8_pure(input)?;
+        validate_utf8_basic(input)?;
         Ok(from_utf8_unchecked(input))
     }
 }
@@ -26,7 +26,7 @@ pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
 /// Will return `Err(Utf8Error)` on if the input contains invalid UTF-8
 pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
     unsafe {
-        validate_utf8_pure(input)?;
+        validate_utf8_basic(input)?;
         Ok(from_utf8_unchecked_mut(input))
     }
 }
@@ -39,11 +39,11 @@ pub mod imp {
     pub mod x86 {
         /// avx2 mod
         pub mod avx2 {
-            pub use crate::implementation::x86::avx2::validate_utf8_pure as validate_utf8;
+            pub use crate::implementation::x86::avx2::validate_utf8_basic as validate_utf8;
         }
         /// sse42 mod
         pub mod sse42 {
-            pub use crate::implementation::x86::sse42::validate_utf8_pure as validate_utf8;
+            pub use crate::implementation::x86::sse42::validate_utf8_basic as validate_utf8;
         }
     }
 }

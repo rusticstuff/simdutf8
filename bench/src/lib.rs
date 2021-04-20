@@ -1,6 +1,6 @@
 use criterion::{measurement::Measurement, BenchmarkGroup, BenchmarkId, Criterion, Throughput};
+use simdutf8::basic::from_utf8 as basic_from_utf8;
 use simdutf8::compat::from_utf8 as compat_from_utf8;
-use simdutf8::pure::from_utf8 as pure_from_utf8;
 
 use std::str::from_utf8 as std_from_utf8;
 use std::time::Duration;
@@ -148,7 +148,7 @@ fn bench_input<M: Measurement>(
                 BenchmarkId::from_parameter(format!("{:06}", input.len())),
                 &input,
                 |b, &slice| {
-                    b.iter(|| assert_eq!(pure_from_utf8(slice).is_ok(), expected_ok));
+                    b.iter(|| assert_eq!(basic_from_utf8(slice).is_ok(), expected_ok));
                 },
             );
         }

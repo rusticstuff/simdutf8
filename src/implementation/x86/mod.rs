@@ -4,13 +4,13 @@ pub(crate) mod avx2;
 #[allow(dead_code)]
 pub(crate) mod sse42;
 
-// validate_utf8_pure() std: implementation auto-selection
+// validate_utf8_basic() std: implementation auto-selection
 
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
-pub(crate) unsafe fn validate_utf8_pure(
+pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
-) -> core::result::Result<(), crate::pure::Utf8Error> {
+) -> core::result::Result<(), crate::basic::Utf8Error> {
     use core::mem;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
@@ -18,8 +18,8 @@ pub(crate) unsafe fn validate_utf8_pure(
 
     static FN: AtomicPtr<()> = AtomicPtr::new(get_fastest as FnRaw);
 
-    unsafe fn get_fastest(input: &[u8]) -> core::result::Result<(), crate::pure::Utf8Error> {
-        let fun = get_fastest_available_implementation_pure();
+    unsafe fn get_fastest(input: &[u8]) -> core::result::Result<(), crate::basic::Utf8Error> {
+        let fun = get_fastest_available_implementation_basic();
         FN.store(fun as FnRaw, Ordering::Relaxed);
         (fun)(input)
     }
@@ -30,34 +30,34 @@ pub(crate) unsafe fn validate_utf8_pure(
 
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
-fn get_fastest_available_implementation_pure() -> super::ValidateUtf8Fn {
+fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
     if std::is_x86_feature_detected!("avx2") {
-        avx2::validate_utf8_pure
+        avx2::validate_utf8_basic
     } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_pure
+        sse42::validate_utf8_basic
     } else {
-        super::validate_utf8_pure_fallback
+        super::validate_utf8_basic_fallback
     }
 }
 
-// validate_utf8_pure() no-std: implementation selection by config
+// validate_utf8_basic() no-std: implementation selection by config
 
 #[cfg(target_feature = "avx2")]
-pub(crate) use avx2::validate_utf8_pure;
+pub(crate) use avx2::validate_utf8_basic;
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
     target_feature = "sse4.2"
 ))]
-pub(crate) use sse42::validate_utf8_pure;
+pub(crate) use sse42::validate_utf8_basic;
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
     not(target_feature = "sse4.2")
 ))]
-pub(crate) use super::validate_utf8_pure_fallback as validate_utf8_pure;
+pub(crate) use super::validate_utf8_basic_fallback as validate_utf8_basic;
 
 // validate_utf8_compat() std: implementation auto-selection
 
@@ -96,7 +96,7 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
     }
 }
 
-// validate_utf8_pure() no-std: implementation selection by config
+// validate_utf8_basic() no-std: implementation selection by config
 
 #[cfg(target_feature = "avx2")]
 pub(crate) use avx2::validate_utf8_compat;

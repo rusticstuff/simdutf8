@@ -24,7 +24,7 @@ simdutf8 = { version = "*", path = ".." }
 simdjson-utf8 = { version = "*", path = "simdjson-utf8", optional = true }
 
 [[bench]]
-name = "throughput_pure"
+name = "throughput_basic"
 harness = false
 
 [[bench]]
@@ -44,7 +44,7 @@ name = "throughput_simdjson"
 harness = false
 
 [[bench]]
-name = "cpb_pure"
+name = "cpb_basic"
 harness = false
 
 [[bench]]
