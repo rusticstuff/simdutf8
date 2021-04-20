@@ -81,11 +81,11 @@ The name schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/
 first character is invalid UTF-8. All benchmarks were run on a Laptop with an Intel Core i7-10750H CPU (Comet Lake) on
 Windows with Rust 1.51.0.
 
-### std library vs simdutf8 basic UTF-8 validation
+### simdutf8 basic vs std library UTF-8 validation
 ![critcmp stimdutf8 basic vs std lib](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-std.png)
 simdutf8 performs better except for inputs ≤ 64 bytes.
 
-### simdutf8 vs simdjson UTF-8 validation
+### simdutf8 basic vs simdjson UTF-8 validation
 ![critcmp st lib vs stimdutf8 basic](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-simdjson.png)
 simdutf8 is faster than simdjson except for some crazy optimization by clang for the pure ASCII
 loop (to be investigated). simdjson is compiled using clang and gcc from MSYS.
@@ -116,5 +116,5 @@ Care is taken that all functions are properly inlined up to the public interface
 ## License
 This code is made available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
 
-It is based on code distributed with [simd-json.rs, the Rust port of simdjson. Simdjson itself is distributed under
+It is based on code distributed with [simd-json.rs](https://simd-json.rs), the Rust port of simdjson. Simdjson itself is distributed under
 the Apache License 2.0.
