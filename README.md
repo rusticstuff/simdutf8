@@ -72,6 +72,8 @@ instead. This library uses unsafe code which has not been battle-tested and shou
 
 ## Benchmarks
 
+TBD
+
 ## Technical details
 The implementation is similar to the one in simdjson except that it aligns reads to the block size of the
 SIMD extension leading to better peak performance compared to the implementation in simdjson. Since this alignment
