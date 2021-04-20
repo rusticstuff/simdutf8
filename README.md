@@ -109,12 +109,14 @@ error is found the last bytes of the previous block are checked for a cross-bloc
 Care is taken that all functions are properly inlined up to the public interface.
 
 ## Thanks
-* to the authors of [simdjson] for coming up with the high-performance SIMD implementation.
-* to the authors of the [simdjson Rust port]() who did most of the heavy lifting of porting the C++ code to Rust.
+* to the authors of simdjson for coming up with the high-performance SIMD implementation.
+* to the authors of the simdjson Rust port who did most of the heavy lifting of porting the C++ code to Rust.
 
 
 ## License
 This code is made available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
 
-It is based on code distributed with [simd-json.rs](https://simd-json.rs), the Rust port of simdjson. Simdjson itself is distributed under
-the Apache License 2.0.
+It is based on code distributed with simd-json.rs, the Rust port of simdjson, which is dual-licensed under
+the MIT license and Apache 2.0 license.
+
+simdjson itself is distributed under the Apache License 2.0.
