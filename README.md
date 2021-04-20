@@ -1,5 +1,11 @@
 # simdutf8 – High-speed UTF-8 validation for Rust
 
+TBD.
+
+This software should be considered alpha quality and should not (yet) be used in production though it has been tested
+with sample data as well a fuzzer and there are no known bugs. It will be tested more rigorously before the first
+production release.
+
 ## Quick start
 Add the dependency to your Cargo.toml file:
 ```toml
@@ -8,7 +14,7 @@ simdutf8 = { version = "0.0.1"}
 ```
 
 Use it just like `std::str::from_utf8`:
-```rs
+```rust
 use simdutf8::basic::{from_utf8, Utf8Error};
 
 fn main() {
@@ -21,7 +27,7 @@ Put `simdutf8 = "0.1.0"` in your Cargo.toml file and use `simdutf8::basic::from_
 instead.
 
 ## Features
-* Written in purxTBD Rust
+* Written in pure Rust
 * Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII
 * Up to 28 % faster on non-ASCII input compared to the original simdjson implementation
 * Supports AVX2 and SIMD implementations on x86 and x86-64, ARMv7 and ARMv8 neon support is planned
@@ -31,7 +37,6 @@ instead.
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a plug-in replacement for `std::str::from_utf8()`
 * Falls back to the excellent std implementation if SIMD extensions are not supported
-* Fuzz-tested
 
 ## APIs
 
