@@ -46,6 +46,8 @@ jobs:
             toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
             profile: minimal
             override: true
+      - name: Install cargo-asm
+        run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
         run: |
           cargo clean;cargo asm|diff -u expected-methods-x86-std.txt -
