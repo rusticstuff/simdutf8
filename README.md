@@ -1,4 +1,4 @@
-[![][license img]][license]
+[![CI](https://github.com/rusticstuff/simdutf8/actions/workflows/ci.yml/badge.svg)](https://github.com/rusticstuff/simdutf8/actions/workflows/ci.yml)
 
 # simdutf8 – High-speed UTF-8 validation for Rust
 
