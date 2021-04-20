@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         toolchain: [stable, nightly]
-        arch: [x86_64, i686]
+        arch: [x86_64] # GH runners are missing 32-bit build tools, so no i686
     defaults:
       run:
         working-directory: inlining
