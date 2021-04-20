@@ -1,10 +1,6 @@
 # TODO
-* licensing: simdjson, simd-json.rs, simdjson-utf8-bench
-* finish README.md
-  * thanks, licensing, features, basic vs compat, improvements, limitations, which impl is used under whic
-    circumstances, benchmark against simdjson, etc.
+* finish README.md: benchmarks, proofread
 * api doc
-* badges
 * github repo -> public
 * crates.io
 * announce
