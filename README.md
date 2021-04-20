@@ -13,12 +13,7 @@ use simdutf8::basic::{from_utf8, Utf8Error};
 
 fn main() {
     println!("{}", from_utf8(b"I 	\xEE\x80\xA2 UTF-8!").unwrap());
-    c.bench_function("fib 20", |b| b.iter(|| fibonacci(black_box(20))));
 }
-
-criterion_group!(benches, criterion_benchmark);
-criterion_main!(benches);
-
 ```
 
 Put `simdutf8 = "0.1.0"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
@@ -26,7 +21,7 @@ Put `simdutf8 = "0.1.0"` in your Cargo.toml file and use `simdutf8::basic::from_
 instead.
 
 ## Features
-* Written in pure Rust
+* Written in purxTBD Rust
 * Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII
 * Up to 28 % faster on non-ASCII input compared to the original simdjson implementation
 * Supports AVX2 and SIMD implementations on x86 and x86-64, ARMv7 and ARMv8 neon support is planned
@@ -61,7 +56,7 @@ target features, use `RUSTFLAGS=-C target-cpu=avx2` to use the AVX 2 implementat
 for the SSE 4.2 implementation.
 
 If you want to be able to call the individual implementation directly use the `public_imp` feature flag. The validation
-implementations are then accessible via `simdutf8::(compat|pure)::imp::x86::(avx2|sse42)::validate_utf8()`.
+implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(avx2|sse42)::validate_utf8()`.
 
 ## When not to use
 If you are only processing short byte sequences (less than 64 bytes) the excellent scalar algorithm in standard
