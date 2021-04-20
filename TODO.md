@@ -20,6 +20,8 @@
 * fuzz: sse42
 * investigate slowness pure: why is ASCII processing comparred to GCC-compiled simdjson-utf8,
   clang-compiled is as slow
+* align 16-byte on SSE4.2
+
 
 # NEXT
 * rename pure?
