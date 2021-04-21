@@ -132,3 +132,8 @@ It is based on code distributed with simd-json.rs, the Rust port of simdjson, wh
 the MIT license and Apache 2.0 license.
 
 simdjson itself is distributed under the Apache License 2.0.
+
+## References
+
+
+- John Keiser, Daniel Lemire, [Validating UTF-8 In Less Than One Instruction Per Byte](https://arxiv.org/abs/2010.03090), Software: Practice and Experience 51 (5), 2021
