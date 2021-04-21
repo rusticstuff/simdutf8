@@ -7,7 +7,7 @@
 //!
 //! The functions in this module also fail early: errors are checked on-the-fly as the string is processed and once
 //! an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
-//! This comes at a performance penality compared to the [`crate::basic`] module even when the input is valid UTF-8.
+//! This comes at a performance penality compared to the [`crate::basic`] module even if the input is valid UTF-8.
 
 use core::fmt::Display;
 use core::fmt::Formatter;

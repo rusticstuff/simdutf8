@@ -56,7 +56,7 @@
 //! The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the CPU
 //! targeted by the compiler supports the fastest available implementation.
 //! So if you compile with `RUSTFLAGS="-C target-cpu=native"` on a recent x86-64 machine, the AVX 2 implementation is selected at
-//! compile time without resorting to runtime detection.
+//! compile time and runtime selection is disabled.
 //!
 //! For no-std support (compiled with `--no-default-features`) the implementation is always selected at compile time based on
 //! the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.2"`
