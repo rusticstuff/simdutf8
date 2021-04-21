@@ -63,7 +63,6 @@ jobs:
         with:
             toolchain: nightly
             profile: minimal
-            components: doc
             override: true
       - name: Run cargo doc
         run:  cargo doc --features public_imp
