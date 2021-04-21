@@ -1,6 +1,4 @@
 # TODO
-* more fuzz testing
-* api doc
 * announce
 
 # LATER
@@ -9,13 +7,11 @@
 * why is nightly slower on smaller inputs (both compat and basic flavors) -> benchmark again
 * test nightly+likely again - any difference?
 * test coverage
-* Benchmark and test aligned and unaligned
 * Check if std impl. benefits from AVX 2 (xargo)
+* more fuzz testing
 * fuzz: sse42
-* investigate slowness basic: why is ASCII processing comparred to GCC-compiled simdjson-utf8,
-  clang-compiled is as slow
 * align to 16-byte boundaries on SSE4.2
-
+* investigate simdjson Win clang speed advantage on ASCII
 
 # NEXT
 * publish action?
