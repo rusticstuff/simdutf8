@@ -14,7 +14,7 @@
 * fuzz: sse42
 * investigate slowness basic: why is ASCII processing comparred to GCC-compiled simdjson-utf8,
   clang-compiled is as slow
-* align 16-byte on SSE4.2
+* align to 16-byte boundaries on SSE4.2
 
 
 # NEXT
