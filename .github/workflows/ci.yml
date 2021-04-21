@@ -55,6 +55,21 @@ jobs:
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-avx2.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-sse42.txt -
 
+  test-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            profile: minimal
+            components: doc
+            override: true
+      - name: Run cargo doc
+        run:  cargo doc --features public_imp
+        env:
+          RUSTDOCFLAGS: --cfg docsrs
+
   cross-build:
     if: false
     runs-on: ubuntu-latest
