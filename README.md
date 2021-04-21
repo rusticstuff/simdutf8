@@ -39,7 +39,7 @@ use simdutf8::basic::from_utf8;
 println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 ```
 
-If you need the detailed information on validation failures, use `simdutf8::compat::from_utf8`
+If you need detailed information on validation failures, use `simdutf8::compat::from_utf8`
 instead.
 
 ```rust
@@ -59,20 +59,23 @@ is not valid UTF-8. `simdutf8::basic::Utf8Error` is a zero-sized error struct.
 
 ### Compat flavor
 The `compat` flavor is fully API-compatible with `std::str::from_utf8`. In particular, `simdutf8::compat::from_utf8()`
-returns a `simdutf8::compat::Utf8Error`, which has the `valid_up_to()` and `error_len()` methods. The first is useful
-for verification of streamed data. It also fails early: errors are checked on-the-fly as the string is processed and once
+returns a `simdutf8::compat::Utf8Error`, which has `valid_up_to()` and `error_len()` methods. The first is useful for verification of streamed data. The second is useful e.g. for replacing invalid byte sequences with a replacement character.
+
+It also fails early: errors are checked on-the-fly as the string is processed and once
 an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
+This comes at a performance penality compared to the `basic` API even if the input is valid UTF-8.
 
 ## Implementation selection
-The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the targeted
-CPU supports AVX 2. Since this is the fastest implementation, it is called directly. So if you compile with
-`RUSTFLAGS=-C target-cpu=native` on a recent machine, the AVX 2 implementation is used without runtime detection.
+The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the CPU
+targeted by the compiler supports the fastest available implementation.
+So if you compile with `RUSTFLAGS="-C target-cpu=native"` on a recent x86-64 machine, the AVX 2 implementation is selected at
+compile time without resorting to runtime detection.
 
-For no-std support (compiled with `--no-default-features`) the implementation is selected based on the supported
-target features. Use `RUSTFLAGS=-C target-cpu=avx2` to use the AVX 2 implementation or `RUSTFLAGS=-C target-cpu=sse4.2`
+For no-std support (compiled with `--no-default-features`) the implementation is always selected at compile time based on
+the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.2"`
 for the SSE 4.2 implementation.
 
-If you want to be able to call the individual implementation directly, use the `public_imp` feature flag. The validation
+If you want to be able to call A SIMD implementation directly, use the `public_imp` feature flag. The validation
 implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(avx2|sse42)::validate_utf8()`.
 
 ## When not to use
