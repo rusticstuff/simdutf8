@@ -1,7 +1,7 @@
 //! Contains UTF-8 validation implementations.
 
 type Utf8ErrorCompat = crate::compat::Utf8Error;
-type Utf8ErrorPure = crate::basic::Utf8Error;
+type Utf8ErrorBasic = crate::basic::Utf8Error;
 
 #[allow(unused_macros)]
 #[macro_use]
@@ -10,7 +10,7 @@ mod macros;
 // UTF-8 validation function types
 
 #[allow(dead_code)]
-type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorPure>;
+type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorBasic>;
 
 #[allow(dead_code)]
 type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompat>;
@@ -25,7 +25,7 @@ pub(crate) mod x86;
 #[allow(clippy::inline_always)]
 #[inline(always)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), Utf8ErrorPure> {
+pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), Utf8ErrorBasic> {
     x86::validate_utf8_basic(input)
 }
 
@@ -49,10 +49,10 @@ pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;
 
 #[inline]
 #[allow(dead_code)]
-pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), Utf8ErrorPure> {
+pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), Utf8ErrorBasic> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
-        Err(_) => Err(Utf8ErrorPure {}),
+        Err(_) => Err(Utf8ErrorBasic {}),
     }
 }
 

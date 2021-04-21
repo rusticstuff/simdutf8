@@ -1,4 +1,4 @@
-//! Pure module for maximum speed on valid UTF-8 at the expense of early error
+//! Basic module for maximum speed on valid UTF-8 at the expense of early error
 //! detection and error details.
 
 use core::str::{from_utf8_unchecked, from_utf8_unchecked_mut};

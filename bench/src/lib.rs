@@ -13,7 +13,7 @@ mod macros;
 
 #[derive(Clone, Copy)]
 pub enum BenchFn {
-    Pure,
+    Basic,
     Compat,
     Std,
     StdNoInline,
@@ -143,7 +143,7 @@ fn bench_input<M: Measurement>(
         group.throughput(Throughput::Bytes(input.len() as u64));
     }
     match bench_fn {
-        BenchFn::Pure => {
+        BenchFn::Basic => {
             group.bench_with_input(
                 BenchmarkId::from_parameter(format!("{:06}", input.len())),
                 &input,
