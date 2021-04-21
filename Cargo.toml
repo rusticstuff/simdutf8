@@ -28,3 +28,4 @@ hints = []
 
 [package.metadata.docs.rs]
 features = ["public_imp"]
+rustdoc-args = ["--cfg", "docsrs"]
