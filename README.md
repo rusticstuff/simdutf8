@@ -28,7 +28,7 @@ production release.
 Add the dependency to your Cargo.toml file:
 ```toml
 [dependencies]
-simdutf8 = { version = "0.0.4" }
+simdutf8 = { version = "0.1.0" }
 ```
 
 Use `simdutf8::basic::from_utf8` as a drop-in replacement for `std::str::from_utf8()`.
