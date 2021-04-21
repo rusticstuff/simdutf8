@@ -1,7 +1,7 @@
 //! Contains the x86-64/x86 SSE4.2 UTF-8 validation implementation.
 //!
 //! See Validating UTF-8 In Less Than One Instruction Per Byte, Software: Practice and Experience 51 (5), 2021
-//! https://arxiv.org/abs/2010.03090
+//! <https://arxiv.org/abs/2010.03090>
 #[allow(dead_code)]
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
