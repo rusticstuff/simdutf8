@@ -72,6 +72,7 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 }
 /// imp mod
 #[cfg(feature = "public_imp")]
+#[cfg_attr(docsrs, doc(cfg(feature = "public_imp")))]
 pub mod imp {
     /// x86 mod
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
