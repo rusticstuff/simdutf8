@@ -31,16 +31,24 @@ Add the dependency to your Cargo.toml file:
 simdutf8 = { version = "0.0.2"}
 ```
 
-Use it just like `std::str::from_utf8`:
+Use `simdutf8::basic::from_utf8` as a drop-in replacement for `std::str::from_utf8()`. 
+
 ```rust
-use simdutf8::basic::{from_utf8, Utf8Error};
+use simdutf8::basic::from_utf8;
 
 println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 ```
 
-Put `simdutf8 = "0.0.2"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
-`std::str::from_utf8()`. If you need the extended information on validation failures, use `simdutf8::compat::from_utf8`
+If you need the detailed information on validation failures, use `simdutf8::compat::from_utf8`
 instead.
+
+```rust
+use simdutf8::compat::from_utf8;
+
+let err = from_utf8(b"I \xE2\x9D\xA4\xEF\xB8 UTF-8!").unwrap_err();
+assert_eq!(err.valid_up_to(), 5);
+assert_eq!(err.error_len(), Some(2));
+```
 
 ## APIs
 
