@@ -8,7 +8,7 @@ Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, b
 [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs).
 
 ## Disclaimer
-This software should be considered alpha quality and should not (yet) be used in production though it has been tested
+This software should be considered alpha quality and should not (yet) be used in production, though it has been tested
 with sample data as well as a fuzzer and there are no known bugs. It will be tested more rigorously before the first
 production release.
 
@@ -16,8 +16,8 @@ production release.
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII
-* Up to 28 % faster on non-ASCII input compared to the original simdjson implementation
-* Supports AVX2 and SIMD implementations on x86 and x86-64, ARMv7 and ARMv8 neon support is planned
+* Up to 28% faster on non-ASCII input compared to the original simdjson implementation
+* Supports AVX2 and SIMD implementations on x86 and x86-64. ARMv7 and ARMv8 neon support is planned
 * Selects the fastest implementation at runtime based on CPU support
 * Written in pure Rust
 * No dependencies
@@ -39,26 +39,26 @@ println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 ```
 
 Put `simdutf8 = "0.0.2"` in your Cargo.toml file and use `simdutf8::basic::from_utf8` as a drop-in replacement for
-`std::str::from_utf8()`. If you need the extended information on validation failures use `simdutf8::compat::from_utf8`
+`std::str::from_utf8()`. If you need the extended information on validation failures, use `simdutf8::compat::from_utf8`
 instead.
 
 ## APIs
 
 ### Basic flavor
-For maximum speed on valid UTF-8 use the `basic` api flavor. It is fastest on valid UTF-8 but only checks
+Use the `basic` API flavor for maximum speed. It is fastest on valid UTF-8, but only checks
 for errors after processing the whole byte sequence and does not provide detailed information if the data
 is not valid UTF-8. `simdutf8::basic::Utf8Error` is a zero-sized error struct.
 
 ### Compat flavor
-The `compat` flavor is fully API-compatible with `std::str::from_utf8`. In particular `simdutf8::compat::from_utf8()`
-returns a `simdutf8::compat::Utf8Error` which has the `valid_up_to()` and `error_len()` methods. The first is useful
+The `compat` flavor is fully API-compatible with `std::str::from_utf8`. In particular, `simdutf8::compat::from_utf8()`
+returns a `simdutf8::compat::Utf8Error`, which has the `valid_up_to()` and `error_len()` methods. The first is useful
 for verification of streamed data. It also fails early: errors are checked on-the-fly as the string is processed and once
 an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
 
 ## Implementation selection
 The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the targeted
-CPU supports AVX 2. Since this is the fastest implementation it is called directly. So if you compile with
-`RUSTFLAGS=-C target-cpu=native` on a recent machine the AVX 2 implementation is used automatically.
+CPU supports AVX 2. Since this is the fastest implementation, it is called directly. So if you compile with
+`RUSTFLAGS=-C target-cpu=native` on a recent machine, the AVX 2 implementation is used without runtime detection.
 
 For no-std support (compiled with `--no-default-features`) the implementation is selected based on the supported
 target features. Use `RUSTFLAGS=-C target-cpu=avx2` to use the AVX 2 implementation or `RUSTFLAGS=-C target-cpu=sse4.2`
@@ -68,9 +68,9 @@ If you want to be able to call the individual implementation directly, use the `
 implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(avx2|sse42)::validate_utf8()`.
 
 ## When not to use
-If you are only processing short byte sequences (less than 64 bytes) the excellent scalar algorithm in standard
-library is likely faster. If there is no native implementation for your platform (yet) use the standard library
-instead. This library uses unsafe code which has not been battle-tested and should not (yet) be used in production.
+If you are only processing short byte sequences (less than 64 bytes), the excellent scalar algorithm in the standard
+library is likely faster. If there is no native implementation for your platform (yet), use the standard library
+instead. Also, this library uses unsafe code which has not been battle-tested and should not (yet) be used in production.
 
 ## Benchmarks
 
@@ -79,7 +79,7 @@ are created with [critcmp](https://github.com/BurntSushi/critcmp). Source code a
 [bench directory](https://github.com/rusticstuff/simdutf8/tree/main/bench).
 
 The name schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/66536_ is a 64KiB slice where the very
-first character is invalid UTF-8. All benchmarks were run on a Laptop with an Intel Core i7-10750H CPU (Comet Lake) on
+first character is invalid UTF-8. All benchmarks were run on a laptop with an Intel Core i7-10750H CPU (Comet Lake) on
 Windows with Rust 1.51.0.
 
 ### simdutf8 basic vs std library UTF-8 validation
@@ -93,18 +93,18 @@ loop (to be investigated). simdjson is compiled using clang and gcc from MSYS.
 
 ### simdutf8 basic vs simdutf8 compat UTF-8 validation
 ![critcmp st lib vs stimdutf8 basic](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-compat.png)
-There is a small performance penalty to continuously checking the error status while processing data but detecting
+There is a small performance penalty to continuously checking the error status while processing data, but detecting
 errors early provides a huge benefit for the _x-error/66536_ benchmark.
 
 ## Technical details
 The implementation is similar to the one in simdjson except that it aligns reads to the block size of the
-SIMD extension leading to better peak performance compared to the implementation in simdjson. Since this alignment
-means that an incomplete block needs to be processed before the aligned data is read this would lead to worse
+SIMD extension, which leads to better peak performance compared to the implementation in simdjson. This alignment
+means that an incomplete block needs to be processed before the aligned data is read, which would lead to worse
 performance on short byte sequences. Thus, aligned reads are only used with 2048 bytes of data or more. Incomplete
 reads for the first unaligned and the last incomplete block are done in two aligned 64-byte buffers.
 
 For the compat API we need to check the error buffer on each 64-byte block instead of just aggregating it. If an
-error is found the last bytes of the previous block are checked for a cross-block continuation and then
+error is found, the last bytes of the previous block are checked for a cross-block continuation and then
 `std::str::from_utf8()` is run to find the exact location of the error.
 
 Care is taken that all functions are properly inlined up to the public interface.
