@@ -48,6 +48,7 @@
 //! [`error_len()`](compat::Utf8Error#method.error_len) methods. The first is useful
 //! for verification of streamed data. It also fails early: errors are checked on-the-fly as the string is processed and once
 //! an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
+//! This comes at a performance penality compared to the [`basic`] module even when the input is valid UTF-8.
 //!
 //! ## Implementation selection
 //! The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the targeted

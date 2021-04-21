@@ -61,15 +61,17 @@ macro_rules! check_bytes {
 /// validate_utf8_basic_simd() strategy and wrapper
 macro_rules! validate_utf8_basic_simd {
     ($feat:expr) => {
-        #[target_feature(enable = $feat)]
-        #[inline]
-        /// impl-specific fn
+        /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
-        /// tbd
+        /// Return the zero-sized [`crate::basic::Utf8Error`] on failure.
         ///
         /// # Safety
-        /// tbd
+        /// This function is inherently unsafe because it is compiled with SIMD extensions
+        /// enabled. Make sure that the CPU supports it before calling.
+        ///
+        #[target_feature(enable = $feat)]
+        #[inline]
         pub unsafe fn validate_utf8_basic(
             input: &[u8],
         ) -> core::result::Result<(), crate::basic::Utf8Error> {
@@ -123,13 +125,15 @@ macro_rules! validate_utf8_basic_simd {
 /// validate_utf8_compat_simd() strategy and wrapper
 macro_rules! validate_utf8_compat_simd {
     ($feat:expr) => {
-        /// impl-specific fn
+        /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
-        /// tbd
+        /// Return [`crate::compat::Utf8Error`] with detailed error information on failure.
         ///
         /// # Safety
-        /// tbd
+        /// This function is inherently unsafe because it is compiled with SIMD extensions
+        /// enabled. Make sure that the CPU supports it before calling.
+        ///
         #[target_feature(enable = $feat)]
         #[inline]
         pub unsafe fn validate_utf8_compat(
