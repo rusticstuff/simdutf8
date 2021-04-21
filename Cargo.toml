@@ -1,6 +1,6 @@
 [package]
 name = "simdutf8"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Hans Kratz <hans@appfour.com>"]
 edition = "2018"
 description = "SIMD-accelerated UTF-8 validation."
