@@ -11,7 +11,7 @@ readme = "README.md"
 keywords = ["utf-8", "unicode", "string", "validation", "simd"]
 categories = ["encoding", "algorithms", "no-std"]
 license = "Apache-2.0"
-exclude = ["/.github", "/.vscode", "/bench", "/afl", "/fuzz", "expected-methods-*.txt"]
+exclude = ["/.github", "/.vscode", "/bench", "/afl", "/fuzz", "/img", "expected-methods-*.txt"]
 
 [lib]
 bench = false
