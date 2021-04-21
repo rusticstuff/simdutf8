@@ -80,8 +80,8 @@ implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(av
 
 ## When not to use
 If you are only processing short byte sequences (less than 64 bytes), the excellent scalar algorithm in the standard
-library is likely faster. If there is no native implementation for your platform (yet), use the standard library
-instead. Also, this library uses unsafe code which has not been battle-tested and should not (yet) be used in production.
+library is likely faster. Also, this library uses unsafe code which has not been battle-tested and should not (yet)
+be used in production.
 
 ## Benchmarks
 
