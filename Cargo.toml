@@ -13,9 +13,6 @@ categories = ["encoding", "algorithms", "no-std"]
 license = "Apache-2.0"
 exclude = ["/.github", "/.vscode", "/bench", "/afl", "/fuzz", "/img", "expected-methods-*.txt"]
 
-[lib]
-bench = false
-
 [features]
 default = ["std"]
 
