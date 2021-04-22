@@ -21,7 +21,7 @@ type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompa
 #[macro_use]
 pub(crate) mod x86;
 
-/// Fn needed of re-import, otherwise not inlined in non-std case
+/// Fn needed instead of re-import, otherwise not inlined in non-std case
 #[allow(clippy::inline_always)]
 #[inline(always)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
