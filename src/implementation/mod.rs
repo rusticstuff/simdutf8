@@ -66,15 +66,14 @@ pub(crate) fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), Utf8Erro
 
 #[inline]
 fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
-    use core::convert::TryFrom;
+    #[allow(clippy::cast_possible_truncation)]
     match core::str::from_utf8(&input[offset..]) {
         Ok(_) => Ok(()),
         Err(err) => Err(Utf8ErrorCompat {
             valid_up_to: err.valid_up_to() + offset,
             error_len: err.error_len().map(|len| {
-                #[allow(clippy::unwrap_used)]
-                // never panics since std::str::err::Utf8Error::error_len() never returns value larger than 4
-                u8::try_from(len).unwrap()
+                // never truncates since std::str::err::Utf8Error::error_len() never returns value larger than 4
+                len as u8
             }),
         }),
     }
