@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly]
+        toolchain: [stable, nightly, "1.38.0"]
         arch: [x86_64] # GH runners are missing 32-bit build tools, so no i686
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly]
+        toolchain: [stable, nightly, "1.38.0"]
         arch: [x86_64] # GH runners are missing 32-bit build tools, so no i686
     defaults:
       run:
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly]
+        toolchain: [stable, nightly, "1.38.0"]
         arch: [x86_64]
         target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]
