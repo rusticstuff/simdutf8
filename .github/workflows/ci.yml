@@ -51,6 +51,7 @@ jobs:
       - name: Check if the expected fns are inlined
         run: |
           cargo clean;cargo asm|diff -u expected-methods-x86-std.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|diff -u expected-methods-x86-std-avx2.txt -
           cargo clean;cargo asm --no-default-features|diff -u expected-methods-x86-nostd-fallback.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-avx2.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-sse42.txt -
