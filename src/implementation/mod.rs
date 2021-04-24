@@ -98,6 +98,7 @@ fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
             .find(|i| input[failing_block_pos - i] >> 6 != 0b10)
             .map_or(failing_block_pos, |i| failing_block_pos - i)
     };
+    // UNWRAP: safe because the SIMD UTF-8 validation found an error
     validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
