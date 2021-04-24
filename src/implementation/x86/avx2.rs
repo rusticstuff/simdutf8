@@ -320,6 +320,6 @@ impl SimdInput {
     }
 }
 
-validate_utf8_basic_simd!("avx2");
-
-validate_utf8_compat_simd!("avx2");
+use crate::implementation::Temp2x64A32;
+validate_utf8_basic_simd!("avx2", Temp2x64A32);
+validate_utf8_compat_simd!("avx2", Temp2x64A32);

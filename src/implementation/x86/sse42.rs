@@ -259,6 +259,6 @@ impl SimdInput {
     }
 }
 
-validate_utf8_basic_simd!("sse4.2");
-
-validate_utf8_compat_simd!("sse4.2");
+use crate::implementation::Temp2x64A16;
+validate_utf8_basic_simd!("sse4.2", Temp2x64A16);
+validate_utf8_compat_simd!("sse4.2", Temp2x64A16);

@@ -132,7 +132,24 @@ struct Utf8CheckingState<T> {
     incomplete: T,
     error: T,
 }
+#[repr(C, align(16))]
+#[allow(dead_code)]
+struct Temp2x64A16([u8; 64], [u8; 64]);
+
+impl Temp2x64A16 {
+    #[inline]
+    const fn new() -> Self {
+        Self([0; 64], [0; 64])
+    }
+}
 
 #[repr(C, align(32))]
 #[allow(dead_code)]
 struct Temp2x64A32([u8; 64], [u8; 64]);
+
+impl Temp2x64A32 {
+    #[inline]
+    const fn new() -> Self {
+        Self([0; 64], [0; 64])
+    }
+}

@@ -61,7 +61,7 @@ macro_rules! check_bytes {
 
 /// validate_utf8_basic_simd() strategy and wrapper
 macro_rules! validate_utf8_basic_simd {
-    ($feat:expr) => {
+    ($feat:expr, $buf2type:ident) => {
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
@@ -81,15 +81,16 @@ macro_rules! validate_utf8_basic_simd {
             let mut state = SimdInput::new_utf8_checking_state();
             let lenminus64: usize = if len < 64 { 0 } else { len as usize - 64 };
             let mut idx: usize = 0;
-            let mut tmpbuf = crate::implementation::Temp2x64A32([0; 64], [0; 64]);
+            let mut tmpbuf = $buf2type::new();
 
+            let align: usize = core::mem::align_of::<$buf2type>();
             if lenminus64 >= 4096 {
-                let off = (input.as_ptr() as usize) & 31;
+                let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
-                    let to_copy = 32 - off;
+                    let to_copy = align - off;
                     crate::implementation::memcpy_unaligned_nonoverlapping_inline(
                         input.as_ptr(),
-                        tmpbuf.0[32 + off..].as_mut_ptr(),
+                        tmpbuf.0[64 - align + off..].as_mut_ptr(),
                         to_copy,
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
@@ -125,7 +126,7 @@ macro_rules! validate_utf8_basic_simd {
 
 /// validate_utf8_compat_simd() strategy and wrapper
 macro_rules! validate_utf8_compat_simd {
-    ($feat:expr) => {
+    ($feat:expr, $buf2type:ident) => {
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
@@ -152,15 +153,16 @@ macro_rules! validate_utf8_compat_simd {
             let mut state = SimdInput::new_utf8_checking_state();
             let lenminus64: usize = if len < 64 { 0 } else { len as usize - 64 };
             let mut idx: usize = 0;
-            let mut tmpbuf = crate::implementation::Temp2x64A32([0; 64], [0; 64]);
+            let mut tmpbuf = $buf2type::new();
 
+            let align: usize = core::mem::align_of::<$buf2type>();
             if lenminus64 >= 4096 {
-                let off = (input.as_ptr() as usize) & 31;
+                let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
-                    let to_copy = 32 - off;
+                    let to_copy = align - off;
                     crate::implementation::memcpy_unaligned_nonoverlapping_inline(
                         input.as_ptr(),
-                        tmpbuf.0[32 + off..].as_mut_ptr(),
+                        tmpbuf.0[64 - align + off..].as_mut_ptr(),
                         to_copy,
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
