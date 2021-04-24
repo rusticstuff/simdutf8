@@ -72,6 +72,7 @@ impl Display for Utf8Error {
 /// # Errors
 /// Will return Err([`Utf8Error`]) on if the input contains invalid UTF-8 with
 /// detailed error information.
+#[inline]
 pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
     unsafe {
         validate_utf8_compat(input)?;
@@ -87,6 +88,7 @@ pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
 /// # Errors
 /// Will return Err([`Utf8Error`]) on if the input contains invalid UTF-8 with
 /// detailed error information.
+#[inline]
 pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
     unsafe {
         validate_utf8_compat(input)?;

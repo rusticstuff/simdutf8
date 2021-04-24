@@ -23,6 +23,7 @@ pub struct Utf8Error {}
 ///
 /// # Errors
 /// Will return the zero-sized Err([`Utf8Error`]) on if the input contains invalid UTF-8.
+#[inline]
 pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
     unsafe {
         validate_utf8_basic(input)?;
@@ -37,6 +38,7 @@ pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
 ///
 /// # Errors
 /// Will return the zero-sized Err([`Utf8Error`]) on if the input contains invalid UTF-8.
+#[inline]
 pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
     unsafe {
         validate_utf8_basic(input)?;
