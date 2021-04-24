@@ -41,6 +41,7 @@ macro_rules! static_cast_i8 {
 macro_rules! check_bytes {
     ($feat:expr, $t:ident) => {
         #[target_feature(enable = $feat)]
+        #[inline]
         unsafe fn check_bytes(current: $t, previous: &mut Utf8CheckingState<$t>) {
             if likely!(Self::is_ascii(current)) {
                 previous.error = Self::check_eof(previous.error, previous.incomplete)
