@@ -19,7 +19,7 @@ pub struct Utf8Error;
 #[cfg(feature = "std")]
 impl std::fmt::Display for Utf8Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "invalid utf-8 sequence",)
+        f.write_str("invalid utf-8 sequence")
     }
 }
 
