@@ -32,6 +32,7 @@ impl Utf8Error {
     /// ...
     #[inline]
     #[must_use]
+    #[allow(clippy::missing_const_for_fn)] // would not provide any benefit
     pub fn valid_up_to(&self) -> usize {
         self.valid_up_to
     }

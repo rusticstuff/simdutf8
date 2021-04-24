@@ -103,6 +103,7 @@ fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
 
 #[inline]
 #[allow(dead_code)]
+#[allow(clippy::missing_const_for_fn)] // cannot really be const
 unsafe fn memcpy_unaligned_nonoverlapping_inline(
     mut src: *const u8,
     mut dest: *mut u8,

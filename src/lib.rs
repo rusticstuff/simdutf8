@@ -4,8 +4,10 @@
     clippy::all,
     clippy::unwrap_used,
     clippy::unnecessary_unwrap,
-    clippy::pedantic
+    clippy::pedantic,
+    clippy::nursery
 )]
+#![allow(clippy::redundant_pub_crate)] // broken
 #![deny(missing_docs)]
 #![cfg_attr(feature = "hints", feature(core_intrinsics))]
 #![cfg_attr(not(feature = "std"), no_std)]
