@@ -17,7 +17,7 @@ production release.
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII
 * Up to 28% faster on non-ASCII input compared to the original simdjson implementation
-* Supports AVX2 and SIMD implementations on x86 and x86-64. ARMv7 and ARMv8 neon support is planned
+* Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64. ARMv7 and ARMv8 neon support is planned
 * Selects the fastest implementation at runtime based on CPU support
 * Written in pure Rust
 * No dependencies
