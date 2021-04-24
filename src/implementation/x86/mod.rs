@@ -24,6 +24,10 @@ pub(crate) unsafe fn validate_utf8_basic(
         (fun)(input)
     }
 
+    if input.len() < 64 {
+        return super::validate_utf8_basic_fallback(input);
+    }
+
     let fun = FN.load(Ordering::Relaxed);
     mem::transmute::<FnRaw, super::ValidateUtf8Fn>(fun)(input)
 }
@@ -86,6 +90,10 @@ pub(crate) unsafe fn validate_utf8_compat(
         let fun = get_fastest_available_implementation_compat();
         FN.store(fun as FnRaw, Ordering::Relaxed);
         (fun)(input)
+    }
+
+    if input.len() < 64 {
+        return super::validate_utf8_compat_fallback(input);
     }
 
     let fun = FN.load(Ordering::Relaxed);
