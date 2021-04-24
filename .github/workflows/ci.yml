@@ -57,7 +57,7 @@ jobs:
         run: rustup default ${{ matrix.toolchain }}-${{ matrix.arch }}
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;cargo asm|diff -u expected-methods-x86-std.txt -
+          cargo clean;cargo asm|grep -v drop_in_place|diff -u expected-methods-x86-std.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|grep -v drop_in_place|diff -u expected-methods-x86-std-avx2.txt -
           cargo clean;cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-fallback.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-avx2.txt -
