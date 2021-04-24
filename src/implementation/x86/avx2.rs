@@ -319,7 +319,7 @@ impl SimdInput {
         Utf8CheckingState::<__m256i>::has_error(state.error)
     }
 }
-use crate::implementation::Temp2x64A32;
-validate_utf8_basic_simd!("avx2", Temp2x64A32, 32);
 
-validate_utf8_compat_simd!("avx2");
+use crate::implementation::Temp2x64A32;
+validate_utf8_basic_simd!("avx2", Temp2x64A32);
+validate_utf8_compat_simd!("avx2", Temp2x64A32);
