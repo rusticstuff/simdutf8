@@ -83,6 +83,9 @@ If you are only processing short byte sequences (less than 64 bytes), the excell
 library is likely faster. Also, this library uses unsafe code which has not been battle-tested and should not (yet)
 be used in production.
 
+## Minimum Supported Rust Version (MSRV)
+This crate's minimum supported Rust version is 1.38.0.
+
 ## Benchmarks
 
 The benchmarks have been done with [criterion](https://bheisler.github.io/criterion.rs/book/index.html), the tables
