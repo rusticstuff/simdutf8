@@ -32,9 +32,7 @@ pub fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: Bench
     let core_ids = core_affinity::get_core_ids().unwrap();
     core_affinity::set_for_current(*core_ids.get(2).unwrap_or(&core_ids[0]));
 
-    let mut group = c.benchmark_group("0-empty");
-    bench_input(&mut group, b"", false, true, bench_fn);
-    group.finish();
+    bench_empty(c, bench_fn);
 
     bench(
         c,
@@ -42,6 +40,7 @@ pub fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: Bench
         &scale_to_one_mib(include_bytes!("../data/Latin-Lipsum.txt")),
         bench_fn,
     );
+
     bench(
         c,
         "2-cyrillic",
@@ -61,6 +60,16 @@ pub fn criterion_benchmark<M: Measurement>(c: &mut Criterion<M>, bench_fn: Bench
         bench_fn,
     );
 
+    bench_late_error(c, bench_fn);
+}
+
+fn bench_empty<M: Measurement>(c: &mut Criterion<M>, bench_fn: BenchFn) {
+    let mut group = c.benchmark_group("0-empty");
+    bench_input(&mut group, b"", false, true, bench_fn);
+    group.finish();
+}
+
+fn bench_late_error<M: Measurement>(c: &mut Criterion<M>, bench_fn: BenchFn) {
     let mut group = c.benchmark_group("x-error");
     group.warm_up_time(Duration::from_secs(6));
     group.measurement_time(Duration::from_secs(10));
