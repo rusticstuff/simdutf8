@@ -84,7 +84,7 @@ macro_rules! validate_utf8_basic_simd {
             let mut tmpbuf = crate::implementation::Temp2x64A32([0; 64], [0; 64]);
 
             if lenminus64 >= 4096 {
-                let off = ((input.as_ptr() as usize) & 31);
+                let off = (input.as_ptr() as usize) & 31;
                 if off != 0 {
                     let to_copy = 32 - off;
                     crate::implementation::memcpy_unaligned_nonoverlapping_inline(
@@ -155,7 +155,7 @@ macro_rules! validate_utf8_compat_simd {
             let mut tmpbuf = crate::implementation::Temp2x64A32([0; 64], [0; 64]);
 
             if lenminus64 >= 4096 {
-                let off = ((input.as_ptr() as usize) & 31);
+                let off = (input.as_ptr() as usize) & 31;
                 if off != 0 {
                     let to_copy = 32 - off;
                     crate::implementation::memcpy_unaligned_nonoverlapping_inline(

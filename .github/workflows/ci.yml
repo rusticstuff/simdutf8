@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly]
+        toolchain: [stable, nightly, "1.38.0"]
         arch: [x86_64] # GH runners are missing 32-bit build tools, so no i686
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly]
+        toolchain: [stable, nightly, "1.38.0"]
         arch: [x86_64] # GH runners are missing 32-bit build tools, so no i686
     defaults:
       run:
@@ -43,18 +43,25 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
+            toolchain: stable-${{ matrix.arch }}
             profile: minimal
             override: true
       - name: Install cargo-asm
         run: cargo install cargo-asm
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
+            profile: minimal
+            override: true
+      - name: Set default toolchain
+        run: rustup default ${{ matrix.toolchain }}-${{ matrix.arch }}
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;cargo asm|diff -u expected-methods-x86-std.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|diff -u expected-methods-x86-std-avx2.txt -
-          cargo clean;cargo asm --no-default-features|diff -u expected-methods-x86-nostd-fallback.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-avx2.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|diff -u expected-methods-x86-nostd-sse42.txt -
+          cargo clean;cargo asm|grep -v drop_in_place|diff -u expected-methods-x86-std.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|grep -v drop_in_place|diff -u expected-methods-x86-std-avx2.txt -
+          cargo clean;cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-fallback.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-avx2.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-sse42.txt -
 
   test-doc:
     runs-on: ubuntu-latest
@@ -75,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly]
+        toolchain: [stable, nightly, "1.38.0"]
         arch: [x86_64]
         target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]

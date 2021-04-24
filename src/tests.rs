@@ -3,6 +3,17 @@
 use crate::basic::from_utf8 as basic_from_utf8;
 use crate::compat::from_utf8 as compat_from_utf8;
 
+#[cfg(not(features = "std"))]
+extern crate std;
+
+fn repeat(ch: u8, len: usize) -> std::vec::Vec<u8> {
+    let mut res = std::vec::Vec::with_capacity(len);
+    for _ in 0..len {
+        res.push(ch);
+    }
+    res
+}
+
 fn test_valid(input: &[u8]) {
     assert!(basic_from_utf8(input).is_ok());
     assert!(compat_from_utf8(input).is_ok());
@@ -12,8 +23,8 @@ fn test_valid(input: &[u8]) {
 }
 
 #[cfg(feature = "public_imp")]
+#[allow(clippy::collapsible_if)]
 fn test_valid_public_imp(input: &[u8]) {
-    #[allow(clippy::collapsible_if)]
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
         if cfg!(target_feature = "avx2") {
             unsafe {
@@ -43,8 +54,8 @@ fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
 }
 
 #[cfg(feature = "public_imp")]
+#[allow(clippy::collapsible_if)]
 fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
-    #[allow(clippy::collapsible_if)]
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
         if cfg!(target_feature = "avx2") {
             unsafe {
@@ -119,21 +130,21 @@ fn simple_invalid() {
 
 #[test]
 fn incomplete_on_32nd_byte() {
-    let mut invalid = b"a".repeat(31);
+    let mut invalid = repeat(b'a', 31);
     invalid.push(b'\xF0');
     test_invalid(&invalid, 31, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte() {
-    let mut invalid = b"a".repeat(63);
+    let mut invalid = repeat(b'a', 63);
     invalid.push(b'\xF0');
     test_invalid(&invalid, 63, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte_65_bytes_total() {
-    let mut invalid = b"a".repeat(63);
+    let mut invalid = repeat(b'a', 63);
     invalid.push(b'\xF0');
     invalid.push(b'a');
     test_invalid(&invalid, 63, Some(1))
