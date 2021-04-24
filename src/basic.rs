@@ -14,7 +14,17 @@ use crate::implementation::validate_utf8_basic;
 /// No information is provided where the error occured or how long the invalid byte
 /// byte sequence is.
 #[derive(Copy, Eq, PartialEq, Clone, Debug)]
-pub struct Utf8Error {}
+pub struct Utf8Error;
+
+#[cfg(feature = "std")]
+impl std::fmt::Display for Utf8Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "invalid utf-8 sequence",)
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for Utf8Error {}
 
 /// Analogue to [`std::str::from_utf8()`].
 ///
