@@ -43,14 +43,22 @@ fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
 // validate_utf8_basic() no-std: implementation selection by config
 
 #[cfg(target_feature = "avx2")]
-pub(crate) use avx2::validate_utf8_basic;
+pub(crate) unsafe fn validate_utf8_basic(
+    input: &[u8],
+) -> core::result::Result<(), crate::basic::Utf8Error> {
+    avx2::validate_utf8_basic(input)
+}
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
     target_feature = "sse4.2"
 ))]
-pub(crate) use sse42::validate_utf8_basic;
+pub(crate) unsafe fn validate_utf8_basic(
+    input: &[u8],
+) -> core::result::Result<(), crate::basic::Utf8Error> {
+    sse42::validate_utf8_basic(input)
+}
 
 #[cfg(all(
     not(feature = "std"),
@@ -99,14 +107,22 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
 // validate_utf8_basic() no-std: implementation selection by config
 
 #[cfg(target_feature = "avx2")]
-pub(crate) use avx2::validate_utf8_compat;
+pub(crate) unsafe fn validate_utf8_compat(
+    input: &[u8],
+) -> core::result::Result<(), crate::compat::Utf8Error> {
+    avx2::validate_utf8_compat(input)
+}
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
     target_feature = "sse4.2"
 ))]
-pub(crate) use sse42::validate_utf8_compat;
+pub(crate) unsafe fn validate_utf8_compat(
+    input: &[u8],
+) -> core::result::Result<(), crate::compat::Utf8Error> {
+    sse42::validate_utf8_compat(input)
+}
 
 #[cfg(all(
     not(feature = "std"),
