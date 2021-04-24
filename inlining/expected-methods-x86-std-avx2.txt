@@ -4,7 +4,6 @@
 <simdutf8::basic::Utf8Error as core::fmt::Display>::fmt
 <simdutf8::compat::Utf8Error as core::fmt::Debug>::fmt
 <simdutf8::compat::Utf8Error as core::fmt::Display>::fmt
-core::ptr::drop_in_place<&u8>
 simdutf8::implementation::get_compat_error
 simdutf8::implementation::x86::validate_utf8_basic
 simdutf8::implementation::x86::validate_utf8_compat
