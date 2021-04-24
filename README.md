@@ -91,7 +91,7 @@ are created with [critcmp](https://github.com/BurntSushi/critcmp). Source code a
 
 The name schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/66536_ is a 64KiB slice where the very
 first character is invalid UTF-8. All benchmarks were run on a laptop with an Intel Core i7-10750H CPU (Comet Lake) on
-Windows with Rust 1.51.0.
+Windows with Rust 1.51.0. Library versions are simdutf8 v0.1.0 and simdjson v0.9.2.
 
 ### simdutf8 basic vs std library UTF-8 validation
 ![critcmp stimdutf8 basic vs std lib](https://raw.githubusercontent.com/rusticstuff/simdutf8/main/img/basic-vs-std.png)
