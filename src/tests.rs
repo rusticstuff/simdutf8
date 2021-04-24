@@ -3,7 +3,8 @@
 use crate::basic::from_utf8 as basic_from_utf8;
 use crate::compat::from_utf8 as compat_from_utf8;
 
-use std;
+#[cfg(not(features = "std"))]
+extern crate std;
 
 fn repeat(ch: u8, len: usize) -> std::vec::Vec<u8> {
     let mut res = std::vec::Vec::with_capacity(len);
