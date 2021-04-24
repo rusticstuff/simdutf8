@@ -10,9 +10,9 @@
 * Check if std impl. benefits from AVX 2 (xargo)
 * more fuzz testing
 * fuzz: sse42
-* align to 16-byte boundaries on SSE4.2
 * investigate simdjson Win clang speed advantage on ASCII
 
 # NEXT
-* publish action?
-* inline tests for public_imp
+* align to 16-byte boundaries on SSE4.2
+* benchmark matrix: pure vs compat, v0.1.0 vs inline vs inline-small-std vs std, AMD vs Xeon
+* investigate compat speedup for valid UTF-8 larget 2048 bytes
