@@ -37,23 +37,34 @@ macro_rules! static_cast_i8 {
     };
 }
 
+macro_rules! check_utf8 {
+    ($feat:expr, $t:ident) => {
+        #[target_feature(enable = $feat)]
+        #[inline]
+        unsafe fn check_utf8(&self, previous: &mut Utf8CheckingState<$t>) {
+            if likely!(self.is_ascii()) {
+                previous.error =
+                    Utf8CheckingState::<$t>::check_eof(previous.error, previous.incomplete)
+            } else {
+                self.check_block(previous);
+            }
+        }
+    };
+}
+
 /// check_bytes() strategy
 macro_rules! check_bytes {
     ($feat:expr, $t:ident) => {
         #[target_feature(enable = $feat)]
         #[inline]
         unsafe fn check_bytes(current: $t, previous: &mut Utf8CheckingState<$t>) {
-            if likely!(Self::is_ascii(current)) {
-                previous.error = Self::check_eof(previous.error, previous.incomplete)
-            } else {
-                let prev1 = Self::prev1(current, previous.prev);
-                let sc = Self::check_special_cases(current, prev1);
-                previous.error = Self::or(
-                    previous.error,
-                    Self::check_multibyte_lengths(current, previous.prev, sc),
-                );
-                previous.incomplete = Self::is_incomplete(current);
-            }
+            let prev1 = Self::prev1(current, previous.prev);
+            let sc = Self::check_special_cases(current, prev1);
+            previous.error = Self::or(
+                previous.error,
+                Self::check_multibyte_lengths(current, previous.prev, sc),
+            );
+            previous.incomplete = Self::is_incomplete(current);
             previous.prev = current
         }
     };
