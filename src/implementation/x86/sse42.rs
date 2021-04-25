@@ -238,7 +238,7 @@ impl SimdInput {
         Utf8CheckingState::<__m128i>::check_bytes(self.v3, state);
     }
 
-    #[target_feature(enable = "avx2")]
+    #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn is_ascii(&self) -> bool {
         let r1 = _mm_or_si128(self.v0, self.v1);
