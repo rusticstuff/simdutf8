@@ -78,7 +78,6 @@ jobs:
           RUSTDOCFLAGS: --cfg docsrs
 
   cross-build:
-    if: false
     runs-on: ubuntu-latest
     strategy:
       matrix:
