@@ -14,6 +14,7 @@ libfuzzer-sys = "*"
 
 [dependencies.simdutf8]
 path = ".."
+features = [ "public_imp" ]
 
 [[bin]]
 name = "auto_basic"
@@ -24,5 +25,11 @@ test = false
 [[bin]]
 name = "auto_compat"
 path = "targets/auto_compat.rs"
+doc = false
+test = false
+
+[[bin]]
+name = "all"
+path = "targets/all.rs"
 doc = false
 test = false
