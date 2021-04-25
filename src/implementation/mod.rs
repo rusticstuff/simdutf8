@@ -136,6 +136,7 @@ struct Utf8CheckingState<T> {
 #[allow(dead_code)]
 struct Temp2x64A16([u8; 64], [u8; 64]);
 
+#[allow(dead_code)]
 impl Temp2x64A16 {
     #[inline]
     const fn new() -> Self {
@@ -147,6 +148,7 @@ impl Temp2x64A16 {
 #[allow(dead_code)]
 struct Temp2x64A32([u8; 64], [u8; 64]);
 
+#[allow(dead_code)]
 impl Temp2x64A32 {
     #[inline]
     const fn new() -> Self {
