@@ -79,12 +79,11 @@ macro_rules! validate_utf8_basic_simd {
             const SIMDINPUT_LENGTH: usize = 64;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
-            let lenminus64: usize = if len < 64 { 0 } else { len as usize - 64 };
             let mut idx: usize = 0;
             let mut tmpbuf = $buf2type::new();
 
             let align: usize = core::mem::align_of::<$buf2type>();
-            if lenminus64 >= 4096 {
+            if len >= 4096 {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
                     let to_copy = align - off;
@@ -98,7 +97,10 @@ macro_rules! validate_utf8_basic_simd {
                     idx += to_copy;
                 }
             }
-            while idx < lenminus64 {
+
+            let rem = len - idx;
+            let iter_lim = idx + (rem - (rem % 64));
+            while idx < iter_lim {
                 let input = SimdInput::new(input.get_unchecked(idx as usize..));
                 input.check_utf8(&mut state);
                 idx += SIMDINPUT_LENGTH;
@@ -151,12 +153,11 @@ macro_rules! validate_utf8_compat_simd {
             const SIMDINPUT_LENGTH: usize = 64;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
-            let lenminus64: usize = if len < 64 { 0 } else { len as usize - 64 };
             let mut idx: usize = 0;
             let mut tmpbuf = $buf2type::new();
 
             let align: usize = core::mem::align_of::<$buf2type>();
-            if lenminus64 >= 4096 {
+            if len >= 4096 {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
                     let to_copy = align - off;
@@ -174,7 +175,9 @@ macro_rules! validate_utf8_compat_simd {
                 }
             }
 
-            while idx < lenminus64 {
+            let rem = len - idx;
+            let iter_lim = idx + (rem - (rem % 64));
+            while idx < iter_lim {
                 let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                 simd_input.check_utf8(&mut state);
                 if SimdInput::check_utf8_errors(&state) {
