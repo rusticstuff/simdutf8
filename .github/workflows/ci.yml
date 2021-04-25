@@ -19,6 +19,9 @@ jobs:
         arch: [x86_64] # GH runners are missing 32-bit build tools, so no i686
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
+        exclude:
+            - os: macos-latest
+              rustflags: "-C target-feature=+avx2"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
