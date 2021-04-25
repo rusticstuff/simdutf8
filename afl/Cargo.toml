@@ -11,3 +11,4 @@ afl = "*"
 
 [dependencies.simdutf8]
 path = ".."
+features = [ "public_imp" ]
