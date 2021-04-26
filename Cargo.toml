@@ -16,8 +16,10 @@ exclude = ["/.github", "/.vscode", "/bench", "/afl", "/fuzz", "/img", "expected-
 [features]
 default = ["std"]
 
+# enable CPU feature detection, on by default, turn off for no-std support
 std = []
 
+# expose SIMD implementations in basic::imp::* and compat::imp::*
 public_imp = []
 
 # use branch hints - requires nightly
