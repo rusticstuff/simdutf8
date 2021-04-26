@@ -14,6 +14,7 @@ mod macros;
 #[derive(Clone, Copy)]
 pub enum BenchFn {
     Basic,
+    BasicNoInline,
     Compat,
     Std,
 
@@ -136,8 +137,8 @@ fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_f
 }
 
 #[inline(never)]
-fn std_from_utf8_no_inline(v: &[u8]) -> bool {
-    std_from_utf8(v).is_ok()
+fn basic_from_utf8_no_inline(v: &[u8]) -> bool {
+    basic_from_utf8(v).is_ok()
 }
 
 fn bench_input<M: Measurement>(
@@ -157,6 +158,15 @@ fn bench_input<M: Measurement>(
                 &input,
                 |b, &slice| {
                     b.iter(|| assert_eq!(basic_from_utf8(slice).is_ok(), expected_ok));
+                },
+            );
+        }
+        BenchFn::BasicNoInline => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                &input,
+                |b, &slice| {
+                    b.iter(|| assert_eq!(basic_from_utf8_no_inline(slice), expected_ok));
                 },
             );
         }

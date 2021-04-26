@@ -25,6 +25,10 @@ name = "throughput_basic"
 harness = false
 
 [[bench]]
+name = "throughput_basic_noinline"
+harness = false
+
+[[bench]]
 name = "throughput_compat"
 harness = false
 
