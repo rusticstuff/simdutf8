@@ -8,15 +8,14 @@ Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, b
 [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs).
 
 ## Disclaimer
-This software should be considered alpha quality and should not (yet) be used in production, though it has been tested
-with sample data as well as a fuzzer and there are no known bugs. It will be tested more rigorously before the first
-production release.
+This software should not (yet) be used in production, though it has been tested with sample data as well as
+fuzzing and there are no known bugs.
 
 ## Features
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
-* Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII
-* Up to 28% faster on non-ASCII input compared to the original simdjson implementation
+* Up to twenty times faster than the std library on non-ASCII, up to twice as fast on ASCII <-TBD!
+* Up to 28% faster on non-ASCII input compared to the original simdjson implementation on some CPUs
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64. ARMv7 and ARMv8 neon support is planned
 * Selects the fastest implementation at runtime based on CPU support
 * Written in pure Rust
@@ -59,7 +58,8 @@ is not valid UTF-8. `simdutf8::basic::Utf8Error` is a zero-sized error struct.
 
 ### Compat flavor
 The `compat` flavor is fully API-compatible with `std::str::from_utf8`. In particular, `simdutf8::compat::from_utf8()`
-returns a `simdutf8::compat::Utf8Error`, which has `valid_up_to()` and `error_len()` methods. The first is useful for verification of streamed data. The second is useful e.g. for replacing invalid byte sequences with a replacement character.
+returns a `simdutf8::compat::Utf8Error`, which has `valid_up_to()` and `error_len()` methods. The first is useful for
+verification of streamed data. The second is useful e.g. for replacing invalid byte sequences with a replacement character.
 
 It also fails early: errors are checked on-the-fly as the string is processed and once
 an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
@@ -79,15 +79,13 @@ If you want to be able to call A SIMD implementation directly, use the `public_i
 implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(avx2|sse42)::validate_utf8()`.
 
 ## When not to use
-If you are only processing short byte sequences (less than 64 bytes), the excellent scalar algorithm in the standard
-library is likely faster. Also, this library uses unsafe code which has not been battle-tested and should not (yet)
-be used in production.
+This library uses unsafe code which has not been battle-tested and should not (yet) be used in production.
 
 ## Minimum Supported Rust Version (MSRV)
 This crate's minimum supported Rust version is 1.38.0.
 
 ## Benchmarks
-
+TBD!
 The benchmarks have been done with [criterion](https://bheisler.github.io/criterion.rs/book/index.html), the tables
 are created with [critcmp](https://github.com/BurntSushi/critcmp). Source code and data are in the
 [bench directory](https://github.com/rusticstuff/simdutf8/tree/main/bench).
@@ -111,11 +109,14 @@ There is a small performance penalty to continuously checking the error status w
 errors early provides a huge benefit for the _x-error/66536_ benchmark.
 
 ## Technical details
-The implementation is similar to the one in simdjson except that it aligns reads to the block size of the
-SIMD extension, which leads to better peak performance compared to the implementation in simdjson. This alignment
-means that an incomplete block needs to be processed before the aligned data is read, which would lead to worse
-performance on short byte sequences. Thus, aligned reads are only used with 2048 bytes of data or more. Incomplete
-reads for the first unaligned and the last incomplete block are done in two aligned 64-byte buffers.
+On X86 for inputs shorter than 64 bytes validation is delegated to `core::str::from_utf8()`.
+
+The SIMD implementation is similar to the one in simdjson except that it aligns reads to the block size of the
+SIMD extension, which leads to better peak performance compared to the implementation in simdjson on some CPUs.
+This alignment means that an incomplete block needs to be processed before the aligned data is read, which
+leads to worse performance on byte sequences shorter than 2048 bytes. Thus, aligned reads are only used with
+2048 bytes of data or more. Incomplete reads for the first unaligned and the last incomplete block are done in
+two aligned 64-byte buffers.
 
 For the compat API we need to check the error buffer on each 64-byte block instead of just aggregating it. If an
 error is found, the last bytes of the previous block are checked for a cross-block continuation and then
@@ -137,5 +138,4 @@ the MIT license and Apache 2.0 license.
 simdjson itself is distributed under the Apache License 2.0.
 
 ## References
-
 John Keiser, Daniel Lemire, [Validating UTF-8 In Less Than One Instruction Per Byte](https://arxiv.org/abs/2010.03090), Software: Practice and Experience 51 (5), 2021
