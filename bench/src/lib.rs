@@ -16,7 +16,6 @@ pub enum BenchFn {
     Basic,
     Compat,
     Std,
-    StdNoInline,
 
     #[cfg(feature = "simdjson")]
     Simdjson,
@@ -176,15 +175,6 @@ fn bench_input<M: Measurement>(
                 &input,
                 |b, &slice| {
                     b.iter(|| assert_eq!(std_from_utf8(slice).is_ok(), expected_ok));
-                },
-            );
-        }
-        BenchFn::StdNoInline => {
-            group.bench_with_input(
-                BenchmarkId::from_parameter(format!("{:06}", input.len())),
-                &input,
-                |b, &slice| {
-                    b.iter(|| assert_eq!(std_from_utf8_no_inline(slice), expected_ok));
                 },
             );
         }

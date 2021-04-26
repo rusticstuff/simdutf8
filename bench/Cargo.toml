@@ -33,10 +33,6 @@ name = "throughput_std"
 harness = false
 
 [[bench]]
-name = "throughput_std_noinline"
-harness = false
-
-[[bench]]
 name = "throughput_simdjson"
 harness = false
 required-features = ["simdjson"]
@@ -53,11 +49,6 @@ required-features = ["cpb"]
 
 [[bench]]
 name = "cpb_std"
-harness = false
-required-features = ["cpb"]
-
-[[bench]]
-name = "cpb_std_noinline"
 harness = false
 required-features = ["cpb"]
 
