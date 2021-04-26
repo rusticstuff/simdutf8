@@ -100,9 +100,10 @@ simdutf8 performs better or as well as the std library.
 
 ### simdutf8 basic vs simdjson UTF-8 validation on Intel Comet Lake
 ![critcmp stimdutf8 v0.1.1 basic vs simdjson WSL](https://user-images.githubusercontent.com/3736990/116121748-38656480-a6c1-11eb-8cb4-385c7516a46a.png)
-simdutf8 beats simdjson on non-ASCII inputs and small inputs on this CPU. This benchmark is run on 
+simdutf8 beats simdjson on almost all inputs on this CPU. This benchmark is run on 
 [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) 
-since I could not get simdjson to reach maximum performance on Windows with any C++ toolchain (see simdjson issues [847](https://github.com/simdjson/simdjson/issues/847) and [848](https://github.com/simdjson/simdjson/issues/848)).
+since I could not get simdjson to reach maximum performance on Windows with any C++ toolchain (see also simdjson issues 
+[847](https://github.com/simdjson/simdjson/issues/847) and [848](https://github.com/simdjson/simdjson/issues/848)).
 
 ### simdutf8 basic vs simdjson UTF-8 validation on AMD Zen 2
 ![critcmp stimdutf8 v0.1.1 basic vs simdjson AMD Zen 2](https://user-images.githubusercontent.com/3736990/116122729-731bcc80-a6c2-11eb-82a5-6e297778a1c4.png)
