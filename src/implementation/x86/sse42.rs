@@ -38,12 +38,6 @@ impl Utf8CheckingState<__m128i> {
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn is_ascii(input: __m128i) -> bool {
-        _mm_movemask_epi8(input) == 0
-    }
-
-    #[target_feature(enable = "sse4.2")]
-    #[inline]
     unsafe fn check_eof(error: __m128i, incomplete: __m128i) -> __m128i {
         Self::or(error, incomplete)
     }
@@ -205,8 +199,6 @@ impl Utf8CheckingState<__m128i> {
         _mm_testz_si128(error, error) != 1
     }
 
-    #[target_feature(enable = "sse4.2")]
-    #[inline]
     check_bytes!("sse4.2", __m128i);
 }
 
@@ -239,11 +231,20 @@ impl SimdInput {
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn check_utf8(&self, state: &mut Utf8CheckingState<__m128i>) {
+    unsafe fn check_block(&self, state: &mut Utf8CheckingState<__m128i>) {
         Utf8CheckingState::<__m128i>::check_bytes(self.v0, state);
         Utf8CheckingState::<__m128i>::check_bytes(self.v1, state);
         Utf8CheckingState::<__m128i>::check_bytes(self.v2, state);
         Utf8CheckingState::<__m128i>::check_bytes(self.v3, state);
+    }
+
+    #[target_feature(enable = "sse4.2")]
+    #[inline]
+    unsafe fn is_ascii(&self) -> bool {
+        let r1 = _mm_or_si128(self.v0, self.v1);
+        let r2 = _mm_or_si128(self.v2, self.v3);
+        let r = _mm_or_si128(r1, r2);
+        _mm_movemask_epi8(r) == 0
     }
 
     #[target_feature(enable = "sse4.2")]
@@ -257,6 +258,8 @@ impl SimdInput {
     unsafe fn check_utf8_errors(state: &Utf8CheckingState<__m128i>) -> bool {
         Utf8CheckingState::<__m128i>::has_error(state.error)
     }
+
+    check_utf8!("sse4.2", __m128i);
 }
 
 use crate::implementation::Temp2x64A16;
