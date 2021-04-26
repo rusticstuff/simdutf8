@@ -1,9 +1,9 @@
 {
-  "name": "std-15183bd",
+  "name": "std",
   "benchmarks": {
     "0-empty/000000": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/0-empty/000000",
+      "baseline": "std",
+      "fullname": "std/0-empty/000000",
       "criterion_benchmark_v1": {
         "group_id": "0-empty",
         "function_id": null,
@@ -61,8 +61,8 @@
       }
     },
     "1-latin/000001": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/1-latin/000001",
+      "baseline": "std",
+      "fullname": "std/1-latin/000001",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -123,8 +123,8 @@
       }
     },
     "1-latin/000008": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/1-latin/000008",
+      "baseline": "std",
+      "fullname": "std/1-latin/000008",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -185,8 +185,8 @@
       }
     },
     "1-latin/000064": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/1-latin/000064",
+      "baseline": "std",
+      "fullname": "std/1-latin/000064",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -247,8 +247,8 @@
       }
     },
     "1-latin/000512": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/1-latin/000512",
+      "baseline": "std",
+      "fullname": "std/1-latin/000512",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -309,8 +309,8 @@
       }
     },
     "1-latin/004096": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/1-latin/004096",
+      "baseline": "std",
+      "fullname": "std/1-latin/004096",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -371,8 +371,8 @@
       }
     },
     "1-latin/065536": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/1-latin/065536",
+      "baseline": "std",
+      "fullname": "std/1-latin/065536",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -433,8 +433,8 @@
       }
     },
     "1-latin/131072": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/1-latin/131072",
+      "baseline": "std",
+      "fullname": "std/1-latin/131072",
       "criterion_benchmark_v1": {
         "group_id": "1-latin",
         "function_id": null,
@@ -495,8 +495,8 @@
       }
     },
     "2-cyrillic/000002": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/2-cyrillic/000002",
+      "baseline": "std",
+      "fullname": "std/2-cyrillic/000002",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -557,8 +557,8 @@
       }
     },
     "2-cyrillic/000008": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/2-cyrillic/000008",
+      "baseline": "std",
+      "fullname": "std/2-cyrillic/000008",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -619,8 +619,8 @@
       }
     },
     "2-cyrillic/000065": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/2-cyrillic/000065",
+      "baseline": "std",
+      "fullname": "std/2-cyrillic/000065",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -681,8 +681,8 @@
       }
     },
     "2-cyrillic/000513": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/2-cyrillic/000513",
+      "baseline": "std",
+      "fullname": "std/2-cyrillic/000513",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -743,8 +743,8 @@
       }
     },
     "2-cyrillic/004096": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/2-cyrillic/004096",
+      "baseline": "std",
+      "fullname": "std/2-cyrillic/004096",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -805,8 +805,8 @@
       }
     },
     "2-cyrillic/065536": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/2-cyrillic/065536",
+      "baseline": "std",
+      "fullname": "std/2-cyrillic/065536",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -859,8 +859,8 @@
       }
     },
     "2-cyrillic/131072": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/2-cyrillic/131072",
+      "baseline": "std",
+      "fullname": "std/2-cyrillic/131072",
       "criterion_benchmark_v1": {
         "group_id": "2-cyrillic",
         "function_id": null,
@@ -913,8 +913,8 @@
       }
     },
     "3-chinese/000003": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/3-chinese/000003",
+      "baseline": "std",
+      "fullname": "std/3-chinese/000003",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -975,8 +975,8 @@
       }
     },
     "3-chinese/000009": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/3-chinese/000009",
+      "baseline": "std",
+      "fullname": "std/3-chinese/000009",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1037,8 +1037,8 @@
       }
     },
     "3-chinese/000066": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/3-chinese/000066",
+      "baseline": "std",
+      "fullname": "std/3-chinese/000066",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1099,8 +1099,8 @@
       }
     },
     "3-chinese/000512": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/3-chinese/000512",
+      "baseline": "std",
+      "fullname": "std/3-chinese/000512",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1161,8 +1161,8 @@
       }
     },
     "3-chinese/004096": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/3-chinese/004096",
+      "baseline": "std",
+      "fullname": "std/3-chinese/004096",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1223,8 +1223,8 @@
       }
     },
     "3-chinese/065538": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/3-chinese/065538",
+      "baseline": "std",
+      "fullname": "std/3-chinese/065538",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1277,8 +1277,8 @@
       }
     },
     "3-chinese/131072": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/3-chinese/131072",
+      "baseline": "std",
+      "fullname": "std/3-chinese/131072",
       "criterion_benchmark_v1": {
         "group_id": "3-chinese",
         "function_id": null,
@@ -1331,8 +1331,8 @@
       }
     },
     "4-emoji/000003": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/4-emoji/000003",
+      "baseline": "std",
+      "fullname": "std/4-emoji/000003",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1393,8 +1393,8 @@
       }
     },
     "4-emoji/000011": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/4-emoji/000011",
+      "baseline": "std",
+      "fullname": "std/4-emoji/000011",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1455,8 +1455,8 @@
       }
     },
     "4-emoji/000067": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/4-emoji/000067",
+      "baseline": "std",
+      "fullname": "std/4-emoji/000067",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1517,8 +1517,8 @@
       }
     },
     "4-emoji/000515": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/4-emoji/000515",
+      "baseline": "std",
+      "fullname": "std/4-emoji/000515",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1579,8 +1579,8 @@
       }
     },
     "4-emoji/004099": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/4-emoji/004099",
+      "baseline": "std",
+      "fullname": "std/4-emoji/004099",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1641,8 +1641,8 @@
       }
     },
     "4-emoji/065538": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/4-emoji/065538",
+      "baseline": "std",
+      "fullname": "std/4-emoji/065538",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1703,8 +1703,8 @@
       }
     },
     "4-emoji/131072": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/4-emoji/131072",
+      "baseline": "std",
+      "fullname": "std/4-emoji/131072",
       "criterion_benchmark_v1": {
         "group_id": "4-emoji",
         "function_id": null,
@@ -1757,8 +1757,8 @@
       }
     },
     "x-error/065536": {
-      "baseline": "std-15183bd",
-      "fullname": "std-15183bd/x-error/065536",
+      "baseline": "std",
+      "fullname": "std/x-error/065536",
       "criterion_benchmark_v1": {
         "group_id": "x-error",
         "function_id": null,
