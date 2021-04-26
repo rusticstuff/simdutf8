@@ -15,7 +15,7 @@ fuzzing and there are no known bugs.
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Up to 22 times faster than the std library on non-ASCII, up to three times faster on ASCII
-* Up to 14% faster on non-ASCII input compared to the original simdjson implementation on some CPUs
+* As fast as or faster than the original simdjson implementation
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64. ARMv7 and ARMv8 neon support is planned
 * Selects the fastest implementation at runtime based on CPU support
 * Written in pure Rust
