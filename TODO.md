@@ -9,4 +9,3 @@
 * investigate aarch64 support
 
 # NEXT
-* v0.1.1 benchmarks
