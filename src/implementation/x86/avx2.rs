@@ -39,12 +39,6 @@ impl Utf8CheckingState<__m256i> {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn is_ascii(input: __m256i) -> bool {
-        _mm256_movemask_epi8(input) == 0
-    }
-
-    #[target_feature(enable = "avx2")]
-    #[inline]
     unsafe fn check_eof(error: __m256i, incomplete: __m256i) -> __m256i {
         Self::or(error, incomplete)
     }
@@ -272,8 +266,6 @@ impl Utf8CheckingState<__m256i> {
         _mm256_testz_si256(error, error) != 1
     }
 
-    #[target_feature(enable = "avx2")]
-    #[inline]
     check_bytes!("avx2", __m256i);
 }
 
@@ -302,9 +294,16 @@ impl SimdInput {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn check_utf8(&self, state: &mut Utf8CheckingState<__m256i>) {
+    unsafe fn check_block(&self, state: &mut Utf8CheckingState<__m256i>) {
         Utf8CheckingState::<__m256i>::check_bytes(self.v0, state);
         Utf8CheckingState::<__m256i>::check_bytes(self.v1, state);
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn is_ascii(&self) -> bool {
+        let res = _mm256_or_si256(self.v0, self.v1);
+        _mm256_movemask_epi8(res) == 0
     }
 
     #[target_feature(enable = "avx2")]
@@ -318,6 +317,8 @@ impl SimdInput {
     unsafe fn check_utf8_errors(state: &Utf8CheckingState<__m256i>) -> bool {
         Utf8CheckingState::<__m256i>::has_error(state.error)
     }
+
+    check_utf8!("avx2", __m256i);
 }
 
 use crate::implementation::Temp2x64A32;

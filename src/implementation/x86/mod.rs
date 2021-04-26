@@ -24,6 +24,10 @@ pub(crate) unsafe fn validate_utf8_basic(
         (fun)(input)
     }
 
+    if input.len() < 64 {
+        return super::validate_utf8_basic_fallback(input);
+    }
+
     let fun = FN.load(Ordering::Relaxed);
     mem::transmute::<FnRaw, super::ValidateUtf8Fn>(fun)(input)
 }
@@ -46,6 +50,10 @@ fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
+    if input.len() < 64 {
+        return super::validate_utf8_basic_fallback(input);
+    }
+
     avx2::validate_utf8_basic(input)
 }
 
@@ -57,6 +65,10 @@ pub(crate) unsafe fn validate_utf8_basic(
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
+    if input.len() < 64 {
+        return super::validate_utf8_basic_fallback(input);
+    }
+
     sse42::validate_utf8_basic(input)
 }
 
@@ -88,6 +100,10 @@ pub(crate) unsafe fn validate_utf8_compat(
         (fun)(input)
     }
 
+    if input.len() < 64 {
+        return super::validate_utf8_compat_fallback(input);
+    }
+
     let fun = FN.load(Ordering::Relaxed);
     mem::transmute::<FnRaw, super::ValidateUtf8CompatFn>(fun)(input)
 }
@@ -110,6 +126,10 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
+    if input.len() < 64 {
+        return super::validate_utf8_compat_fallback(input);
+    }
+
     avx2::validate_utf8_compat(input)
 }
 
@@ -121,6 +141,10 @@ pub(crate) unsafe fn validate_utf8_compat(
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
+    if input.len() < 64 {
+        return super::validate_utf8_compat_fallback(input);
+    }
+
     sse42::validate_utf8_compat(input)
 }
 
