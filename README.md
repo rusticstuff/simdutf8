@@ -75,7 +75,7 @@ For no-std support (compiled with `--no-default-features`) the implementation is
 the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.2"`
 for the SSE 4.2 implementation.
 
-If you want to be able to call A SIMD implementation directly, use the `public_imp` feature flag. The validation
+If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
 implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(avx2|sse42)::validate_utf8()`.
 
 ## When not to use
@@ -102,12 +102,12 @@ simdutf8 performs better or as well as the std library.
 ![critcmp stimdutf8 v0.1.1 basic vs simdjson WSL](https://user-images.githubusercontent.com/3736990/116121748-38656480-a6c1-11eb-8cb4-385c7516a46a.png)
 simdutf8 beats simdjson on non-ASCII inputs and small inputs on this CPU. This benchmark is run on 
 [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) 
-since I could not get simdjson to reach maximum performance on Windows with any C++ toolchain.
+since I could not get simdjson to reach maximum performance on Windows with any C++ toolchain (see simdjson issues [847](https://github.com/simdjson/simdjson/issues/847) and [848](https://github.com/simdjson/simdjson/issues/848)).
 
 ### simdutf8 basic vs simdjson UTF-8 validation on AMD Zen 2
 ![critcmp stimdutf8 v0.1.1 basic vs simdjson AMD Zen 2](https://user-images.githubusercontent.com/3736990/116122729-731bcc80-a6c2-11eb-82a5-6e297778a1c4.png)
 
-On Zen2 aligning reads apparently does not matter at all. The extra step for aligning even hurts performance a bit around
+On AMD Zen 2 aligning reads apparently does not matter at all. The extra step for aligning even hurts performance a bit around
 an input size of 4096.
 
 ### simdutf8 basic vs simdutf8 compat UTF-8 validation
