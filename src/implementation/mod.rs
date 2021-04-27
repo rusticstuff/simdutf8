@@ -29,7 +29,7 @@ pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), Utf8ErrorBa
     x86::validate_utf8_basic(input)
 }
 
-/// Fn needed of re-import, otherwise not inlined in non-std case
+/// Fn needed instead of re-import, otherwise not inlined in non-std case
 #[allow(clippy::inline_always)]
 #[inline(always)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -45,7 +45,7 @@ pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;
 
-// fallback method implementions
+// fallback method implementations
 
 #[inline]
 #[allow(dead_code)]
@@ -103,7 +103,7 @@ fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
 
 #[inline]
 #[allow(dead_code)]
-#[allow(clippy::missing_const_for_fn)] // cannot really be const
+#[allow(clippy::missing_const_for_fn)] // clippy is wrong, it cannot really be const
 unsafe fn memcpy_unaligned_nonoverlapping_inline(
     mut src: *const u8,
     mut dest: *mut u8,
