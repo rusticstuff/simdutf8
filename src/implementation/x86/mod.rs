@@ -4,6 +4,7 @@ pub(crate) mod avx2;
 #[allow(dead_code)]
 pub(crate) mod sse42;
 
+#[allow(unused_imports)]
 use super::SIMD_CHUNK_SIZE;
 
 // validate_utf8_basic() std: implementation auto-selection
