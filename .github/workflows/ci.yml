@@ -105,7 +105,12 @@ jobs:
         toolchain: [stable, nightly, "1.38.0"]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
-        target: [i686-unknown-linux-gnu, i686-pc-windows-msvc]
+        target: []
+        include:
+          - os: ubuntu-latest
+            target: i686-unknown-linux-gnu
+          - os: windows-latest
+            target: i686-pc-windows-msvc
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
