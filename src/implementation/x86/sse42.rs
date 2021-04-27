@@ -262,6 +262,6 @@ impl SimdInput {
     check_utf8!("sse4.2", __m128i);
 }
 
-use crate::implementation::Temp2x64A16;
-validate_utf8_basic_simd!("sse4.2", Temp2x64A16);
-validate_utf8_compat_simd!("sse4.2", Temp2x64A16);
+use crate::implementation::Temp2xSimdChunkA16;
+validate_utf8_basic_simd!("sse4.2", Temp2xSimdChunkA16);
+validate_utf8_compat_simd!("sse4.2", Temp2xSimdChunkA16);

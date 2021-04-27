@@ -125,6 +125,8 @@ unsafe fn memcpy_unaligned_nonoverlapping_inline(
     }
 }
 
+const SIMD_CHUNK_SIZE: usize = 64;
+
 #[repr(C, align(32))]
 #[allow(dead_code)]
 struct Utf8CheckingState<T> {
@@ -134,24 +136,24 @@ struct Utf8CheckingState<T> {
 }
 #[repr(C, align(16))]
 #[allow(dead_code)]
-struct Temp2x64A16([u8; 64], [u8; 64]);
+struct Temp2xSimdChunkA16([u8; SIMD_CHUNK_SIZE], [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)]
-impl Temp2x64A16 {
+impl Temp2xSimdChunkA16 {
     #[inline]
     const fn new() -> Self {
-        Self([0; 64], [0; 64])
+        Self([0; SIMD_CHUNK_SIZE], [0; SIMD_CHUNK_SIZE])
     }
 }
 
 #[repr(C, align(32))]
 #[allow(dead_code)]
-struct Temp2x64A32([u8; 64], [u8; 64]);
+struct Temp2xSimdChunkA32([u8; SIMD_CHUNK_SIZE], [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)]
-impl Temp2x64A32 {
+impl Temp2xSimdChunkA32 {
     #[inline]
     const fn new() -> Self {
-        Self([0; 64], [0; 64])
+        Self([0; SIMD_CHUNK_SIZE], [0; SIMD_CHUNK_SIZE])
     }
 }

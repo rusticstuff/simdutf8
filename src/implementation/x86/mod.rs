@@ -4,6 +4,8 @@ pub(crate) mod avx2;
 #[allow(dead_code)]
 pub(crate) mod sse42;
 
+use super::SIMD_CHUNK_SIZE;
+
 // validate_utf8_basic() std: implementation auto-selection
 
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
@@ -24,7 +26,7 @@ pub(crate) unsafe fn validate_utf8_basic(
         (fun)(input)
     }
 
-    if input.len() < 64 {
+    if input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -50,7 +52,7 @@ fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if input.len() < 64 {
+    if input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -65,7 +67,7 @@ pub(crate) unsafe fn validate_utf8_basic(
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if input.len() < 64 {
+    if input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -100,7 +102,7 @@ pub(crate) unsafe fn validate_utf8_compat(
         (fun)(input)
     }
 
-    if input.len() < 64 {
+    if input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_compat_fallback(input);
     }
 
@@ -126,7 +128,7 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if input.len() < 64 {
+    if input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_compat_fallback(input);
     }
 
@@ -141,7 +143,7 @@ pub(crate) unsafe fn validate_utf8_compat(
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if input.len() < 64 {
+    if input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_compat_fallback(input);
     }
 
