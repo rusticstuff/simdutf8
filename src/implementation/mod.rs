@@ -17,7 +17,7 @@ type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompa
 
 // arch-specific functions
 
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[macro_use]
 pub(crate) mod x86;
 
