@@ -87,7 +87,7 @@ jobs:
       matrix:
         toolchain: [stable, nightly, "1.38.0"]
         arch: [x86_64]
-        target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
+        target: [i686, arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]
     steps:
       - uses: actions/checkout@v2
