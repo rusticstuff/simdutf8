@@ -16,7 +16,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         toolchain: [stable, nightly, "1.38.0"]
-        arch: [x86_64] # GH runners are missing 32-bit build tools, so no i686
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
         exclude:
@@ -26,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
+            toolchain: ${{ matrix.toolchain }}
             profile: minimal
             override: true
       - name: Run tests
@@ -39,7 +38,6 @@ jobs:
     strategy:
       matrix:
         toolchain: [stable, nightly, "1.38.0"]
-        arch: [x86_64] # GH runners are missing 32-bit build tools, so no i686
     defaults:
       run:
         working-directory: inlining
@@ -47,18 +45,18 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: stable-${{ matrix.arch }}
+            toolchain: stable
             profile: minimal
             override: true
       - name: Install cargo-asm
         run: cargo install cargo-asm
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
+            toolchain: ${{ matrix.toolchain }}
             profile: minimal
             override: true
       - name: Set default toolchain
-        run: rustup default ${{ matrix.toolchain }}-${{ matrix.arch }}
+        run: rustup default ${{ matrix.toolchain }}
       - name: Check if the expected fns are inlined
         run: |
           cargo clean;cargo asm|grep -v drop_in_place|diff -u expected-methods-x86-std.txt -
@@ -81,24 +79,50 @@ jobs:
         env:
           RUSTDOCFLAGS: --cfg docsrs
 
-  cross-build:
+  cross-build-arm:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         toolchain: [stable, nightly, "1.38.0"]
-        arch: [x86_64]
         target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}-${{ matrix.arch }}
+            toolchain: ${{ matrix.toolchain }}
             target: ${{ matrix.target }}
             profile: minimal
             override: true
       - name: Build
         run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
+
+  cross-build-i686:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        toolchain: [stable, nightly, "1.38.0"]
+        features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
+        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
+        target: [i686-unknown-linux-gnu, i686-pc-windows-msvc]
+        exclude:
+          - os: ubuntu-latest
+            target: i686-pc-windows-msvc
+          - os: windows-latest
+            target: i686-unknown-linux-gnu
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.toolchain }}
+            target: ${{ matrix.target }}
+            profile: minimal
+            override: true
+      - name: Run tests
+        run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
 
   clippy_check:
     runs-on: ubuntu-latest
