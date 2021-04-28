@@ -98,6 +98,13 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
+    #[allow(clippy::clippy::cast_ptr_alignment)]
+    unsafe fn load_from(ptr: *const u8) -> Self {
+        Self::from(_mm256_loadu_si256(ptr.cast::<__m256i>()))
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
     #[allow(clippy::too_many_arguments)]
     unsafe fn lookup_16(
         self,
@@ -422,7 +429,7 @@ impl Utf8CheckingState<__m256i> {
     check_bytes!("avx2", __m256i);
 }
 
-#[repr(C, align(64))]
+#[repr(C)]
 struct SimdInput {
     v0: __m256i,
     v1: __m256i,
@@ -434,8 +441,8 @@ impl SimdInput {
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn new(ptr: &[u8]) -> Self {
         Self {
-            v0: _mm256_loadu_si256(ptr.as_ptr().cast::<__m256i>()),
-            v1: _mm256_loadu_si256(ptr.as_ptr().add(32).cast::<__m256i>()),
+            v0: SimdU8Value::load_from(ptr.as_ptr()).0,
+            v1: SimdU8Value::load_from(ptr.as_ptr().add(32)).0,
         }
     }
 
