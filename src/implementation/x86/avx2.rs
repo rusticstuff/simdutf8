@@ -175,8 +175,8 @@ impl SimdU8Value {
     #[target_feature(enable = "avx2")]
     #[allow(clippy::cast_lossless)]
     #[inline]
-    unsafe fn shr(self, val: u8) -> Self {
-        Self::from(_mm256_srli_epi16(self.0, val as i32)).and(Self::broadcast(0xFF >> val))
+    unsafe fn shr4(self) -> Self {
+        Self::from(_mm256_srli_epi16(self.0, 4)).and(Self::broadcast(0xFF >> 4))
     }
 
     // ugly but prev<N> requires const generics
@@ -326,7 +326,7 @@ impl Utf8CheckingState<SimdU8Value> {
         const OVERLONG_4: u8 = 1 << 6;
         const CARRY: u8 = TOO_SHORT | TOO_LONG | TWO_CONTS;
 
-        let byte_1_high = prev1.shr(4).lookup_16(
+        let byte_1_high = prev1.shr4().lookup_16(
             TOO_LONG,
             TOO_LONG,
             TOO_LONG,
@@ -364,7 +364,7 @@ impl Utf8CheckingState<SimdU8Value> {
             CARRY | TOO_LARGE | TOO_LARGE_1000,
         );
 
-        let byte_2_high = input.shr(4).lookup_16(
+        let byte_2_high = input.shr4().lookup_16(
             TOO_SHORT,
             TOO_SHORT,
             TOO_SHORT,
