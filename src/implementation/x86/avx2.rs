@@ -241,80 +241,78 @@ impl From<__m256i> for SimdU8Value {
     }
 }
 
-impl Utf8CheckingState<__m256i> {
+impl Utf8CheckingState<SimdU8Value> {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn default() -> Self {
         Self {
-            prev: SimdU8Value::broadcast0().0,
-            incomplete: SimdU8Value::broadcast0().0,
-            error: SimdU8Value::broadcast0().0,
+            prev: SimdU8Value::broadcast0(),
+            incomplete: SimdU8Value::broadcast0(),
+            error: SimdU8Value::broadcast0(),
         }
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn or(a: __m256i, b: __m256i) -> __m256i {
-        SimdU8Value::from(a).or(SimdU8Value::from(b)).0
+    unsafe fn or(a: SimdU8Value, b: SimdU8Value) -> SimdU8Value {
+        a.or(b)
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn check_eof(error: __m256i, incomplete: __m256i) -> __m256i {
-        SimdU8Value::from(error).or(SimdU8Value::from(incomplete)).0
+    unsafe fn check_eof(error: SimdU8Value, incomplete: SimdU8Value) -> SimdU8Value {
+        error.or(incomplete)
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn is_incomplete(input: __m256i) -> __m256i {
-        SimdU8Value::from(input)
-            .saturating_sub(SimdU8Value::from_32_align_end(
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0xff_u8,
-                0b1111_0000_u8 - 1,
-                0b1110_0000_u8 - 1,
-                0b1100_0000_u8 - 1,
-            ))
-            .0
+    unsafe fn is_incomplete(input: SimdU8Value) -> SimdU8Value {
+        input.saturating_sub(SimdU8Value::from_32_align_end(
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0xff_u8,
+            0b1111_0000_u8 - 1,
+            0b1110_0000_u8 - 1,
+            0b1100_0000_u8 - 1,
+        ))
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn prev1(input: __m256i, prev: __m256i) -> __m256i {
-        SimdU8Value::from(input).prev1(SimdU8Value::from(prev)).0
+    unsafe fn prev1(input: SimdU8Value, prev: SimdU8Value) -> SimdU8Value {
+        input.prev1(prev)
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
     #[allow(clippy::too_many_lines)]
-    unsafe fn check_special_cases(input: __m256i, prev1: __m256i) -> __m256i {
+    unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
         const TOO_SHORT: u8 = 1 << 0;
         const TOO_LONG: u8 = 1 << 1;
         const OVERLONG_3: u8 = 1 << 2;
@@ -326,8 +324,6 @@ impl Utf8CheckingState<__m256i> {
         const OVERLONG_4: u8 = 1 << 6;
         const CARRY: u8 = TOO_SHORT | TOO_LONG | TWO_CONTS;
 
-        let input = SimdU8Value::from(input);
-        let prev1 = SimdU8Value::from(prev1);
         let byte_1_high = prev1.shr(4).lookup_16(
             TOO_LONG,
             TOO_LONG,
@@ -385,54 +381,47 @@ impl Utf8CheckingState<__m256i> {
             TOO_SHORT,
         );
 
-        byte_1_high.and(byte_1_low).and(byte_2_high).0
+        byte_1_high.and(byte_1_low).and(byte_2_high)
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn check_multibyte_lengths(
-        input: __m256i,
-        prev: __m256i,
-        special_cases: __m256i,
-    ) -> __m256i {
-        let prev2 = SimdU8Value::from(input).prev2(SimdU8Value::from(prev)).0;
-        let prev3 = SimdU8Value::from(input).prev3(SimdU8Value::from(prev)).0;
+        input: SimdU8Value,
+        prev: SimdU8Value,
+        special_cases: SimdU8Value,
+    ) -> SimdU8Value {
+        let prev2 = input.prev2(prev);
+        let prev3 = input.prev3(prev);
         let must23 = Self::must_be_2_3_continuation(prev2, prev3);
-        let must23_80 = SimdU8Value::from(must23)
-            .and(SimdU8Value::broadcast(0x80_u8))
-            .0;
-        SimdU8Value::from(must23_80)
-            .xor(SimdU8Value::from(special_cases))
-            .0
+        let must23_80 = must23.and(SimdU8Value::broadcast(0x80_u8));
+        must23_80.xor(special_cases)
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn must_be_2_3_continuation(prev2: __m256i, prev3: __m256i) -> __m256i {
-        let is_third_byte =
-            SimdU8Value::from(prev2).saturating_sub(SimdU8Value::broadcast(0b1110_0000_u8 - 1));
-        let is_fourth_byte =
-            SimdU8Value::from(prev3).saturating_sub(SimdU8Value::broadcast(0b1111_0000_u8 - 1));
+    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::broadcast(0b1110_0000_u8 - 1));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::broadcast(0b1111_0000_u8 - 1));
 
         is_third_byte
             .or(is_fourth_byte)
             .gt(SimdU8Value::broadcast0())
-            .0
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn has_error(error: __m256i) -> bool {
-        SimdU8Value::from(error).any_bit_set()
+    unsafe fn has_error(error: SimdU8Value) -> bool {
+        error.any_bit_set()
     }
 
-    check_bytes!("avx2", __m256i);
+    check_bytes!("avx2", SimdU8Value);
 }
 
 #[repr(C)]
 struct SimdInput {
-    v0: __m256i,
-    v1: __m256i,
+    v0: SimdU8Value,
+    v1: SimdU8Value,
 }
 
 impl SimdInput {
@@ -441,45 +430,43 @@ impl SimdInput {
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn new(ptr: &[u8]) -> Self {
         Self {
-            v0: SimdU8Value::load_from(ptr.as_ptr()).0,
-            v1: SimdU8Value::load_from(ptr.as_ptr().add(32)).0,
+            v0: SimdU8Value::load_from(ptr.as_ptr()),
+            v1: SimdU8Value::load_from(ptr.as_ptr().add(32)),
         }
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn new_utf8_checking_state() -> Utf8CheckingState<__m256i> {
-        Utf8CheckingState::<__m256i>::default()
+    unsafe fn new_utf8_checking_state() -> Utf8CheckingState<SimdU8Value> {
+        Utf8CheckingState::<SimdU8Value>::default()
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn check_block(&self, state: &mut Utf8CheckingState<__m256i>) {
-        Utf8CheckingState::<__m256i>::check_bytes(self.v0, state);
-        Utf8CheckingState::<__m256i>::check_bytes(self.v1, state);
+    unsafe fn check_block(&self, state: &mut Utf8CheckingState<SimdU8Value>) {
+        Utf8CheckingState::<SimdU8Value>::check_bytes(self.v0, state);
+        Utf8CheckingState::<SimdU8Value>::check_bytes(self.v1, state);
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn is_ascii(&self) -> bool {
-        SimdU8Value::from(self.v0)
-            .or(SimdU8Value::from(self.v1))
-            .is_ascii()
+        self.v0.or(self.v1).is_ascii()
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn check_eof(state: &mut Utf8CheckingState<__m256i>) {
-        state.error = Utf8CheckingState::<__m256i>::check_eof(state.error, state.incomplete);
+    unsafe fn check_eof(state: &mut Utf8CheckingState<SimdU8Value>) {
+        state.error = Utf8CheckingState::<SimdU8Value>::check_eof(state.error, state.incomplete);
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn check_utf8_errors(state: &Utf8CheckingState<__m256i>) -> bool {
-        Utf8CheckingState::<__m256i>::has_error(state.error)
+    unsafe fn check_utf8_errors(state: &Utf8CheckingState<SimdU8Value>) -> bool {
+        Utf8CheckingState::<SimdU8Value>::has_error(state.error)
     }
 
-    check_utf8!("avx2", __m256i);
+    check_utf8!("avx2", SimdU8Value);
 }
 
 use crate::implementation::algorithm::Temp2xSimdChunkA32;
