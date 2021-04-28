@@ -166,6 +166,13 @@ impl SimdU8Value {
     }
 
     #[target_feature(enable = "avx2")]
+    #[allow(clippy::cast_lossless)]
+    #[inline]
+    unsafe fn shr(&self, val: u8) -> Self {
+        Self::from(_mm256_srli_epi16(self.0, val as i32)).and(Self::broadcast(0xFF_u8 >> val))
+    }
+
+    #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn any_bit_set(&self) -> bool {
         _mm256_testz_si256(self.0, self.0) != 1
@@ -264,68 +271,64 @@ impl Utf8CheckingState<__m256i> {
         const OVERLONG_4: u8 = 1 << 6;
         const CARRY: u8 = TOO_SHORT | TOO_LONG | TWO_CONTS;
 
-        let byte_1_high = SimdU8Value::from(_mm256_srli_epi16(prev1, 4))
-            .and(SimdU8Value::broadcast(0xFF_u8 >> 4))
-            .lookup_16(
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TWO_CONTS,
-                TWO_CONTS,
-                TWO_CONTS,
-                TWO_CONTS,
-                TOO_SHORT | OVERLONG_2,
-                TOO_SHORT,
-                TOO_SHORT | OVERLONG_3 | SURROGATE,
-                TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
-            );
+        let input = SimdU8Value::from(input);
+        let prev1 = SimdU8Value::from(prev1);
+        let byte_1_high = prev1.shr(4).lookup_16(
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TWO_CONTS,
+            TWO_CONTS,
+            TWO_CONTS,
+            TWO_CONTS,
+            TOO_SHORT | OVERLONG_2,
+            TOO_SHORT,
+            TOO_SHORT | OVERLONG_3 | SURROGATE,
+            TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
+        );
 
-        let byte_1_low = SimdU8Value::from(prev1)
-            .and(SimdU8Value::broadcast(0x0F))
-            .lookup_16(
-                CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
-                CARRY | OVERLONG_2,
-                CARRY,
-                CARRY,
-                CARRY | TOO_LARGE,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000 | SURROGATE,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-            );
+        let byte_1_low = prev1.and(SimdU8Value::broadcast(0x0F)).lookup_16(
+            CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
+            CARRY | OVERLONG_2,
+            CARRY,
+            CARRY,
+            CARRY | TOO_LARGE,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000 | SURROGATE,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+        );
 
-        let byte_2_high = SimdU8Value::from(_mm256_srli_epi16(input, 4))
-            .and(SimdU8Value::broadcast(0xFF_u8 >> 4))
-            .lookup_16(
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE_1000 | OVERLONG_4,
-                TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE,
-                TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
-                TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-            );
+        let byte_2_high = input.shr(4).lookup_16(
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE_1000 | OVERLONG_4,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+        );
 
         byte_1_high.and(byte_1_low).and(byte_2_high).0
     }
