@@ -176,7 +176,7 @@ impl SimdU8Value {
     #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn shr(self, val: u8) -> Self {
-        Self::from(_mm256_srli_epi16(self.0, val as i32)).and(Self::broadcast(0xFF_u8 >> val))
+        Self::from(_mm256_srli_epi16(self.0, val as i32)).and(Self::broadcast(0xFF >> val))
     }
 
     // ugly but prev<N> requires const generics
@@ -241,6 +241,8 @@ impl From<__m256i> for SimdU8Value {
     }
 }
 
+// ------- generic implementation starts here -------
+
 impl Utf8CheckingState<SimdU8Value> {
     #[target_feature(enable = "avx2")]
     #[inline]
@@ -268,38 +270,38 @@ impl Utf8CheckingState<SimdU8Value> {
     #[inline]
     unsafe fn is_incomplete(input: SimdU8Value) -> SimdU8Value {
         input.saturating_sub(SimdU8Value::from_32_align_end(
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0xff_u8,
-            0b1111_0000_u8 - 1,
-            0b1110_0000_u8 - 1,
-            0b1100_0000_u8 - 1,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0b1111_0000 - 1,
+            0b1110_0000 - 1,
+            0b1100_0000 - 1,
         ))
     }
 
@@ -394,15 +396,15 @@ impl Utf8CheckingState<SimdU8Value> {
         let prev2 = input.prev2(prev);
         let prev3 = input.prev3(prev);
         let must23 = Self::must_be_2_3_continuation(prev2, prev3);
-        let must23_80 = must23.and(SimdU8Value::broadcast(0x80_u8));
+        let must23_80 = must23.and(SimdU8Value::broadcast(0x80));
         must23_80.xor(special_cases)
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.saturating_sub(SimdU8Value::broadcast(0b1110_0000_u8 - 1));
-        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::broadcast(0b1111_0000_u8 - 1));
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::broadcast(0b1110_0000 - 1));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::broadcast(0b1111_0000 - 1));
 
         is_third_byte
             .or(is_fourth_byte)
