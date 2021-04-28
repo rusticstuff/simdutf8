@@ -26,6 +26,52 @@ impl SimdU8Value {
     #[inline]
     #[allow(clippy::clippy::too_many_arguments)]
     #[allow(clippy::clippy::clippy::cast_possible_wrap)]
+    unsafe fn from_32_align_end(
+        v0: u8,
+        v1: u8,
+        v2: u8,
+        v3: u8,
+        v4: u8,
+        v5: u8,
+        v6: u8,
+        v7: u8,
+        v8: u8,
+        v9: u8,
+        v10: u8,
+        v11: u8,
+        v12: u8,
+        v13: u8,
+        v14: u8,
+        v15: u8,
+        v16: u8,
+        v17: u8,
+        v18: u8,
+        v19: u8,
+        v20: u8,
+        v21: u8,
+        v22: u8,
+        v23: u8,
+        v24: u8,
+        v25: u8,
+        v26: u8,
+        v27: u8,
+        v28: u8,
+        v29: u8,
+        v30: u8,
+        v31: u8,
+    ) -> Self {
+        Self::from(_mm256_setr_epi8(
+            v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
+            v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
+            v16 as i8, v17 as i8, v18 as i8, v19 as i8, v20 as i8, v21 as i8, v22 as i8, v23 as i8,
+            v24 as i8, v25 as i8, v26 as i8, v27 as i8, v28 as i8, v29 as i8, v30 as i8, v31 as i8,
+        ))
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    #[allow(clippy::clippy::too_many_arguments)]
+    #[allow(clippy::clippy::clippy::cast_possible_wrap)]
     unsafe fn repeat_16(
         v0: u8,
         v1: u8,
@@ -44,12 +90,10 @@ impl SimdU8Value {
         v14: u8,
         v15: u8,
     ) -> Self {
-        Self::from(_mm256_setr_epi8(
-            v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
-            v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
-            v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
-            v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
-        ))
+        Self::from_32_align_end(
+            v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v0, v1, v2, v3,
+            v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
+        )
     }
 
     #[target_feature(enable = "avx2")]
@@ -118,40 +162,41 @@ impl Utf8CheckingState<__m256i> {
     unsafe fn is_incomplete(input: __m256i) -> __m256i {
         _mm256_subs_epu8(
             input,
-            _mm256_setr_epi8(
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0b1111_0000_u8 - 1),
-                static_cast_i8!(0b1110_0000_u8 - 1),
-                static_cast_i8!(0b1100_0000_u8 - 1),
-            ),
+            SimdU8Value::from_32_align_end(
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0xff_u8,
+                0b1111_0000_u8 - 1,
+                0b1110_0000_u8 - 1,
+                0b1100_0000_u8 - 1,
+            )
+            .0,
         )
     }
 
