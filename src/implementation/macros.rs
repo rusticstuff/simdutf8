@@ -33,6 +33,6 @@ macro_rules! unlikely {
 /// static cast to an i8
 macro_rules! static_cast_i8 {
     ($v:expr) => {
-        mem::transmute::<_, i8>($v)
+        $v as i8
     };
 }

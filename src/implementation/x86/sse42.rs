@@ -466,5 +466,4 @@ impl SimdInput {
 }
 
 use crate::implementation::algorithm::Temp2xSimdChunkA16 as Temp2xSimdChunk;
-validate_utf8_basic_simd!("sse4.2");
-validate_utf8_compat_simd!("sse4.2");
+algorithm_simd!("sse4.2");
