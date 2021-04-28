@@ -228,65 +228,78 @@ impl From<__m128i> for SimdU8Value {
 
 // ------- generic implementation starts here -------
 
-impl Utf8CheckingState<__m128i> {
+impl Utf8CheckingState<SimdU8Value> {
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn default() -> Self {
         Self {
-            prev: _mm_setzero_si128(),
-            incomplete: _mm_setzero_si128(),
-            error: _mm_setzero_si128(),
+            prev: SimdU8Value::broadcast0(),
+            incomplete: SimdU8Value::broadcast0(),
+            error: SimdU8Value::broadcast0(),
         }
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn or(a: __m128i, b: __m128i) -> __m128i {
-        _mm_or_si128(a, b)
+    unsafe fn or(a: SimdU8Value, b: SimdU8Value) -> SimdU8Value {
+        a.or(b)
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn check_eof(error: __m128i, incomplete: __m128i) -> __m128i {
-        Self::or(error, incomplete)
+    unsafe fn check_eof(error: SimdU8Value, incomplete: SimdU8Value) -> SimdU8Value {
+        error.or(incomplete)
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn is_incomplete(input: __m128i) -> __m128i {
-        _mm_subs_epu8(
-            input,
-            _mm_setr_epi8(
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0xff_u8),
-                static_cast_i8!(0b1111_0000_u8 - 1),
-                static_cast_i8!(0b1110_0000_u8 - 1),
-                static_cast_i8!(0b1100_0000_u8 - 1),
-            ),
-        )
+    unsafe fn is_incomplete(input: SimdU8Value) -> SimdU8Value {
+        input.saturating_sub(SimdU8Value::from_32_align_end(
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0xff,
+            0b1111_0000 - 1,
+            0b1110_0000 - 1,
+            0b1100_0000 - 1,
+        ))
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn prev1(input: __m128i, prev: __m128i) -> __m128i {
-        _mm_alignr_epi8(input, prev, 16 - 1)
+    unsafe fn prev1(input: SimdU8Value, prev: SimdU8Value) -> SimdU8Value {
+        input.prev1(prev)
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::too_many_lines)]
-    unsafe fn check_special_cases(input: __m128i, prev1: __m128i) -> __m128i {
+    unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
         const TOO_SHORT: u8 = 1 << 0;
         const TOO_LONG: u8 = 1 << 1;
         const OVERLONG_3: u8 = 1 << 2;
@@ -298,125 +311,106 @@ impl Utf8CheckingState<__m128i> {
         const OVERLONG_4: u8 = 1 << 6;
         const CARRY: u8 = TOO_SHORT | TOO_LONG | TWO_CONTS;
 
-        let byte_1_high: __m128i = _mm_shuffle_epi8(
-            _mm_setr_epi8(
-                static_cast_i8!(TOO_LONG),
-                static_cast_i8!(TOO_LONG),
-                static_cast_i8!(TOO_LONG),
-                static_cast_i8!(TOO_LONG),
-                static_cast_i8!(TOO_LONG),
-                static_cast_i8!(TOO_LONG),
-                static_cast_i8!(TOO_LONG),
-                static_cast_i8!(TOO_LONG),
-                static_cast_i8!(TWO_CONTS),
-                static_cast_i8!(TWO_CONTS),
-                static_cast_i8!(TWO_CONTS),
-                static_cast_i8!(TWO_CONTS),
-                static_cast_i8!(TOO_SHORT | OVERLONG_2),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT | OVERLONG_3 | SURROGATE),
-                static_cast_i8!(TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4),
-            ),
-            _mm_and_si128(
-                _mm_srli_epi16(prev1, 4),
-                _mm_set1_epi8(static_cast_i8!(0xFF_u8 >> 4)),
-            ),
+        let byte_1_high = prev1.shr4().lookup_16(
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TWO_CONTS,
+            TWO_CONTS,
+            TWO_CONTS,
+            TWO_CONTS,
+            TOO_SHORT | OVERLONG_2,
+            TOO_SHORT,
+            TOO_SHORT | OVERLONG_3 | SURROGATE,
+            TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
         );
 
-        let byte_1_low: __m128i = _mm_shuffle_epi8(
-            _mm_setr_epi8(
-                static_cast_i8!(CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4),
-                static_cast_i8!(CARRY | OVERLONG_2),
-                static_cast_i8!(CARRY),
-                static_cast_i8!(CARRY),
-                static_cast_i8!(CARRY | TOO_LARGE),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000 | SURROGATE),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-                static_cast_i8!(CARRY | TOO_LARGE | TOO_LARGE_1000),
-            ),
-            _mm_and_si128(prev1, _mm_set1_epi8(0x0F)),
+        let byte_1_low = prev1.and(SimdU8Value::broadcast(0x0F)).lookup_16(
+            CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
+            CARRY | OVERLONG_2,
+            CARRY,
+            CARRY,
+            CARRY | TOO_LARGE,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000 | SURROGATE,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
+            CARRY | TOO_LARGE | TOO_LARGE_1000,
         );
 
-        let byte_2_high: __m128i = _mm_shuffle_epi8(
-            _mm_setr_epi8(
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(
-                    TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE_1000 | OVERLONG_4
-                ),
-                static_cast_i8!(TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE),
-                static_cast_i8!(TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE),
-                static_cast_i8!(TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-                static_cast_i8!(TOO_SHORT),
-            ),
-            _mm_and_si128(
-                _mm_srli_epi16(input, 4),
-                _mm_set1_epi8(static_cast_i8!(0xFF_u8 >> 4)),
-            ),
+        let byte_2_high = input.shr4().lookup_16(
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE_1000 | OVERLONG_4,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
         );
 
-        _mm_and_si128(_mm_and_si128(byte_1_high, byte_1_low), byte_2_high)
+        byte_1_high.and(byte_1_low).and(byte_2_high)
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn check_multibyte_lengths(
-        input: __m128i,
-        prev: __m128i,
-        special_cases: __m128i,
-    ) -> __m128i {
-        let prev2 = _mm_alignr_epi8(input, prev, 16 - 2);
-        let prev3 = _mm_alignr_epi8(input, prev, 16 - 3);
+        input: SimdU8Value,
+        prev: SimdU8Value,
+        special_cases: SimdU8Value,
+    ) -> SimdU8Value {
+        let prev2 = input.prev2(prev);
+        let prev3 = input.prev3(prev);
         let must23 = Self::must_be_2_3_continuation(prev2, prev3);
-        let must23_80 = _mm_and_si128(must23, _mm_set1_epi8(static_cast_i8!(0x80_u8)));
-        _mm_xor_si128(must23_80, special_cases)
+        let must23_80 = must23.and(SimdU8Value::broadcast(0x80));
+        must23_80.xor(special_cases)
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn must_be_2_3_continuation(prev2: __m128i, prev3: __m128i) -> __m128i {
-        let is_third_byte =
-            _mm_subs_epu8(prev2, _mm_set1_epi8(static_cast_i8!(0b1110_0000_u8 - 1)));
-        let is_fourth_byte =
-            _mm_subs_epu8(prev3, _mm_set1_epi8(static_cast_i8!(0b1111_0000_u8 - 1)));
-        _mm_cmpgt_epi8(
-            _mm_or_si128(is_third_byte, is_fourth_byte),
-            _mm_set1_epi8(0),
-        )
+    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::broadcast(0b1110_0000 - 1));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::broadcast(0b1111_0000 - 1));
+
+        is_third_byte
+            .or(is_fourth_byte)
+            .gt(SimdU8Value::broadcast0())
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn has_error(error: __m128i) -> bool {
-        _mm_testz_si128(error, error) != 1
+    unsafe fn has_error(error: SimdU8Value) -> bool {
+        error.any_bit_set()
     }
 
-    check_bytes!("sse4.2", __m128i);
+    check_bytes!("sse4.2", SimdU8Value);
 }
 
 #[repr(C, align(64))]
 struct SimdInput {
-    v0: __m128i,
-    v1: __m128i,
-    v2: __m128i,
-    v3: __m128i,
+    v0: SimdU8Value,
+    v1: SimdU8Value,
+    v2: SimdU8Value,
+    v3: SimdU8Value,
 }
 
 impl SimdInput {
@@ -425,50 +419,50 @@ impl SimdInput {
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn new(ptr: &[u8]) -> Self {
         Self {
-            v0: _mm_loadu_si128(ptr.as_ptr().cast::<__m128i>()),
-            v1: _mm_loadu_si128(ptr.as_ptr().add(16).cast::<__m128i>()),
-            v2: _mm_loadu_si128(ptr.as_ptr().add(32).cast::<__m128i>()),
-            v3: _mm_loadu_si128(ptr.as_ptr().add(48).cast::<__m128i>()),
+            v0: SimdU8Value::load_from(ptr.as_ptr()),
+            v1: SimdU8Value::load_from(ptr.as_ptr().add(16)),
+            v2: SimdU8Value::load_from(ptr.as_ptr().add(32)),
+            v3: SimdU8Value::load_from(ptr.as_ptr().add(48)),
         }
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn new_utf8_checking_state() -> Utf8CheckingState<__m128i> {
-        Utf8CheckingState::<__m128i>::default()
+    unsafe fn new_utf8_checking_state() -> Utf8CheckingState<SimdU8Value> {
+        Utf8CheckingState::<SimdU8Value>::default()
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn check_block(&self, state: &mut Utf8CheckingState<__m128i>) {
-        Utf8CheckingState::<__m128i>::check_bytes(self.v0, state);
-        Utf8CheckingState::<__m128i>::check_bytes(self.v1, state);
-        Utf8CheckingState::<__m128i>::check_bytes(self.v2, state);
-        Utf8CheckingState::<__m128i>::check_bytes(self.v3, state);
+    unsafe fn check_block(&self, state: &mut Utf8CheckingState<SimdU8Value>) {
+        Utf8CheckingState::<SimdU8Value>::check_bytes(self.v0, state);
+        Utf8CheckingState::<SimdU8Value>::check_bytes(self.v1, state);
+        Utf8CheckingState::<SimdU8Value>::check_bytes(self.v2, state);
+        Utf8CheckingState::<SimdU8Value>::check_bytes(self.v3, state);
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn is_ascii(&self) -> bool {
-        let r1 = _mm_or_si128(self.v0, self.v1);
-        let r2 = _mm_or_si128(self.v2, self.v3);
-        let r = _mm_or_si128(r1, r2);
-        _mm_movemask_epi8(r) == 0
+        let r1 = self.v0.or(self.v1);
+        let r2 = self.v2.or(self.v3);
+        let r = r1.or(r2);
+        r.is_ascii()
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn check_eof(state: &mut Utf8CheckingState<__m128i>) {
-        state.error = Utf8CheckingState::<__m128i>::check_eof(state.error, state.incomplete);
+    unsafe fn check_eof(state: &mut Utf8CheckingState<SimdU8Value>) {
+        state.error = Utf8CheckingState::<SimdU8Value>::check_eof(state.error, state.incomplete);
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn check_utf8_errors(state: &Utf8CheckingState<__m128i>) -> bool {
-        Utf8CheckingState::<__m128i>::has_error(state.error)
+    unsafe fn check_utf8_errors(state: &Utf8CheckingState<SimdU8Value>) -> bool {
+        Utf8CheckingState::<SimdU8Value>::has_error(state.error)
     }
 
-    check_utf8!("sse4.2", __m128i);
+    check_utf8!("sse4.2", SimdU8Value);
 }
 
 use crate::implementation::algorithm::Temp2xSimdChunkA16;
