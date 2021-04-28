@@ -415,6 +415,16 @@ impl Utf8CheckingState<SimdU8Value> {
         previous.incomplete = Self::is_incomplete(current);
         previous.prev = current
     }
+
+    #[target_feature(enable = "sse4.2")]
+    #[inline]
+    unsafe fn check_utf8(&mut self, input: &SimdInput) {
+        if likely!(input.is_ascii()) {
+            self.error = Utf8CheckingState::<SimdU8Value>::check_eof(self.error, self.incomplete)
+        } else {
+            input.check_block(self);
+        }
+    }
 }
 
 #[repr(C)]
@@ -471,8 +481,6 @@ impl SimdInput {
     unsafe fn check_utf8_errors(state: &Utf8CheckingState<SimdU8Value>) -> bool {
         Utf8CheckingState::<SimdU8Value>::has_error(state.error)
     }
-
-    check_utf8!("sse4.2", SimdU8Value);
 }
 
 use crate::implementation::algorithm::Temp2xSimdChunkA16;

@@ -1,19 +1,3 @@
-/// check_utf8() strategy
-macro_rules! check_utf8 {
-    ($feat:expr, $t:ident) => {
-        #[target_feature(enable = $feat)]
-        #[inline]
-        unsafe fn check_utf8(&self, previous: &mut Utf8CheckingState<$t>) {
-            if likely!(self.is_ascii()) {
-                previous.error =
-                    Utf8CheckingState::<$t>::check_eof(previous.error, previous.incomplete)
-            } else {
-                self.check_block(previous);
-            }
-        }
-    };
-}
-
 /// Macros requires newtypes in scope: `SimdInput` with holds 64 bytes of SIMD input
 
 /// validate_utf8_basic_simd() strategy and wrapper
@@ -50,7 +34,7 @@ macro_rules! validate_utf8_basic_simd {
                         to_copy,
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
-                    simd_input.check_utf8(&mut state);
+                    state.check_utf8(&simd_input);
                     idx += to_copy;
                 }
             }
@@ -59,7 +43,7 @@ macro_rules! validate_utf8_basic_simd {
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
             while idx < iter_lim {
                 let input = SimdInput::new(input.get_unchecked(idx as usize..));
-                input.check_utf8(&mut state);
+                state.check_utf8(&input);
                 idx += SIMD_CHUNK_SIZE;
             }
 
@@ -71,7 +55,7 @@ macro_rules! validate_utf8_basic_simd {
                 );
                 let input = SimdInput::new(&tmpbuf.1);
 
-                input.check_utf8(&mut state);
+                state.check_utf8(&input);
             }
             SimdInput::check_eof(&mut state);
             if unlikely!(SimdInput::check_utf8_errors(&state)) {
@@ -124,7 +108,7 @@ macro_rules! validate_utf8_compat_simd {
                         to_copy,
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
-                    simd_input.check_utf8(&mut state);
+                    state.check_utf8(&simd_input);
                     if SimdInput::check_utf8_errors(&state) {
                         return Err(idx);
                     }
@@ -136,7 +120,7 @@ macro_rules! validate_utf8_compat_simd {
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
             while idx < iter_lim {
                 let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                simd_input.check_utf8(&mut state);
+                state.check_utf8(&simd_input);
                 if SimdInput::check_utf8_errors(&state) {
                     return Err(idx);
                 }
@@ -150,7 +134,7 @@ macro_rules! validate_utf8_compat_simd {
                 );
                 let simd_input = SimdInput::new(&tmpbuf.1);
 
-                simd_input.check_utf8(&mut state);
+                state.check_utf8(&simd_input);
             }
             SimdInput::check_eof(&mut state);
             if unlikely!(SimdInput::check_utf8_errors(&state)) {
