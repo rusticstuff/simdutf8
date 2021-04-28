@@ -155,6 +155,12 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
+    unsafe fn xor(a: Self, b: Self) -> Self {
+        Self::from(_mm256_xor_si256(a.0, b.0))
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
     unsafe fn any_bit_set(&self) -> bool {
         _mm256_testz_si256(self.0, self.0) != 1
     }
@@ -334,7 +340,11 @@ impl Utf8CheckingState<__m256i> {
         let prev3 = _mm256_alignr_epi8(input, _mm256_permute2x128_si256(prev, input, 0x21), 16 - 3);
         let must23 = Self::must_be_2_3_continuation(prev2, prev3);
         let must23_80 = _mm256_and_si256(must23, SimdU8Value::broadcast(0x80_u8).0);
-        _mm256_xor_si256(must23_80, special_cases)
+        SimdU8Value::xor(
+            SimdU8Value::from(must23_80),
+            SimdU8Value::from(special_cases),
+        )
+        .0
     }
 
     #[target_feature(enable = "avx2")]
@@ -396,7 +406,7 @@ impl SimdInput {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn is_ascii(&self) -> bool {
-        let res = _mm256_or_si256(self.v0, self.v1);
+        let res = SimdU8Value::or(SimdU8Value::from(self.v0), SimdU8Value::from(self.v1)).0;
         _mm256_movemask_epi8(res) == 0
     }
 
