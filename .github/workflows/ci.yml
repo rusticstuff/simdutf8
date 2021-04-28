@@ -134,7 +134,7 @@ jobs:
         with:
             toolchain: stable
             profile: minimal
-            components: fmt
+            components: rustfmt
             override: true
       - name: Checko formatting
         run: cargo fmt -- --check
