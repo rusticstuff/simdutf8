@@ -101,4 +101,7 @@ impl Temp2xSimdChunkA32 {
     }
 }
 
-pub(crate) struct SimdU8Value<T>(pub(crate) T);
+#[derive(Clone, Copy)]
+pub(crate) struct SimdU8Value<T>(pub(crate) T)
+where
+    T: Copy;

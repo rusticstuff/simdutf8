@@ -81,6 +81,47 @@ unsafe fn repeat_16(
     }
 }
 
+impl SimdU8Value {
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    #[allow(clippy::clippy::too_many_arguments)]
+    unsafe fn lookup_16(
+        &self,
+        v0: u8,
+        v1: u8,
+        v2: u8,
+        v3: u8,
+        v4: u8,
+        v5: u8,
+        v6: u8,
+        v7: u8,
+        v8: u8,
+        v9: u8,
+        v10: u8,
+        v11: u8,
+        v12: u8,
+        v13: u8,
+        v14: u8,
+        v15: u8,
+    ) -> Self {
+        Self {
+            0: _mm256_shuffle_epi8(
+                repeat_16(
+                    v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
+                )
+                .0,
+                self.0,
+            ),
+        }
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    const unsafe fn from(val: __m256i) -> Self {
+        Self { 0: val }
+    }
+}
+
 impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]
     #[inline]
@@ -167,31 +208,29 @@ impl Utf8CheckingState<__m256i> {
         const OVERLONG_4: u8 = 1 << 6;
         const CARRY: u8 = TOO_SHORT | TOO_LONG | TWO_CONTS;
 
-        let byte_1_high: __m256i = _mm256_shuffle_epi8(
-            repeat_16(
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TOO_LONG,
-                TWO_CONTS,
-                TWO_CONTS,
-                TWO_CONTS,
-                TWO_CONTS,
-                TOO_SHORT | OVERLONG_2,
-                TOO_SHORT,
-                TOO_SHORT | OVERLONG_3 | SURROGATE,
-                TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
-            )
-            .0,
-            _mm256_and_si256(
-                _mm256_srli_epi16(prev1, 4),
-                _mm256_set1_epi8(static_cast_i8!(0xFF_u8 >> 4)),
-            ),
-        );
+        let byte_1_high: __m256i = SimdU8Value::from(_mm256_and_si256(
+            _mm256_srli_epi16(prev1, 4),
+            _mm256_set1_epi8(static_cast_i8!(0xFF_u8 >> 4)),
+        ))
+        .lookup_16(
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TOO_LONG,
+            TWO_CONTS,
+            TWO_CONTS,
+            TWO_CONTS,
+            TWO_CONTS,
+            TOO_SHORT | OVERLONG_2,
+            TOO_SHORT,
+            TOO_SHORT | OVERLONG_3 | SURROGATE,
+            TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
+        )
+        .0;
 
         let byte_1_low: __m256i = _mm256_shuffle_epi8(
             repeat_16(
