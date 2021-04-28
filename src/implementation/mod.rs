@@ -21,7 +21,7 @@ type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorBasic>;
 #[allow(dead_code)]
 type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompat>;
 
-// arch-specific functions
+// x86 implementation
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(crate) mod x86;
@@ -42,30 +42,24 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorC
     x86::validate_utf8_compat(input)
 }
 
+// aarch64 implementation
+
 #[cfg(any(target_arch = "aarch64"))]
 pub(crate) mod aarch64;
+
+// TBD: cleanup!
+// #[allow(clippy::inline_always)]
+// #[inline(never)]
+// #[cfg(any(target_arch = "aarch64"))]
+// pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), Utf8ErrorBasic> {
+//     aarch64::validate_utf8_basic(input)
+// }
 
 #[cfg(any(target_arch = "aarch64"))]
 pub(super) use aarch64::validate_utf8_basic;
 
 #[cfg(any(target_arch = "aarch64"))]
 pub(super) use aarch64::validate_utf8_compat;
-
-/// Fn needed instead of re-import, otherwise not inlined in non-std case
-#[allow(clippy::inline_always)]
-#[inline(always)]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), Utf8ErrorBasic> {
-    x86::validate_utf8_basic(input)
-}
-
-/// Fn needed instead of re-import, otherwise not inlined in non-std case
-#[allow(clippy::inline_always)]
-#[inline(always)]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
-    x86::validate_utf8_compat(input)
-}
 
 // fallback for non-x86
 
