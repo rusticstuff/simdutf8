@@ -126,10 +126,11 @@ impl SimdU8Value {
             self.0,
         ))
     }
+}
 
-    #[target_feature(enable = "avx2")]
+impl From<__m256i> for SimdU8Value {
     #[inline]
-    const unsafe fn from(val: __m256i) -> Self {
+    fn from(val: __m256i) -> Self {
         Self { 0: val }
     }
 }
