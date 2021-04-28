@@ -98,7 +98,7 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    #[allow(clippy::clippy::cast_ptr_alignment)]
+    #[allow(clippy::cast_ptr_alignment)]
     unsafe fn load_from(ptr: *const u8) -> Self {
         Self::from(_mm256_loadu_si256(ptr.cast::<__m256i>()))
     }
