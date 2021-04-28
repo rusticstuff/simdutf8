@@ -210,6 +210,12 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
+    unsafe fn gt(self, other: Self) -> Self {
+        Self::from(_mm256_cmpgt_epi8(self.0, other.0))
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
     unsafe fn any_bit_set(&self) -> bool {
         _mm256_testz_si256(self.0, self.0) != 1
     }
@@ -394,10 +400,11 @@ impl Utf8CheckingState<__m256i> {
             SimdU8Value::from(prev2).saturating_sub(SimdU8Value::broadcast(0b1110_0000_u8 - 1));
         let is_fourth_byte =
             SimdU8Value::from(prev3).saturating_sub(SimdU8Value::broadcast(0b1111_0000_u8 - 1));
-        _mm256_cmpgt_epi8(
-            is_third_byte.or(is_fourth_byte).0,
-            SimdU8Value::broadcast0().0,
-        )
+
+        is_third_byte
+            .or(is_fourth_byte)
+            .gt(SimdU8Value::broadcast0())
+            .0
     }
 
     #[target_feature(enable = "avx2")]
