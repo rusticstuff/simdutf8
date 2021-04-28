@@ -403,7 +403,18 @@ impl Utf8CheckingState<SimdU8Value> {
         error.any_bit_set()
     }
 
-    check_bytes!("sse4.2", SimdU8Value);
+    #[target_feature(enable = "sse4.2")]
+    #[inline]
+    unsafe fn check_bytes(current: SimdU8Value, previous: &mut Self) {
+        let prev1 = Self::prev1(current, previous.prev);
+        let sc = Self::check_special_cases(current, prev1);
+        previous.error = Self::or(
+            previous.error,
+            Self::check_multibyte_lengths(current, previous.prev, sc),
+        );
+        previous.incomplete = Self::is_incomplete(current);
+        previous.prev = current
+    }
 }
 
 #[repr(C, align(64))]

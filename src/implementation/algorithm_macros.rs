@@ -14,24 +14,6 @@ macro_rules! check_utf8 {
     };
 }
 
-/// check_bytes() strategy
-macro_rules! check_bytes {
-    ($feat:expr, $t:ident) => {
-        #[target_feature(enable = $feat)]
-        #[inline]
-        unsafe fn check_bytes(current: $t, previous: &mut Self) {
-            let prev1 = Self::prev1(current, previous.prev);
-            let sc = Self::check_special_cases(current, prev1);
-            previous.error = Self::or(
-                previous.error,
-                Self::check_multibyte_lengths(current, previous.prev, sc),
-            );
-            previous.incomplete = Self::is_incomplete(current);
-            previous.prev = current
-        }
-    };
-}
-
 /// Macros requires newtypes in scope: `SimdInput` with holds 64 bytes of SIMD input
 
 /// validate_utf8_basic_simd() strategy and wrapper
