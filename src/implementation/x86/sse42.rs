@@ -422,7 +422,15 @@ impl Utf8CheckingState<SimdU8Value> {
         if likely!(input.is_ascii()) {
             self.check_eof();
         } else {
-            input.check_block(self);
+            self.check_block(input);
+        }
+    }
+
+    #[target_feature(enable = "sse4.2")]
+    #[inline]
+    unsafe fn check_block(&mut self, input: &SimdInput) {
+        for i in 0..input.vals.len() {
+            Self::check_bytes(input.vals[i], self);
         }
     }
 }
@@ -444,14 +452,6 @@ impl SimdInput {
                 SimdU8Value::load_from(ptr.as_ptr().add(32)),
                 SimdU8Value::load_from(ptr.as_ptr().add(48)),
             ],
-        }
-    }
-
-    #[target_feature(enable = "sse4.2")]
-    #[inline]
-    unsafe fn check_block(&self, state: &mut Utf8CheckingState<SimdU8Value>) {
-        for i in 0..self.vals.len() {
-            Utf8CheckingState::<SimdU8Value>::check_bytes(self.vals[i], state);
         }
     }
 
