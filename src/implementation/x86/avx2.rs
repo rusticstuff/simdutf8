@@ -18,7 +18,6 @@ use core::arch::x86_64::{
 };
 
 use crate::implementation::algorithm::Utf8CheckingState;
-use core::mem;
 
 type SimdU8Value = crate::implementation::algorithm::SimdU8Value<__m256i>;
 
@@ -26,6 +25,7 @@ impl SimdU8Value {
     #[target_feature(enable = "avx2")]
     #[inline]
     #[allow(clippy::clippy::too_many_arguments)]
+    #[allow(clippy::clippy::clippy::cast_possible_wrap)]
     unsafe fn repeat_16(
         v0: u8,
         v1: u8,
@@ -45,38 +45,10 @@ impl SimdU8Value {
         v15: u8,
     ) -> Self {
         Self::from(_mm256_setr_epi8(
-            static_cast_i8!(v0),
-            static_cast_i8!(v1),
-            static_cast_i8!(v2),
-            static_cast_i8!(v3),
-            static_cast_i8!(v4),
-            static_cast_i8!(v5),
-            static_cast_i8!(v6),
-            static_cast_i8!(v7),
-            static_cast_i8!(v8),
-            static_cast_i8!(v9),
-            static_cast_i8!(v10),
-            static_cast_i8!(v11),
-            static_cast_i8!(v12),
-            static_cast_i8!(v13),
-            static_cast_i8!(v14),
-            static_cast_i8!(v15),
-            static_cast_i8!(v0),
-            static_cast_i8!(v1),
-            static_cast_i8!(v2),
-            static_cast_i8!(v3),
-            static_cast_i8!(v4),
-            static_cast_i8!(v5),
-            static_cast_i8!(v6),
-            static_cast_i8!(v7),
-            static_cast_i8!(v8),
-            static_cast_i8!(v9),
-            static_cast_i8!(v10),
-            static_cast_i8!(v11),
-            static_cast_i8!(v12),
-            static_cast_i8!(v13),
-            static_cast_i8!(v14),
-            static_cast_i8!(v15),
+            v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
+            v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
+            v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
+            v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
         ))
     }
 
