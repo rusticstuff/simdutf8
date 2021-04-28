@@ -228,54 +228,51 @@ impl Utf8CheckingState<__m256i> {
         )
         .0;
 
-        let byte_1_low: __m256i = _mm256_shuffle_epi8(
-            SimdU8Value::repeat_16(
-                CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
-                CARRY | OVERLONG_2,
-                CARRY,
-                CARRY,
-                CARRY | TOO_LARGE,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000 | SURROGATE,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-                CARRY | TOO_LARGE | TOO_LARGE_1000,
-            )
-            .0,
-            _mm256_and_si256(prev1, _mm256_set1_epi8(0x0F)),
-        );
+        let byte_1_low: __m256i =
+            SimdU8Value::from(_mm256_and_si256(prev1, _mm256_set1_epi8(0x0F)))
+                .lookup_16(
+                    CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
+                    CARRY | OVERLONG_2,
+                    CARRY,
+                    CARRY,
+                    CARRY | TOO_LARGE,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000 | SURROGATE,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                )
+                .0;
 
-        let byte_2_high: __m256i = _mm256_shuffle_epi8(
-            SimdU8Value::repeat_16(
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE_1000 | OVERLONG_4,
-                TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE,
-                TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
-                TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-                TOO_SHORT,
-            )
-            .0,
-            _mm256_and_si256(
-                _mm256_srli_epi16(input, 4),
-                _mm256_set1_epi8(static_cast_i8!(0xFF_u8 >> 4)),
-            ),
-        );
+        let byte_2_high: __m256i = SimdU8Value::from(_mm256_and_si256(
+            _mm256_srli_epi16(input, 4),
+            _mm256_set1_epi8(static_cast_i8!(0xFF_u8 >> 4)),
+        ))
+        .lookup_16(
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE_1000 | OVERLONG_4,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
+            TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+            TOO_SHORT,
+        )
+        .0;
 
         _mm256_and_si256(_mm256_and_si256(byte_1_high, byte_1_low), byte_2_high)
     }
