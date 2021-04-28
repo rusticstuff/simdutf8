@@ -434,8 +434,7 @@ impl Utf8CheckingState<SimdU8Value> {
 
 #[repr(C)]
 struct SimdInput {
-    v0: SimdU8Value,
-    v1: SimdU8Value,
+    vals: [SimdU8Value; 2],
 }
 
 impl SimdInput {
@@ -444,8 +443,10 @@ impl SimdInput {
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn new(ptr: &[u8]) -> Self {
         Self {
-            v0: SimdU8Value::load_from(ptr.as_ptr()),
-            v1: SimdU8Value::load_from(ptr.as_ptr().add(32)),
+            vals: [
+                SimdU8Value::load_from(ptr.as_ptr()),
+                SimdU8Value::load_from(ptr.as_ptr().add(32)),
+            ],
         }
     }
 
@@ -458,14 +459,15 @@ impl SimdInput {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn check_block(&self, state: &mut Utf8CheckingState<SimdU8Value>) {
-        Utf8CheckingState::<SimdU8Value>::check_bytes(self.v0, state);
-        Utf8CheckingState::<SimdU8Value>::check_bytes(self.v1, state);
+        for i in 0..self.vals.len() {
+            Utf8CheckingState::<SimdU8Value>::check_bytes(self.vals[i], state);
+        }
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn is_ascii(&self) -> bool {
-        self.v0.or(self.v1).is_ascii()
+        self.vals[0].or(self.vals[1]).is_ascii()
     }
 
     #[target_feature(enable = "avx2")]
