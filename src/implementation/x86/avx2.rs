@@ -161,6 +161,12 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
+    unsafe fn saturating_sub(&self, b: Self) -> Self {
+        Self::from(_mm256_subs_epu8(self.0, b.0))
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
     unsafe fn any_bit_set(&self) -> bool {
         _mm256_testz_si256(self.0, self.0) != 1
     }
@@ -199,9 +205,8 @@ impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn is_incomplete(input: __m256i) -> __m256i {
-        _mm256_subs_epu8(
-            input,
-            SimdU8Value::from_32_align_end(
+        SimdU8Value::from(input)
+            .saturating_sub(SimdU8Value::from_32_align_end(
                 0xff_u8,
                 0xff_u8,
                 0xff_u8,
@@ -234,9 +239,8 @@ impl Utf8CheckingState<__m256i> {
                 0b1111_0000_u8 - 1,
                 0b1110_0000_u8 - 1,
                 0b1100_0000_u8 - 1,
-            )
-            .0,
-        )
+            ))
+            .0
     }
 
     #[target_feature(enable = "avx2")]
@@ -347,14 +351,10 @@ impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: __m256i, prev3: __m256i) -> __m256i {
-        let is_third_byte = SimdU8Value::from(_mm256_subs_epu8(
-            prev2,
-            SimdU8Value::broadcast(0b1110_0000_u8 - 1).0,
-        ));
-        let is_fourth_byte = SimdU8Value::from(_mm256_subs_epu8(
-            prev3,
-            SimdU8Value::broadcast(0b1111_0000_u8 - 1).0,
-        ));
+        let is_third_byte =
+            SimdU8Value::from(prev2).saturating_sub(SimdU8Value::broadcast(0b1110_0000_u8 - 1));
+        let is_fourth_byte =
+            SimdU8Value::from(prev3).saturating_sub(SimdU8Value::broadcast(0b1111_0000_u8 - 1));
         _mm256_cmpgt_epi8(
             is_third_byte.or(is_fourth_byte).0,
             SimdU8Value::broadcast0().0,
