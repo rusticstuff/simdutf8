@@ -420,7 +420,7 @@ impl Utf8CheckingState<SimdU8Value> {
     #[inline]
     unsafe fn check_utf8(&mut self, input: &SimdInput) {
         if likely!(input.is_ascii()) {
-            self.error = Utf8CheckingState::<SimdU8Value>::check_eof(self.error, self.incomplete)
+            self.error = Self::check_eof(self.error, self.incomplete)
         } else {
             input.check_block(self);
         }
