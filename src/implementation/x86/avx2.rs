@@ -126,6 +126,20 @@ impl SimdU8Value {
             self.0,
         ))
     }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    #[allow(clippy::clippy::clippy::cast_possible_wrap)]
+    unsafe fn broadcast(val: u8) -> Self {
+        Self::from(_mm256_set1_epi8(val as i8))
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    #[allow(clippy::clippy::clippy::cast_possible_wrap)]
+    unsafe fn broadcast0() -> Self {
+        Self::from(_mm256_setzero_si256())
+    }
 }
 
 impl From<__m256i> for SimdU8Value {
@@ -140,9 +154,9 @@ impl Utf8CheckingState<__m256i> {
     #[inline]
     unsafe fn default() -> Self {
         Self {
-            prev: _mm256_setzero_si256(),
-            incomplete: _mm256_setzero_si256(),
-            error: _mm256_setzero_si256(),
+            prev: SimdU8Value::broadcast0().0,
+            incomplete: SimdU8Value::broadcast0().0,
+            error: SimdU8Value::broadcast0().0,
         }
     }
 
@@ -224,7 +238,7 @@ impl Utf8CheckingState<__m256i> {
 
         let byte_1_high: __m256i = SimdU8Value::from(_mm256_and_si256(
             _mm256_srli_epi16(prev1, 4),
-            _mm256_set1_epi8(static_cast_i8!(0xFF_u8 >> 4)),
+            SimdU8Value::broadcast(0xFF_u8 >> 4).0,
         ))
         .lookup_16(
             TOO_LONG,
@@ -247,7 +261,7 @@ impl Utf8CheckingState<__m256i> {
         .0;
 
         let byte_1_low: __m256i =
-            SimdU8Value::from(_mm256_and_si256(prev1, _mm256_set1_epi8(0x0F)))
+            SimdU8Value::from(_mm256_and_si256(prev1, SimdU8Value::broadcast(0x0F).0))
                 .lookup_16(
                     CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
                     CARRY | OVERLONG_2,
@@ -270,7 +284,7 @@ impl Utf8CheckingState<__m256i> {
 
         let byte_2_high: __m256i = SimdU8Value::from(_mm256_and_si256(
             _mm256_srli_epi16(input, 4),
-            _mm256_set1_epi8(static_cast_i8!(0xFF_u8 >> 4)),
+            SimdU8Value::broadcast(0xFF_u8 >> 4).0,
         ))
         .lookup_16(
             TOO_SHORT,
@@ -305,20 +319,18 @@ impl Utf8CheckingState<__m256i> {
         let prev2 = _mm256_alignr_epi8(input, _mm256_permute2x128_si256(prev, input, 0x21), 16 - 2);
         let prev3 = _mm256_alignr_epi8(input, _mm256_permute2x128_si256(prev, input, 0x21), 16 - 3);
         let must23 = Self::must_be_2_3_continuation(prev2, prev3);
-        let must23_80 = _mm256_and_si256(must23, _mm256_set1_epi8(static_cast_i8!(0x80_u8)));
+        let must23_80 = _mm256_and_si256(must23, SimdU8Value::broadcast(0x80_u8).0);
         _mm256_xor_si256(must23_80, special_cases)
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: __m256i, prev3: __m256i) -> __m256i {
-        let is_third_byte =
-            _mm256_subs_epu8(prev2, _mm256_set1_epi8(static_cast_i8!(0b1110_0000_u8 - 1)));
-        let is_fourth_byte =
-            _mm256_subs_epu8(prev3, _mm256_set1_epi8(static_cast_i8!(0b1111_0000_u8 - 1)));
+        let is_third_byte = _mm256_subs_epu8(prev2, SimdU8Value::broadcast(0b1110_0000_u8 - 1).0);
+        let is_fourth_byte = _mm256_subs_epu8(prev3, SimdU8Value::broadcast(0b1111_0000_u8 - 1).0);
         _mm256_cmpgt_epi8(
             _mm256_or_si256(is_third_byte, is_fourth_byte),
-            _mm256_set1_epi8(0),
+            SimdU8Value::broadcast0().0,
         )
     }
 
