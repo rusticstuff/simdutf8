@@ -414,8 +414,8 @@ impl Utf8CheckingState<SimdU8Value> {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn has_error(error: SimdU8Value) -> bool {
-        error.any_bit_set()
+    unsafe fn has_error(&self) -> bool {
+        self.error.any_bit_set()
     }
 
     #[target_feature(enable = "avx2")]
@@ -464,12 +464,6 @@ impl SimdInput {
     #[inline]
     unsafe fn is_ascii(&self) -> bool {
         self.vals[0].or(self.vals[1]).is_ascii()
-    }
-
-    #[target_feature(enable = "avx2")]
-    #[inline]
-    unsafe fn check_utf8_errors(state: &Utf8CheckingState<SimdU8Value>) -> bool {
-        Utf8CheckingState::<SimdU8Value>::has_error(state.error)
     }
 
     #[target_feature(enable = "avx2")]

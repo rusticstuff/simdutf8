@@ -58,7 +58,7 @@ macro_rules! validate_utf8_basic_simd {
                 state.check_utf8(&input);
             }
             state.check_eof();
-            if unlikely!(SimdInput::check_utf8_errors(&state)) {
+            if unlikely!(state.has_error()) {
                 Err(crate::basic::Utf8Error {})
             } else {
                 Ok(())
@@ -109,7 +109,7 @@ macro_rules! validate_utf8_compat_simd {
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     state.check_utf8(&simd_input);
-                    if SimdInput::check_utf8_errors(&state) {
+                    if state.has_error() {
                         return Err(idx);
                     }
                     idx += to_copy;
@@ -121,7 +121,7 @@ macro_rules! validate_utf8_compat_simd {
             while idx < iter_lim {
                 let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                 state.check_utf8(&simd_input);
-                if SimdInput::check_utf8_errors(&state) {
+                if state.has_error() {
                     return Err(idx);
                 }
                 idx += SIMD_CHUNK_SIZE;
@@ -137,7 +137,7 @@ macro_rules! validate_utf8_compat_simd {
                 state.check_utf8(&simd_input);
             }
             state.check_eof();
-            if unlikely!(SimdInput::check_utf8_errors(&state)) {
+            if unlikely!(state.has_error()) {
                 Err(idx)
             } else {
                 Ok(())

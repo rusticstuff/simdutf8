@@ -399,8 +399,8 @@ impl Utf8CheckingState<SimdU8Value> {
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn has_error(error: SimdU8Value) -> bool {
-        error.any_bit_set()
+    unsafe fn has_error(&self) -> bool {
+        self.error.any_bit_set()
     }
 
     #[target_feature(enable = "sse4.2")]
@@ -462,12 +462,6 @@ impl SimdInput {
         let r2 = self.vals[2].or(self.vals[3]);
         let r = r1.or(r2);
         r.is_ascii()
-    }
-
-    #[target_feature(enable = "sse4.2")]
-    #[inline]
-    unsafe fn check_utf8_errors(state: &Utf8CheckingState<SimdU8Value>) -> bool {
-        Utf8CheckingState::<SimdU8Value>::has_error(state.error)
     }
 }
 
