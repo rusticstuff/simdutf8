@@ -19,7 +19,7 @@ macro_rules! check_bytes {
     ($feat:expr, $t:ident) => {
         #[target_feature(enable = $feat)]
         #[inline]
-        unsafe fn check_bytes(current: $t, previous: &mut Utf8CheckingState<$t>) {
+        unsafe fn check_bytes(current: $t, previous: &mut Self) {
             let prev1 = Self::prev1(current, previous.prev);
             let sc = Self::check_special_cases(current, prev1);
             previous.error = Self::or(
@@ -31,6 +31,8 @@ macro_rules! check_bytes {
         }
     };
 }
+
+/// Macros requires newtypes in scope: `SimdInput` with holds 64 bytes of SIMD input
 
 /// validate_utf8_basic_simd() strategy and wrapper
 macro_rules! validate_utf8_basic_simd {
