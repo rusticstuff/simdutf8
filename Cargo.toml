@@ -10,7 +10,7 @@ repository = "https://github.com/rusticstuff/simdutf8"
 readme = "README.md"
 keywords = ["utf-8", "unicode", "string", "validation", "simd"]
 categories = ["encoding", "algorithms", "no-std"]
-license = "Apache-2.0"
+license = "MIT OR Apache-2.0"
 exclude = ["/.github", "/.vscode", "/bench", "/afl", "/fuzz", "/img", "expected-methods-*.txt"]
 
 [features]

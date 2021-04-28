@@ -3,7 +3,7 @@ name = "simdutf8-afl"
 version = "0.0.1"
 authors = ["Hans Kratz <hans@appfour.com>"]
 edition = "2018"
-license = "Apache-2.0"
+license = "MIT OR Apache-2.0"
 publish = false
 
 [dependencies]

@@ -7,7 +7,7 @@ description = "simdutf8 benchmark package"
 documentation = "https://docs.rs/simdutf8/"
 homepage = "https://github.com/rusticstuff/simdutf8"
 repository = "https://github.com/rusticstuff/simdutf8"
-license = "Apache-2.0"
+license = "MIT OR Apache-2.0"
 
 [features]
 simdjson = [ "simdjson-utf8" ]
