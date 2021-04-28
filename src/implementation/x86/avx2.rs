@@ -475,6 +475,6 @@ impl SimdInput {
     }
 }
 
-use crate::implementation::algorithm::Temp2xSimdChunkA32;
-validate_utf8_basic_simd!("avx2", Temp2xSimdChunkA32);
-validate_utf8_compat_simd!("avx2", Temp2xSimdChunkA32);
+use crate::implementation::algorithm::Temp2xSimdChunkA32 as Temp2xSimdChunk;
+validate_utf8_basic_simd!("avx2");
+validate_utf8_compat_simd!("avx2");

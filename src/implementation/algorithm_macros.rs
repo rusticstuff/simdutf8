@@ -2,7 +2,7 @@
 
 /// validate_utf8_basic_simd() strategy and wrapper
 macro_rules! validate_utf8_basic_simd {
-    ($feat:expr, $buf2type:ident) => {
+    ($feat:expr) => {
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
@@ -21,9 +21,9 @@ macro_rules! validate_utf8_basic_simd {
             let len = input.len();
             let mut state = Utf8CheckingState::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let mut tmpbuf = $buf2type::new();
+            let mut tmpbuf = Temp2xSimdChunk::new();
 
-            let align: usize = core::mem::align_of::<$buf2type>();
+            let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
             if len >= 4096 {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
@@ -69,7 +69,7 @@ macro_rules! validate_utf8_basic_simd {
 
 /// validate_utf8_compat_simd() strategy and wrapper
 macro_rules! validate_utf8_compat_simd {
-    ($feat:expr, $buf2type:ident) => {
+    ($feat:expr) => {
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
@@ -95,9 +95,9 @@ macro_rules! validate_utf8_compat_simd {
             let len = input.len();
             let mut state = Utf8CheckingState::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let mut tmpbuf = $buf2type::new();
+            let mut tmpbuf = Temp2xSimdChunk::new();
 
-            let align: usize = core::mem::align_of::<$buf2type>();
+            let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
             if len >= 4096 {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
