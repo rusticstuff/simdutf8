@@ -116,4 +116,10 @@ pub mod imp {
             pub use crate::implementation::x86::sse42::validate_utf8_compat as validate_utf8;
         }
     }
+
+    /// Includes the aarch64 SIMD implementations.
+    #[cfg(target_arch = "aarch64")]
+    pub mod aarch64 {
+        pub use crate::implementation::aarch64::validate_utf8_compat as validate_utf8;
+    }
 }
