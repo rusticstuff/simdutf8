@@ -219,6 +219,12 @@ impl SimdU8Value {
     unsafe fn any_bit_set(self) -> bool {
         _mm256_testz_si256(self.0, self.0) != 1
     }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn is_ascii(self) -> bool {
+        _mm256_movemask_epi8(self.0) == 0
+    }
 }
 
 impl From<__m256i> for SimdU8Value {
@@ -449,8 +455,9 @@ impl SimdInput {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn is_ascii(&self) -> bool {
-        let res = SimdU8Value::from(self.v0).or(SimdU8Value::from(self.v1)).0;
-        _mm256_movemask_epi8(res) == 0
+        SimdU8Value::from(self.v0)
+            .or(SimdU8Value::from(self.v1))
+            .is_ascii()
     }
 
     #[target_feature(enable = "avx2")]
