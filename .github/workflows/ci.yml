@@ -124,6 +124,19 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
+  fmt_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            profile: minimal
+            components: fmt
+            override: true
+      - name: Checko formatting
+        run: cargo fmt -- --check
+
   clippy_check:
     runs-on: ubuntu-latest
     steps:
