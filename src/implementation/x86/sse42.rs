@@ -18,6 +18,8 @@ use core::arch::x86_64::{
 
 use crate::implementation::algorithm::Utf8CheckingState;
 
+// SSE 4.2 2 SIMD primitives
+
 type SimdU8Value = crate::implementation::algorithm::SimdU8Value<__m128i>;
 
 impl SimdU8Value {
