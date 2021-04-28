@@ -100,7 +100,7 @@ impl SimdU8Value {
     #[inline]
     #[allow(clippy::too_many_arguments)]
     unsafe fn lookup_16(
-        &self,
+        self,
         v0: u8,
         v1: u8,
         v2: u8,
@@ -143,32 +143,32 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn or(&self, b: Self) -> Self {
+    unsafe fn or(self, b: Self) -> Self {
         Self::from(_mm256_or_si256(self.0, b.0))
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn and(&self, b: Self) -> Self {
+    unsafe fn and(self, b: Self) -> Self {
         Self::from(_mm256_and_si256(self.0, b.0))
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn xor(&self, b: Self) -> Self {
+    unsafe fn xor(self, b: Self) -> Self {
         Self::from(_mm256_xor_si256(self.0, b.0))
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn saturating_sub(&self, b: Self) -> Self {
+    unsafe fn saturating_sub(self, b: Self) -> Self {
         Self::from(_mm256_subs_epu8(self.0, b.0))
     }
 
     #[target_feature(enable = "avx2")]
     #[allow(clippy::cast_lossless)]
     #[inline]
-    unsafe fn shr(&self, val: u8) -> Self {
+    unsafe fn shr(self, val: u8) -> Self {
         Self::from(_mm256_srli_epi16(self.0, val as i32)).and(Self::broadcast(0xFF_u8 >> val))
     }
 
@@ -176,7 +176,7 @@ impl SimdU8Value {
     #[target_feature(enable = "avx2")]
     #[allow(clippy::cast_lossless)]
     #[inline]
-    unsafe fn prev1(&self, prev: &Self) -> Self {
+    unsafe fn prev1(self, prev: Self) -> Self {
         Self::from(_mm256_alignr_epi8(
             self.0,
             _mm256_permute2x128_si256(prev.0, self.0, 0x21),
@@ -188,7 +188,7 @@ impl SimdU8Value {
     #[target_feature(enable = "avx2")]
     #[allow(clippy::cast_lossless)]
     #[inline]
-    unsafe fn prev2(&self, prev: &Self) -> Self {
+    unsafe fn prev2(self, prev: Self) -> Self {
         Self::from(_mm256_alignr_epi8(
             self.0,
             _mm256_permute2x128_si256(prev.0, self.0, 0x21),
@@ -200,7 +200,7 @@ impl SimdU8Value {
     #[target_feature(enable = "avx2")]
     #[allow(clippy::cast_lossless)]
     #[inline]
-    unsafe fn prev3(&self, prev: &Self) -> Self {
+    unsafe fn prev3(self, prev: Self) -> Self {
         Self::from(_mm256_alignr_epi8(
             self.0,
             _mm256_permute2x128_si256(prev.0, self.0, 0x21),
@@ -216,7 +216,7 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn any_bit_set(&self) -> bool {
+    unsafe fn any_bit_set(self) -> bool {
         _mm256_testz_si256(self.0, self.0) != 1
     }
 }
@@ -295,7 +295,7 @@ impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn prev1(input: __m256i, prev: __m256i) -> __m256i {
-        SimdU8Value::from(input).prev1(&SimdU8Value::from(prev)).0
+        SimdU8Value::from(input).prev1(SimdU8Value::from(prev)).0
     }
 
     #[target_feature(enable = "avx2")]
@@ -382,8 +382,8 @@ impl Utf8CheckingState<__m256i> {
         prev: __m256i,
         special_cases: __m256i,
     ) -> __m256i {
-        let prev2 = SimdU8Value::from(input).prev2(&SimdU8Value::from(prev)).0;
-        let prev3 = SimdU8Value::from(input).prev3(&SimdU8Value::from(prev)).0;
+        let prev2 = SimdU8Value::from(input).prev2(SimdU8Value::from(prev)).0;
+        let prev3 = SimdU8Value::from(input).prev3(SimdU8Value::from(prev)).0;
         let must23 = Self::must_be_2_3_continuation(prev2, prev3);
         let must23_80 = SimdU8Value::from(must23)
             .and(SimdU8Value::broadcast(0x80_u8))
