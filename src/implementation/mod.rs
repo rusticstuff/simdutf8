@@ -18,7 +18,6 @@ type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompa
 // arch-specific functions
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-#[macro_use]
 pub(crate) mod x86;
 
 /// Fn needed instead of re-import, otherwise not inlined in non-std case
