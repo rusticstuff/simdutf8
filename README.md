@@ -138,10 +138,10 @@ Care is taken that all functions are properly inlined up to the public interface
 
 
 ## License
-This code is made available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
+This code is dual-licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) and the [MIT License](https://opensource.org/licenses/MIT).
 
 It is based on code distributed with simd-json.rs, the Rust port of simdjson, which is dual-licensed under
-the MIT license and Apache 2.0 license.
+the MIT license and Apache 2.0 license as well.
 
 simdjson itself is distributed under the Apache License 2.0.
 
