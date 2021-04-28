@@ -13,6 +13,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(target_arch = "aarch64", feature(stdsimd))]
+#![cfg_attr(target_arch = "aarch64", feature(aarch64_target_feature))]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
 //! [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of
