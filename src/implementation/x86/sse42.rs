@@ -25,7 +25,7 @@ impl SimdU8Value {
     #[inline]
     #[allow(clippy::too_many_arguments)]
     #[allow(clippy::cast_possible_wrap)]
-    unsafe fn from_32_align_end(
+    unsafe fn from_32_cut_off_leading(
         _v0: u8,
         _v1: u8,
         _v2: u8,

@@ -32,7 +32,7 @@ macro_rules! algorithm_simd {
             #[target_feature(enable = $feat)]
             #[inline]
             unsafe fn is_incomplete(input: SimdU8Value) -> SimdU8Value {
-                input.saturating_sub(SimdU8Value::from_32_align_end(
+                input.saturating_sub(SimdU8Value::from_32_cut_off_leading(
                     0xff,
                     0xff,
                     0xff,
