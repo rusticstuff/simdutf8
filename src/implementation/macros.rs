@@ -122,7 +122,7 @@ macro_rules! validate_utf8_basic_simd {
                 crate::implementation::memcpy_unaligned_nonoverlapping_inline(
                     input.as_ptr().add(idx),
                     tmpbuf.1.as_mut_ptr(),
-                    len as usize - idx,
+                    len - idx,
                 );
                 let input = SimdInput::new(&tmpbuf.1);
 
@@ -201,7 +201,7 @@ macro_rules! validate_utf8_compat_simd {
                 crate::implementation::memcpy_unaligned_nonoverlapping_inline(
                     input.as_ptr().add(idx),
                     tmpbuf.1.as_mut_ptr(),
-                    len as usize - idx,
+                    len - idx,
                 );
                 let simd_input = SimdInput::new(&tmpbuf.1);
 
