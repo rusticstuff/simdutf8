@@ -172,6 +172,19 @@ impl SimdU8Value {
         Self::from(_mm256_srli_epi16(self.0, val as i32)).and(Self::broadcast(0xFF_u8 >> val))
     }
 
+    // ugly but prev<N> requires const generics
+    #[target_feature(enable = "avx2")]
+    #[allow(clippy::cast_lossless)]
+    #[inline]
+    unsafe fn prev1(&self, prev: &Self) -> Self {
+        Self::from(_mm256_alignr_epi8(
+            self.0,
+            _mm256_permute2x128_si256(prev.0, self.0, 0x21),
+            16 - 1,
+        ))
+    }
+
+    // ugly but prev<N> requires const generics
     #[target_feature(enable = "avx2")]
     #[allow(clippy::cast_lossless)]
     #[inline]
@@ -183,6 +196,7 @@ impl SimdU8Value {
         ))
     }
 
+    // ugly but prev<N> requires const generics
     #[target_feature(enable = "avx2")]
     #[allow(clippy::cast_lossless)]
     #[inline]
@@ -275,7 +289,7 @@ impl Utf8CheckingState<__m256i> {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn prev1(input: __m256i, prev: __m256i) -> __m256i {
-        _mm256_alignr_epi8(input, _mm256_permute2x128_si256(prev, input, 0x21), 16 - 1)
+        SimdU8Value::from(input).prev1(&SimdU8Value::from(prev)).0
     }
 
     #[target_feature(enable = "avx2")]
