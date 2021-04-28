@@ -100,3 +100,5 @@ impl Temp2xSimdChunkA32 {
         Self([0; SIMD_CHUNK_SIZE], [0; SIMD_CHUNK_SIZE])
     }
 }
+
+pub(crate) struct SimdU8Value<T>(pub(crate) T);
