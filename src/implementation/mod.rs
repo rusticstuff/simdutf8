@@ -7,6 +7,10 @@ type Utf8ErrorBasic = crate::basic::Utf8Error;
 #[macro_use]
 mod macros;
 
+#[allow(unused_macros)]
+#[macro_use]
+mod algorithm_macros;
+
 // UTF-8 validation function types
 
 #[allow(dead_code)]
