@@ -29,10 +29,3 @@ macro_rules! unlikely {
         $e
     };
 }
-
-/// static cast to an i8
-macro_rules! static_cast_i8 {
-    ($v:expr) => {
-        $v as i8
-    };
-}
