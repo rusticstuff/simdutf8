@@ -17,7 +17,7 @@ use core::arch::x86_64::{
     _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use crate::implementation::Utf8CheckingState;
+use crate::implementation::algorithm::Utf8CheckingState;
 use core::mem;
 
 impl Utf8CheckingState<__m256i> {
@@ -321,6 +321,6 @@ impl SimdInput {
     check_utf8!("avx2", __m256i);
 }
 
-use crate::implementation::Temp2xSimdChunkA32;
+use crate::implementation::algorithm::Temp2xSimdChunkA32;
 validate_utf8_basic_simd!("avx2", Temp2xSimdChunkA32);
 validate_utf8_compat_simd!("avx2", Temp2xSimdChunkA32);

@@ -16,7 +16,7 @@ use core::arch::x86_64::{
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use crate::implementation::Utf8CheckingState;
+use crate::implementation::algorithm::Utf8CheckingState;
 use core::mem;
 
 impl Utf8CheckingState<__m128i> {
@@ -262,6 +262,6 @@ impl SimdInput {
     check_utf8!("sse4.2", __m128i);
 }
 
-use crate::implementation::Temp2xSimdChunkA16;
+use crate::implementation::algorithm::Temp2xSimdChunkA16;
 validate_utf8_basic_simd!("sse4.2", Temp2xSimdChunkA16);
 validate_utf8_compat_simd!("sse4.2", Temp2xSimdChunkA16);

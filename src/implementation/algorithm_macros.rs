@@ -49,7 +49,7 @@ macro_rules! validate_utf8_basic_simd {
         pub unsafe fn validate_utf8_basic(
             input: &[u8],
         ) -> core::result::Result<(), crate::basic::Utf8Error> {
-            use crate::implementation::SIMD_CHUNK_SIZE;
+            use crate::implementation::algorithm::SIMD_CHUNK_SIZE;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
             let mut idx: usize = 0;
@@ -60,7 +60,7 @@ macro_rules! validate_utf8_basic_simd {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
                     let to_copy = align - off;
-                    crate::implementation::memcpy_unaligned_nonoverlapping_inline(
+                    crate::implementation::algorithm::memcpy_unaligned_nonoverlapping_inline(
                         input.as_ptr(),
                         tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
                         to_copy,
@@ -80,7 +80,7 @@ macro_rules! validate_utf8_basic_simd {
             }
 
             if idx < len {
-                crate::implementation::memcpy_unaligned_nonoverlapping_inline(
+                crate::implementation::algorithm::memcpy_unaligned_nonoverlapping_inline(
                     input.as_ptr().add(idx),
                     tmpbuf.1.as_mut_ptr(),
                     len - idx,
@@ -117,13 +117,13 @@ macro_rules! validate_utf8_compat_simd {
             input: &[u8],
         ) -> core::result::Result<(), crate::compat::Utf8Error> {
             validate_utf8_compat_simd0(input)
-                .map_err(|idx| crate::implementation::get_compat_error(input, idx))
+                .map_err(|idx| crate::implementation::algorithm::get_compat_error(input, idx))
         }
 
         #[target_feature(enable = $feat)]
         #[inline]
         unsafe fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
-            use crate::implementation::SIMD_CHUNK_SIZE;
+            use crate::implementation::algorithm::SIMD_CHUNK_SIZE;
             let len = input.len();
             let mut state = SimdInput::new_utf8_checking_state();
             let mut idx: usize = 0;
@@ -134,7 +134,7 @@ macro_rules! validate_utf8_compat_simd {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
                     let to_copy = align - off;
-                    crate::implementation::memcpy_unaligned_nonoverlapping_inline(
+                    crate::implementation::algorithm::memcpy_unaligned_nonoverlapping_inline(
                         input.as_ptr(),
                         tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
                         to_copy,
@@ -159,7 +159,7 @@ macro_rules! validate_utf8_compat_simd {
                 idx += SIMD_CHUNK_SIZE;
             }
             if idx < len {
-                crate::implementation::memcpy_unaligned_nonoverlapping_inline(
+                crate::implementation::algorithm::memcpy_unaligned_nonoverlapping_inline(
                     input.as_ptr().add(idx),
                     tmpbuf.1.as_mut_ptr(),
                     len - idx,
