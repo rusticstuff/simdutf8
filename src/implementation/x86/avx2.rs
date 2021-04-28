@@ -263,8 +263,8 @@ impl Utf8CheckingState<SimdU8Value> {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn check_eof(error: SimdU8Value, incomplete: SimdU8Value) -> SimdU8Value {
-        error.or(incomplete)
+    unsafe fn check_eof(&mut self) {
+        self.error = self.error.or(self.incomplete)
     }
 
     #[target_feature(enable = "avx2")]
@@ -435,7 +435,7 @@ impl Utf8CheckingState<SimdU8Value> {
     #[inline]
     unsafe fn check_utf8(&mut self, input: &SimdInput) {
         if likely!(input.is_ascii()) {
-            self.error = Self::check_eof(self.error, self.incomplete)
+            self.check_eof();
         } else {
             input.check_block(self);
         }
@@ -462,8 +462,14 @@ impl SimdInput {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn new_utf8_checking_state() -> Utf8CheckingState<SimdU8Value> {
-        Utf8CheckingState::<SimdU8Value>::default()
+    unsafe fn is_ascii(&self) -> bool {
+        self.vals[0].or(self.vals[1]).is_ascii()
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn check_utf8_errors(state: &Utf8CheckingState<SimdU8Value>) -> bool {
+        Utf8CheckingState::<SimdU8Value>::has_error(state.error)
     }
 
     #[target_feature(enable = "avx2")]
@@ -472,24 +478,6 @@ impl SimdInput {
         for i in 0..self.vals.len() {
             Utf8CheckingState::<SimdU8Value>::check_bytes(self.vals[i], state);
         }
-    }
-
-    #[target_feature(enable = "avx2")]
-    #[inline]
-    unsafe fn is_ascii(&self) -> bool {
-        self.vals[0].or(self.vals[1]).is_ascii()
-    }
-
-    #[target_feature(enable = "avx2")]
-    #[inline]
-    unsafe fn check_eof(state: &mut Utf8CheckingState<SimdU8Value>) {
-        state.error = Utf8CheckingState::<SimdU8Value>::check_eof(state.error, state.incomplete);
-    }
-
-    #[target_feature(enable = "avx2")]
-    #[inline]
-    unsafe fn check_utf8_errors(state: &Utf8CheckingState<SimdU8Value>) -> bool {
-        Utf8CheckingState::<SimdU8Value>::has_error(state.error)
     }
 }
 

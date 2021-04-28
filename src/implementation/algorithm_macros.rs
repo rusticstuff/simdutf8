@@ -19,7 +19,7 @@ macro_rules! validate_utf8_basic_simd {
         ) -> core::result::Result<(), crate::basic::Utf8Error> {
             use crate::implementation::algorithm::SIMD_CHUNK_SIZE;
             let len = input.len();
-            let mut state = SimdInput::new_utf8_checking_state();
+            let mut state = Utf8CheckingState::<SimdU8Value>::default();
             let mut idx: usize = 0;
             let mut tmpbuf = $buf2type::new();
 
@@ -57,7 +57,7 @@ macro_rules! validate_utf8_basic_simd {
 
                 state.check_utf8(&input);
             }
-            SimdInput::check_eof(&mut state);
+            state.check_eof();
             if unlikely!(SimdInput::check_utf8_errors(&state)) {
                 Err(crate::basic::Utf8Error {})
             } else {
@@ -93,7 +93,7 @@ macro_rules! validate_utf8_compat_simd {
         unsafe fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
             use crate::implementation::algorithm::SIMD_CHUNK_SIZE;
             let len = input.len();
-            let mut state = SimdInput::new_utf8_checking_state();
+            let mut state = Utf8CheckingState::<SimdU8Value>::default();
             let mut idx: usize = 0;
             let mut tmpbuf = $buf2type::new();
 
@@ -136,7 +136,7 @@ macro_rules! validate_utf8_compat_simd {
 
                 state.check_utf8(&simd_input);
             }
-            SimdInput::check_eof(&mut state);
+            state.check_eof();
             if unlikely!(SimdInput::check_utf8_errors(&state)) {
                 Err(idx)
             } else {
