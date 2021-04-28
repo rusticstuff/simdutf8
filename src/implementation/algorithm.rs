@@ -352,3 +352,66 @@ macro_rules! algorithm_simd {
         }
     };
 }
+
+macro_rules! simd_input_128_bit {
+    ($feat:expr) => {
+        #[repr(C)]
+        struct SimdInput {
+            vals: [SimdU8Value; 4],
+        }
+
+        impl SimdInput {
+            #[target_feature(enable = $feat)]
+            #[inline]
+            #[allow(clippy::cast_ptr_alignment)]
+            unsafe fn new(ptr: &[u8]) -> Self {
+                Self {
+                    vals: [
+                        SimdU8Value::load_from(ptr.as_ptr()),
+                        SimdU8Value::load_from(ptr.as_ptr().add(16)),
+                        SimdU8Value::load_from(ptr.as_ptr().add(32)),
+                        SimdU8Value::load_from(ptr.as_ptr().add(48)),
+                    ],
+                }
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn is_ascii(&self) -> bool {
+                let r1 = self.vals[0].or(self.vals[1]);
+                let r2 = self.vals[2].or(self.vals[3]);
+                let r = r1.or(r2);
+                r.is_ascii()
+            }
+        }
+    };
+}
+
+macro_rules! simd_input_256_bit {
+    ($feat:expr) => {
+        #[repr(C)]
+        struct SimdInput {
+            vals: [SimdU8Value; 2],
+        }
+
+        impl SimdInput {
+            #[target_feature(enable = $feat)]
+            #[inline]
+            #[allow(clippy::cast_ptr_alignment)]
+            unsafe fn new(ptr: &[u8]) -> Self {
+                Self {
+                    vals: [
+                        SimdU8Value::load_from(ptr.as_ptr()),
+                        SimdU8Value::load_from(ptr.as_ptr().add(32)),
+                    ],
+                }
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn is_ascii(&self) -> bool {
+                self.vals[0].or(self.vals[1]).is_ascii()
+            }
+        }
+    };
+}

@@ -244,30 +244,6 @@ impl From<__m256i> for SimdU8Value {
     }
 }
 
-#[repr(C)]
-struct SimdInput {
-    vals: [SimdU8Value; 2],
-}
-
-impl SimdInput {
-    #[target_feature(enable = "avx2")]
-    #[inline]
-    #[allow(clippy::cast_ptr_alignment)]
-    unsafe fn new(ptr: &[u8]) -> Self {
-        Self {
-            vals: [
-                SimdU8Value::load_from(ptr.as_ptr()),
-                SimdU8Value::load_from(ptr.as_ptr().add(32)),
-            ],
-        }
-    }
-
-    #[target_feature(enable = "avx2")]
-    #[inline]
-    unsafe fn is_ascii(&self) -> bool {
-        self.vals[0].or(self.vals[1]).is_ascii()
-    }
-}
-
 use crate::implementation::helpers::Temp2xSimdChunkA32 as Temp2xSimdChunk;
+simd_input_256_bit!("avx2");
 algorithm_simd!("avx2");

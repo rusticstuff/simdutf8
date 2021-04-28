@@ -229,35 +229,6 @@ impl From<__m128i> for SimdU8Value {
     }
 }
 
-#[repr(C)]
-struct SimdInput {
-    vals: [SimdU8Value; 4],
-}
-
-impl SimdInput {
-    #[target_feature(enable = "sse4.2")]
-    #[inline]
-    #[allow(clippy::cast_ptr_alignment)]
-    unsafe fn new(ptr: &[u8]) -> Self {
-        Self {
-            vals: [
-                SimdU8Value::load_from(ptr.as_ptr()),
-                SimdU8Value::load_from(ptr.as_ptr().add(16)),
-                SimdU8Value::load_from(ptr.as_ptr().add(32)),
-                SimdU8Value::load_from(ptr.as_ptr().add(48)),
-            ],
-        }
-    }
-
-    #[target_feature(enable = "sse4.2")]
-    #[inline]
-    unsafe fn is_ascii(&self) -> bool {
-        let r1 = self.vals[0].or(self.vals[1]);
-        let r2 = self.vals[2].or(self.vals[3]);
-        let r = r1.or(r2);
-        r.is_ascii()
-    }
-}
-
 use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
+simd_input_128_bit!("sse4.2");
 algorithm_simd!("sse4.2");
