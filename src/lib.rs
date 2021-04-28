@@ -66,6 +66,11 @@
 //!
 //! If you want to be able to call A SIMD implementation directly, use the `public_imp` feature flag. The validation
 //! implementations are then accessible via [`basic::imp::x86`] and [`compat::imp::x86`].
+//!
+//! ## Algorithm
+//!
+//! See Validating UTF-8 In Less Than One Instruction Per Byte, Software: Practice and Experience 51 (5), 2021
+//! <https://arxiv.org/abs/2010.03090>
 
 pub mod basic;
 pub mod compat;

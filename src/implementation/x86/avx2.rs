@@ -1,7 +1,5 @@
 //! Contains the x86-64/x86 AVX2 UTF-8 validation implementation.
-//!
-//! See Validating UTF-8 In Less Than One Instruction Per Byte, Software: Practice and Experience 51 (5), 2021
-//! <https://arxiv.org/abs/2010.03090>
+
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
     __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
