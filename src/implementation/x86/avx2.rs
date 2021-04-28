@@ -172,6 +172,7 @@ impl SimdU8Value {
         Self::from(_mm256_subs_epu8(self.0, b.0))
     }
 
+    // ugly but shr<N> requires const generics
     #[target_feature(enable = "avx2")]
     #[allow(clippy::cast_lossless)]
     #[inline]

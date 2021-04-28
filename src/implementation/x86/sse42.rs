@@ -169,6 +169,7 @@ impl SimdU8Value {
         Self::from(_mm_subs_epu8(self.0, b.0))
     }
 
+    // ugly but shr<N> requires const generics
     #[target_feature(enable = "sse4.2")]
     #[allow(clippy::cast_lossless)]
     #[inline]
