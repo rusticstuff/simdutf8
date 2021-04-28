@@ -17,11 +17,11 @@ use core::arch::x86_64::{
     _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
 };
 
-use crate::implementation::algorithm::Utf8CheckingState;
+use crate::implementation::helpers::Utf8CheckAlgorithm;
 
 // AVX 2 SIMD primitives
 
-type SimdU8Value = crate::implementation::algorithm::SimdU8Value<__m256i>;
+type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m256i>;
 
 impl SimdU8Value {
     #[target_feature(enable = "avx2")]
@@ -269,5 +269,5 @@ impl SimdInput {
     }
 }
 
-use crate::implementation::algorithm::Temp2xSimdChunkA32 as Temp2xSimdChunk;
+use crate::implementation::helpers::Temp2xSimdChunkA32 as Temp2xSimdChunk;
 algorithm_simd!("avx2");

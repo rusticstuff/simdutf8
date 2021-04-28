@@ -4,7 +4,7 @@
 <simdutf8::basic::Utf8Error as core::fmt::Display>::fmt
 <simdutf8::compat::Utf8Error as core::fmt::Debug>::fmt
 <simdutf8::compat::Utf8Error as core::fmt::Display>::fmt
-simdutf8::implementation::algorithm::get_compat_error
+simdutf8::implementation::helpers::get_compat_error
 simdutf8::implementation::validate_utf8_basic_fallback
 simdutf8::implementation::validate_utf8_compat_fallback
 simdutf8::implementation::x86::avx2::validate_utf8_basic

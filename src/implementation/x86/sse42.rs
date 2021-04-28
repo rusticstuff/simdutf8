@@ -16,11 +16,11 @@ use core::arch::x86_64::{
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
 };
 
-use crate::implementation::algorithm::Utf8CheckingState;
+use crate::implementation::helpers::Utf8CheckAlgorithm;
 
 // SSE 4.2 2 SIMD primitives
 
-type SimdU8Value = crate::implementation::algorithm::SimdU8Value<__m128i>;
+type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
 
 impl SimdU8Value {
     #[target_feature(enable = "sse4.2")]
@@ -259,5 +259,5 @@ impl SimdInput {
     }
 }
 
-use crate::implementation::algorithm::Temp2xSimdChunkA16 as Temp2xSimdChunk;
+use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
 algorithm_simd!("sse4.2");

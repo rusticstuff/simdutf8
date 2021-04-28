@@ -9,9 +9,9 @@ mod macros;
 
 #[allow(unused_macros)]
 #[macro_use]
-mod algorithm_macros;
+mod algorithm;
 
-pub(crate) mod algorithm;
+pub(crate) mod helpers;
 
 // UTF-8 validation function types
 
@@ -64,5 +64,5 @@ pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), Utf8Error
 #[inline]
 #[allow(dead_code)]
 pub(crate) fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), Utf8ErrorCompat> {
-    algorithm::validate_utf8_at_offset(input, 0)
+    helpers::validate_utf8_at_offset(input, 0)
 }
