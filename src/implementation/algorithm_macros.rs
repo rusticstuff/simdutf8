@@ -1,8 +1,220 @@
-/// Macros requires newtypes in scope: `SimdInput` with holds 64 bytes of SIMD input
+/// Macros requires newtypes in scope:
+/// `SimdU8Value` - implementation of SIMD primitives
+/// `SimdInput` - which  holds 64 bytes of SIMD input
+/// `Temp2xSimdChunk` - correctly aligned Temp2xSimdChunk, either Temp2xSimdChunkA16 or Temp2xSimdChunkA32
 
 /// validate_utf8_basic_simd() strategy and wrapper
-macro_rules! validate_utf8_basic_simd {
+macro_rules! algorithm_simd {
     ($feat:expr) => {
+        impl Utf8CheckingState<SimdU8Value> {
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn default() -> Self {
+                Self {
+                    prev: SimdU8Value::broadcast0(),
+                    incomplete: SimdU8Value::broadcast0(),
+                    error: SimdU8Value::broadcast0(),
+                }
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn or(a: SimdU8Value, b: SimdU8Value) -> SimdU8Value {
+                a.or(b)
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn check_eof(&mut self) {
+                self.error = self.error.or(self.incomplete)
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn is_incomplete(input: SimdU8Value) -> SimdU8Value {
+                input.saturating_sub(SimdU8Value::from_32_align_end(
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0xff,
+                    0b1111_0000 - 1,
+                    0b1110_0000 - 1,
+                    0b1100_0000 - 1,
+                ))
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn prev1(input: SimdU8Value, prev: SimdU8Value) -> SimdU8Value {
+                input.prev1(prev)
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            #[allow(clippy::too_many_lines)]
+            unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
+                const TOO_SHORT: u8 = 1 << 0;
+                const TOO_LONG: u8 = 1 << 1;
+                const OVERLONG_3: u8 = 1 << 2;
+                const SURROGATE: u8 = 1 << 4;
+                const OVERLONG_2: u8 = 1 << 5;
+                const TWO_CONTS: u8 = 1 << 7;
+                const TOO_LARGE: u8 = 1 << 3;
+                const TOO_LARGE_1000: u8 = 1 << 6;
+                const OVERLONG_4: u8 = 1 << 6;
+                const CARRY: u8 = TOO_SHORT | TOO_LONG | TWO_CONTS;
+
+                let byte_1_high = prev1.shr4().lookup_16(
+                    TOO_LONG,
+                    TOO_LONG,
+                    TOO_LONG,
+                    TOO_LONG,
+                    TOO_LONG,
+                    TOO_LONG,
+                    TOO_LONG,
+                    TOO_LONG,
+                    TWO_CONTS,
+                    TWO_CONTS,
+                    TWO_CONTS,
+                    TWO_CONTS,
+                    TOO_SHORT | OVERLONG_2,
+                    TOO_SHORT,
+                    TOO_SHORT | OVERLONG_3 | SURROGATE,
+                    TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
+                );
+
+                let byte_1_low = prev1.and(SimdU8Value::broadcast(0x0F)).lookup_16(
+                    CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
+                    CARRY | OVERLONG_2,
+                    CARRY,
+                    CARRY,
+                    CARRY | TOO_LARGE,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000 | SURROGATE,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                    CARRY | TOO_LARGE | TOO_LARGE_1000,
+                );
+
+                let byte_2_high = input.shr4().lookup_16(
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE_1000 | OVERLONG_4,
+                    TOO_LONG | OVERLONG_2 | TWO_CONTS | OVERLONG_3 | TOO_LARGE,
+                    TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
+                    TOO_LONG | OVERLONG_2 | TWO_CONTS | SURROGATE | TOO_LARGE,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                    TOO_SHORT,
+                );
+
+                byte_1_high.and(byte_1_low).and(byte_2_high)
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn check_multibyte_lengths(
+                input: SimdU8Value,
+                prev: SimdU8Value,
+                special_cases: SimdU8Value,
+            ) -> SimdU8Value {
+                let prev2 = input.prev2(prev);
+                let prev3 = input.prev3(prev);
+                let must23 = Self::must_be_2_3_continuation(prev2, prev3);
+                let must23_80 = must23.and(SimdU8Value::broadcast(0x80));
+                must23_80.xor(special_cases)
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn must_be_2_3_continuation(
+                prev2: SimdU8Value,
+                prev3: SimdU8Value,
+            ) -> SimdU8Value {
+                let is_third_byte = prev2.saturating_sub(SimdU8Value::broadcast(0b1110_0000 - 1));
+                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::broadcast(0b1111_0000 - 1));
+
+                is_third_byte
+                    .or(is_fourth_byte)
+                    .gt(SimdU8Value::broadcast0())
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn has_error(&self) -> bool {
+                self.error.any_bit_set()
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn check_bytes(current: SimdU8Value, previous: &mut Self) {
+                let prev1 = Self::prev1(current, previous.prev);
+                let sc = Self::check_special_cases(current, prev1);
+                previous.error = Self::or(
+                    previous.error,
+                    Self::check_multibyte_lengths(current, previous.prev, sc),
+                );
+                previous.incomplete = Self::is_incomplete(current);
+                previous.prev = current
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn check_utf8(&mut self, input: &SimdInput) {
+                if likely!(input.is_ascii()) {
+                    self.check_eof();
+                } else {
+                    self.check_block(input);
+                }
+            }
+
+            #[target_feature(enable = $feat)]
+            #[inline]
+            unsafe fn check_block(&mut self, input: &SimdInput) {
+                for i in 0..input.vals.len() {
+                    Self::check_bytes(input.vals[i], self);
+                }
+            }
+        }
+
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
@@ -64,12 +276,7 @@ macro_rules! validate_utf8_basic_simd {
                 Ok(())
             }
         }
-    };
-}
 
-/// validate_utf8_compat_simd() strategy and wrapper
-macro_rules! validate_utf8_compat_simd {
-    ($feat:expr) => {
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
