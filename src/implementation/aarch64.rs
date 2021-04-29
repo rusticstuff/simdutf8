@@ -1,8 +1,5 @@
-#![allow(warnings)]
-
 //! Contains the aarch64 UTF-8 validation implementation.
 
-#[allow(dead_code)]
 use core::arch::aarch64::{
     uint8x16_t, vandq_u8, vcgtq_u8, vdupq_n_u8, veorq_u8, vextq_u8, vld1q_u8, vmaxvq_u8,
     vmovq_n_u8, vorrq_u8, vqsubq_u8, vqtbl1q_u8, vshrq_n_u8,
