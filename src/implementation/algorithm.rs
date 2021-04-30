@@ -313,6 +313,7 @@ macro_rules! algorithm_simd {
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
             let mut tmpbuf = Temp2xSimdChunk::new();
+            let mut only_ascii = true;
 
             let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
             if len >= 4096 {
@@ -323,9 +324,12 @@ macro_rules! algorithm_simd {
                         .as_mut_ptr()
                         .copy_from_nonoverlapping(input.as_ptr(), to_copy);
                     let simd_input = SimdInput::new(&tmpbuf.0);
-                    algorithm.check_utf8(simd_input);
-                    if algorithm.has_error() {
-                        return Err(idx);
+                    if !simd_input.is_ascii() {
+                        algorithm.check_block(simd_input);
+                        only_ascii = false;
+                        if algorithm.has_error() {
+                            return Err(idx);
+                        }
                     }
                     idx += to_copy;
                 }
@@ -333,6 +337,19 @@ macro_rules! algorithm_simd {
 
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
+            if only_ascii {
+                while idx < iter_lim {
+                    let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                    idx += SIMD_CHUNK_SIZE;
+                    if !simd_input.is_ascii() {
+                        algorithm.check_block(simd_input);
+                        if algorithm.has_error() {
+                            return Err(idx);
+                        }
+                        break;
+                    }
+                }
+            }
             while idx < iter_lim {
                 let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                 algorithm.check_utf8(simd_input);
