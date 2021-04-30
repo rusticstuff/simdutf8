@@ -21,7 +21,7 @@ type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorBasic>;
 #[allow(dead_code)]
 type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompat>;
 
-// arch-specific functions
+// x86 implementation
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(crate) mod x86;
@@ -42,12 +42,23 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorC
     x86::validate_utf8_compat(input)
 }
 
-// fallback for non-x86
+// aarch64 implementation
 
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+#[cfg(target_arch = "aarch64")]
+pub(crate) mod aarch64;
+
+#[cfg(target_arch = "aarch64")]
+pub(super) use aarch64::validate_utf8_basic;
+
+#[cfg(target_arch = "aarch64")]
+pub(super) use aarch64::validate_utf8_compat;
+
+// fallback for unsupported architectures
+
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
 pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
 
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
 pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;
 
 // fallback method implementations

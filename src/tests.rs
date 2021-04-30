@@ -24,20 +24,26 @@ fn test_valid(input: &[u8]) {
 
 #[cfg(feature = "public_imp")]
 #[allow(clippy::collapsible_if)]
+#[allow(clippy::missing_const_for_fn)]
+#[allow(unused_variables)]
 fn test_valid_public_imp(input: &[u8]) {
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-        if cfg!(target_feature = "avx2") {
-            unsafe {
-                assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_ok());
-                assert!(crate::compat::imp::x86::avx2::validate_utf8(input).is_ok());
-            }
+        #[cfg(target_feature = "avx2")]
+        unsafe {
+            assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_ok());
+            assert!(crate::compat::imp::x86::avx2::validate_utf8(input).is_ok());
         }
-        if cfg!(target_feature = "sse4.2") {
-            unsafe {
-                assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_ok());
-                assert!(crate::compat::imp::x86::sse42::validate_utf8(input).is_ok());
-            }
+
+        #[cfg(target_feature = "sse4.2")]
+        unsafe {
+            assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_ok());
+            assert!(crate::compat::imp::x86::sse42::validate_utf8(input).is_ok());
         }
+    }
+    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
+    unsafe {
+        assert!(crate::basic::imp::aarch64::validate_utf8(input).is_ok());
+        assert!(crate::compat::imp::aarch64::validate_utf8(input).is_ok());
     }
 }
 
@@ -55,42 +61,58 @@ fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
 
 #[cfg(feature = "public_imp")]
 #[allow(clippy::collapsible_if)]
+#[allow(clippy::missing_const_for_fn)]
+#[allow(unused_variables)]
 fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-        if cfg!(target_feature = "avx2") {
-            unsafe {
-                assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_err());
-                assert_eq!(
-                    crate::compat::imp::x86::avx2::validate_utf8(input)
-                        .unwrap_err()
-                        .valid_up_to(),
-                    valid_up_to
-                );
-                assert_eq!(
-                    crate::compat::imp::x86::avx2::validate_utf8(input)
-                        .unwrap_err()
-                        .error_len(),
-                    error_len
-                );
-            }
+        #[cfg(target_feature = "avx2")]
+        unsafe {
+            assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_err());
+            assert_eq!(
+                crate::compat::imp::x86::avx2::validate_utf8(input)
+                    .unwrap_err()
+                    .valid_up_to(),
+                valid_up_to
+            );
+            assert_eq!(
+                crate::compat::imp::x86::avx2::validate_utf8(input)
+                    .unwrap_err()
+                    .error_len(),
+                error_len
+            );
         }
-        if cfg!(target_feature = "sse4.2") {
-            unsafe {
-                assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_err());
-                assert_eq!(
-                    crate::compat::imp::x86::sse42::validate_utf8(input)
-                        .unwrap_err()
-                        .valid_up_to(),
-                    valid_up_to
-                );
-                assert_eq!(
-                    crate::compat::imp::x86::sse42::validate_utf8(input)
-                        .unwrap_err()
-                        .error_len(),
-                    error_len
-                );
-            }
+        #[cfg(target_feature = "sse4.2")]
+        unsafe {
+            assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_err());
+            assert_eq!(
+                crate::compat::imp::x86::sse42::validate_utf8(input)
+                    .unwrap_err()
+                    .valid_up_to(),
+                valid_up_to
+            );
+            assert_eq!(
+                crate::compat::imp::x86::sse42::validate_utf8(input)
+                    .unwrap_err()
+                    .error_len(),
+                error_len
+            );
         }
+    }
+    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
+    unsafe {
+        assert!(crate::basic::imp::aarch64::validate_utf8(input).is_err());
+        assert_eq!(
+            crate::compat::imp::aarch64::validate_utf8(input)
+                .unwrap_err()
+                .valid_up_to(),
+            valid_up_to
+        );
+        assert_eq!(
+            crate::compat::imp::aarch64::validate_utf8(input)
+                .unwrap_err()
+                .error_len(),
+            error_len
+        );
     }
 }
 

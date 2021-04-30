@@ -1,27 +1,17 @@
-//! Contains the x86-64/x86 SSE4.2 UTF-8 validation implementation.
+//! Contains the aarch64 UTF-8 validation implementation.
 
-#[allow(dead_code)]
-#[cfg(target_arch = "x86")]
-use core::arch::x86::{
-    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
-    _mm_or_si128, _mm_set1_epi8, _mm_setr_epi8, _mm_setzero_si128, _mm_shuffle_epi8,
-    _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
-};
-#[cfg(target_arch = "x86_64")]
-use core::arch::x86_64::{
-    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
-    _mm_or_si128, _mm_set1_epi8, _mm_setr_epi8, _mm_setzero_si128, _mm_shuffle_epi8,
-    _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128,
+use core::arch::aarch64::{
+    uint8x16_t, vandq_u8, vcgtq_u8, vdupq_n_u8, veorq_u8, vextq_u8, vld1q_u8, vmaxvq_u8,
+    vmovq_n_u8, vorrq_u8, vqsubq_u8, vqtbl1q_u8, vshrq_n_u8,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
 
-// SSE 4.2 2 SIMD primitives
+// aarch64 SIMD primitives
 
-type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
+type SimdU8Value = crate::implementation::helpers::SimdU8Value<uint8x16_t>;
 
 impl SimdU8Value {
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::too_many_arguments)]
     #[allow(clippy::cast_possible_wrap)]
@@ -59,13 +49,12 @@ impl SimdU8Value {
         v30: u8,
         v31: u8,
     ) -> Self {
-        Self::from(_mm_setr_epi8(
-            v16 as i8, v17 as i8, v18 as i8, v19 as i8, v20 as i8, v21 as i8, v22 as i8, v23 as i8,
-            v24 as i8, v25 as i8, v26 as i8, v27 as i8, v28 as i8, v29 as i8, v30 as i8, v31 as i8,
-        ))
+        let arr: [u8; 16] = [
+            v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31,
+        ];
+        Self::from(vld1q_u8(arr.as_ptr()))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::too_many_arguments)]
     #[allow(clippy::cast_possible_wrap)]
@@ -87,20 +76,18 @@ impl SimdU8Value {
         v14: u8,
         v15: u8,
     ) -> Self {
-        Self::from(_mm_setr_epi8(
-            v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
-            v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
-        ))
+        let arr: [u8; 16] = [
+            v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
+        ];
+        Self::from(vld1q_u8(arr.as_ptr()))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        Self::from(_mm_loadu_si128(ptr.cast::<__m128i>()))
+        Self::from(vld1q_u8(ptr))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::too_many_arguments)]
     unsafe fn lookup_16(
@@ -122,7 +109,7 @@ impl SimdU8Value {
         v14: u8,
         v15: u8,
     ) -> Self {
-        Self::from(_mm_shuffle_epi8(
+        Self::from(vqtbl1q_u8(
             Self::repeat_16(
                 v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
             )
@@ -131,102 +118,93 @@ impl SimdU8Value {
         ))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::cast_possible_wrap)]
     unsafe fn splat(val: u8) -> Self {
-        Self::from(_mm_set1_epi8(val as i8))
+        Self::from(vmovq_n_u8(val))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::cast_possible_wrap)]
     unsafe fn splat0() -> Self {
-        Self::from(_mm_setzero_si128())
+        Self::from(vdupq_n_u8(0))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn or(self, b: Self) -> Self {
-        Self::from(_mm_or_si128(self.0, b.0))
+        Self::from(vorrq_u8(self.0, b.0))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn and(self, b: Self) -> Self {
-        Self::from(_mm_and_si128(self.0, b.0))
+        Self::from(vandq_u8(self.0, b.0))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn xor(self, b: Self) -> Self {
-        Self::from(_mm_xor_si128(self.0, b.0))
+        Self::from(veorq_u8(self.0, b.0))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn saturating_sub(self, b: Self) -> Self {
-        Self::from(_mm_subs_epu8(self.0, b.0))
+        Self::from(vqsubq_u8(self.0, b.0))
     }
 
     // ugly but shr<N> requires const generics
-    #[target_feature(enable = "sse4.2")]
+
     #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn shr4(self) -> Self {
-        Self::from(_mm_srli_epi16(self.0, 4)).and(Self::splat(0xFF >> 4))
+        Self::from(vshrq_n_u8(self.0, 4))
     }
 
     // ugly but prev<N> requires const generics
-    #[target_feature(enable = "sse4.2")]
+
     #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev1(self, prev: Self) -> Self {
-        Self::from(_mm_alignr_epi8(self.0, prev.0, 16 - 1))
+        Self::from(vextq_u8(prev.0, self.0, 16 - 1))
     }
 
     // ugly but prev<N> requires const generics
-    #[target_feature(enable = "sse4.2")]
+
     #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev2(self, prev: Self) -> Self {
-        Self::from(_mm_alignr_epi8(self.0, prev.0, 16 - 2))
+        Self::from(vextq_u8(prev.0, self.0, 16 - 2))
     }
 
     // ugly but prev<N> requires const generics
-    #[target_feature(enable = "sse4.2")]
+
     #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev3(self, prev: Self) -> Self {
-        Self::from(_mm_alignr_epi8(self.0, prev.0, 16 - 3))
+        Self::from(vextq_u8(prev.0, self.0, 16 - 3))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn gt(self, other: Self) -> Self {
-        Self::from(_mm_cmpgt_epi8(self.0, other.0))
+        Self::from(vcgtq_u8(self.0, other.0))
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn any_bit_set(self) -> bool {
-        _mm_testz_si128(self.0, self.0) != 1
+        vmaxvq_u8(self.0) != 0
     }
 
-    #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn is_ascii(self) -> bool {
-        _mm_movemask_epi8(self.0) == 0
+        vmaxvq_u8(self.0) < 0b1000_0000_u8
     }
 }
 
-impl From<__m128i> for SimdU8Value {
+impl From<uint8x16_t> for SimdU8Value {
     #[inline]
-    fn from(val: __m128i) -> Self {
+    fn from(val: uint8x16_t) -> Self {
         Self { 0: val }
     }
 }
 
 use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
-simd_input_128_bit!("sse4.2");
-algorithm_simd!("sse4.2");
+simd_input_128_bit!("neon");
+algorithm_simd!("neon");

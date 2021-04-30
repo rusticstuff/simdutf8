@@ -11,16 +11,10 @@ macro_rules! algorithm_simd {
             #[inline]
             unsafe fn default() -> Self {
                 Self {
-                    prev: SimdU8Value::broadcast0(),
-                    incomplete: SimdU8Value::broadcast0(),
-                    error: SimdU8Value::broadcast0(),
+                    prev: SimdU8Value::splat0(),
+                    incomplete: SimdU8Value::splat0(),
+                    error: SimdU8Value::splat0(),
                 }
-            }
-
-            #[target_feature(enable = $feat)]
-            #[inline]
-            unsafe fn or(a: SimdU8Value, b: SimdU8Value) -> SimdU8Value {
-                a.or(b)
             }
 
             #[target_feature(enable = $feat)]
@@ -70,12 +64,6 @@ macro_rules! algorithm_simd {
 
             #[target_feature(enable = $feat)]
             #[inline]
-            unsafe fn prev1(input: SimdU8Value, prev: SimdU8Value) -> SimdU8Value {
-                input.prev1(prev)
-            }
-
-            #[target_feature(enable = $feat)]
-            #[inline]
             #[allow(clippy::too_many_lines)]
             unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
                 const TOO_SHORT: u8 = 1 << 0;
@@ -108,7 +96,7 @@ macro_rules! algorithm_simd {
                     TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
                 );
 
-                let byte_1_low = prev1.and(SimdU8Value::broadcast(0x0F)).lookup_16(
+                let byte_1_low = prev1.and(SimdU8Value::splat(0x0F)).lookup_16(
                     CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
                     CARRY | OVERLONG_2,
                     CARRY,
@@ -159,7 +147,7 @@ macro_rules! algorithm_simd {
                 let prev2 = input.prev2(prev);
                 let prev3 = input.prev3(prev);
                 let must23 = Self::must_be_2_3_continuation(prev2, prev3);
-                let must23_80 = must23.and(SimdU8Value::broadcast(0x80));
+                let must23_80 = must23.and(SimdU8Value::splat(0x80));
                 must23_80.xor(special_cases)
             }
 
@@ -169,12 +157,10 @@ macro_rules! algorithm_simd {
                 prev2: SimdU8Value,
                 prev3: SimdU8Value,
             ) -> SimdU8Value {
-                let is_third_byte = prev2.saturating_sub(SimdU8Value::broadcast(0b1110_0000 - 1));
-                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::broadcast(0b1111_0000 - 1));
+                let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0b1110_0000 - 1));
+                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0b1111_0000 - 1));
 
-                is_third_byte
-                    .or(is_fourth_byte)
-                    .gt(SimdU8Value::broadcast0())
+                is_third_byte.or(is_fourth_byte).gt(SimdU8Value::splat0())
             }
 
             #[target_feature(enable = $feat)]
@@ -185,15 +171,14 @@ macro_rules! algorithm_simd {
 
             #[target_feature(enable = $feat)]
             #[inline]
-            unsafe fn check_bytes(current: SimdU8Value, previous: &mut Self) {
-                let prev1 = Self::prev1(current, previous.prev);
-                let sc = Self::check_special_cases(current, prev1);
-                previous.error = Self::or(
-                    previous.error,
-                    Self::check_multibyte_lengths(current, previous.prev, sc),
-                );
-                previous.incomplete = Self::is_incomplete(current);
-                previous.prev = current
+            unsafe fn check_bytes(&mut self, input: SimdU8Value) {
+                let prev1 = input.prev1(self.prev);
+                let sc = Self::check_special_cases(input, prev1);
+                self.error = self
+                    .error
+                    .or(Self::check_multibyte_lengths(input, self.prev, sc));
+                self.incomplete = Self::is_incomplete(input);
+                self.prev = input
             }
 
             #[target_feature(enable = $feat)]
@@ -210,7 +195,7 @@ macro_rules! algorithm_simd {
             #[inline]
             unsafe fn check_block(&mut self, input: SimdInput) {
                 for i in 0..input.vals.len() {
-                    Self::check_bytes(input.vals[i], self);
+                    self.check_bytes(input.vals[i]);
                 }
             }
         }

@@ -22,6 +22,9 @@ std = []
 # expose SIMD implementations in basic::imp::* and compat::imp::*
 public_imp = []
 
+# aarch64 NEON SIMD implementation - requires nightly
+aarch64_neon = []
+
 # use branch hints - requires nightly
 hints = []
 
