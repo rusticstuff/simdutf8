@@ -120,13 +120,13 @@ impl SimdU8Value {
 
     #[inline]
     #[allow(clippy::cast_possible_wrap)]
-    unsafe fn broadcast(val: u8) -> Self {
+    unsafe fn splat(val: u8) -> Self {
         Self::from(vmovq_n_u8(val))
     }
 
     #[inline]
     #[allow(clippy::cast_possible_wrap)]
-    unsafe fn broadcast0() -> Self {
+    unsafe fn splat0() -> Self {
         Self::from(vdupq_n_u8(0))
     }
 

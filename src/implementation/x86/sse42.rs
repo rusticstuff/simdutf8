@@ -134,14 +134,14 @@ impl SimdU8Value {
     #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::cast_possible_wrap)]
-    unsafe fn broadcast(val: u8) -> Self {
+    unsafe fn splat(val: u8) -> Self {
         Self::from(_mm_set1_epi8(val as i8))
     }
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
     #[allow(clippy::cast_possible_wrap)]
-    unsafe fn broadcast0() -> Self {
+    unsafe fn splat0() -> Self {
         Self::from(_mm_setzero_si128())
     }
 
@@ -174,7 +174,7 @@ impl SimdU8Value {
     #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn shr4(self) -> Self {
-        Self::from(_mm_srli_epi16(self.0, 4)).and(Self::broadcast(0xFF >> 4))
+        Self::from(_mm_srli_epi16(self.0, 4)).and(Self::splat(0xFF >> 4))
     }
 
     // ugly but prev<N> requires const generics
