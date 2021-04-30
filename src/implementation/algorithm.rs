@@ -64,12 +64,6 @@ macro_rules! algorithm_simd {
 
             #[target_feature(enable = $feat)]
             #[inline]
-            unsafe fn prev1(input: SimdU8Value, prev: SimdU8Value) -> SimdU8Value {
-                input.prev1(prev)
-            }
-
-            #[target_feature(enable = $feat)]
-            #[inline]
             #[allow(clippy::too_many_lines)]
             unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
                 const TOO_SHORT: u8 = 1 << 0;
@@ -178,7 +172,7 @@ macro_rules! algorithm_simd {
             #[target_feature(enable = $feat)]
             #[inline]
             unsafe fn check_bytes(current: SimdU8Value, previous: &mut Self) {
-                let prev1 = Self::prev1(current, previous.prev);
+                let prev1 = current.prev1(previous.prev);
                 let sc = Self::check_special_cases(current, prev1);
                 previous.error =
                     previous
