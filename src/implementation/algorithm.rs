@@ -340,14 +340,15 @@ macro_rules! algorithm_simd {
             if likely!(only_ascii) {
                 while idx < iter_lim {
                     let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                    idx += SIMD_CHUNK_SIZE;
                     if !simd_input.is_ascii() {
                         algorithm.check_block(simd_input);
                         if algorithm.has_error() {
                             return Err(idx);
                         }
+                        idx += SIMD_CHUNK_SIZE;
                         break;
                     }
+                    idx += SIMD_CHUNK_SIZE;
                 }
             }
             while idx < iter_lim {
