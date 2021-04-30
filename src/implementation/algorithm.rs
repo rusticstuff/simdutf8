@@ -240,7 +240,7 @@ macro_rules! algorithm_simd {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
                     let to_copy = align - off;
-                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
+                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                         input.as_ptr(),
                         tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
                         to_copy,
@@ -260,7 +260,7 @@ macro_rules! algorithm_simd {
             }
 
             if idx < len {
-                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                     input.as_ptr().add(idx),
                     tmpbuf.1.as_mut_ptr(),
                     len - idx,
@@ -309,7 +309,7 @@ macro_rules! algorithm_simd {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
                     let to_copy = align - off;
-                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
+                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                         input.as_ptr(),
                         tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
                         to_copy,
@@ -334,7 +334,7 @@ macro_rules! algorithm_simd {
                 idx += SIMD_CHUNK_SIZE;
             }
             if idx < len {
-                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                     input.as_ptr().add(idx),
                     tmpbuf.1.as_mut_ptr(),
                     len - idx,
