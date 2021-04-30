@@ -20,6 +20,8 @@
   * indirection functions
   * self first always
   * const?
+* test all available implementations by default as if public_imp were specified
+* don't inline with compile time selection at all call sites! (aarch64, avx2, no-std all)
 
 # OTHER
 * why does cargo asm not find from_utf8() on aarch64?
