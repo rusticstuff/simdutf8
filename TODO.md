@@ -11,8 +11,6 @@
 * clean up algorithm src. after neon merge
   * check_eof() -> | or speaking name
   * document prev()
-  * broadcast() -> splat()
-  * remove simple redirections (like or())
   * self always first
   * const param?
   * type -> pub use (mostly)
