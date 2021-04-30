@@ -7,7 +7,8 @@
     clippy::pedantic,
     clippy::nursery
 )]
-#![allow(clippy::redundant_pub_crate)] // broken
+#![allow(clippy::redundant_pub_crate)] // check is broken
+#![allow(clippy::redundant_else)] // can make code more readable
 #![deny(missing_docs)]
 #![cfg_attr(feature = "hints", feature(core_intrinsics))]
 #![cfg_attr(not(feature = "std"), no_std)]

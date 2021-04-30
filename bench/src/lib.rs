@@ -3,7 +3,6 @@ use simdutf8::basic::from_utf8 as basic_from_utf8;
 use simdutf8::compat::from_utf8 as compat_from_utf8;
 
 use std::str::from_utf8 as std_from_utf8;
-use std::time::Duration;
 
 #[cfg(feature = "simdjson")]
 use simdjson_utf8::validate as simdjson_validate;
@@ -71,9 +70,6 @@ fn bench_empty<M: Measurement>(c: &mut Criterion<M>, bench_fn: BenchFn) {
 
 fn bench_late_error<M: Measurement>(c: &mut Criterion<M>, bench_fn: BenchFn) {
     let mut group = c.benchmark_group("x-error");
-    group.warm_up_time(Duration::from_secs(6));
-    group.measurement_time(Duration::from_secs(10));
-    group.sample_size(1000);
     bench_input(
         &mut group,
         b"\xFF".repeat(65536).as_slice(),
@@ -117,9 +113,6 @@ fn get_valid_slice_of_len_or_more_aligned(
 
 fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_fn: BenchFn) {
     let mut group = c.benchmark_group(name);
-    group.warm_up_time(Duration::from_secs(6));
-    group.measurement_time(Duration::from_secs(10));
-    group.sample_size(1000);
     for i in [1, 8, 64, 512, 4096, 65536, 131072].iter() {
         let alignment = Alignment {
             boundary: 64,

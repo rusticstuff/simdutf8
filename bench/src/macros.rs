@@ -14,7 +14,7 @@ macro_rules! define_throughput_benchmark {
 
         criterion_group!(
             name = benches;
-            config = Criterion::default().measurement_time(Duration::from_secs(10)).warm_up_time(Duration::from_secs(6)).sample_size(1000);
+            config = Criterion::default().measurement_time(Duration::from_secs(1)).warm_up_time(Duration::from_secs(1)).sample_size(100);
             targets = benchmark_compat
         );
 
@@ -39,7 +39,7 @@ macro_rules! define_cpb_benchmark {
 
         criterion_group!(
             name = benches;
-            config = Criterion::default().with_measurement(CyclesPerByte).measurement_time(Duration::from_secs(10)).warm_up_time(Duration::from_secs(6)).sample_size(1000);
+            config = Criterion::default().with_measurement(CyclesPerByte).measurement_time(Duration::from_secs(1)).warm_up_time(Duration::from_secs(1)).sample_size(100);
             targets = benchmark_fast
         );
 
