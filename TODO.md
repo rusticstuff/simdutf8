@@ -19,6 +19,7 @@
   * broadcast() -> splat()
   * indirection functions
   * self first always
+  * const?
 
 # OTHER
 * why does cargo asm not find from_utf8() on aarch64?
