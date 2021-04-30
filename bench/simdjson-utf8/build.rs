@@ -53,8 +53,8 @@ fn main() {
         .define("SIMDJSON_BUILD_STATIC", "ON")
         // .define("CMAKE_CXX_COMPILER", "clang")
         // .define("CMAKE_C_COMPILER", "clang")
-        .define("CMAKE_CXX_COMPILER", "gcc")
-        .define("CMAKE_C_COMPILER", "gcc")
+        // .define("CMAKE_CXX_COMPILER", "gcc")
+        // .define("CMAKE_C_COMPILER", "gcc")
         .uses_cxx11()
         .build();
     eprintln!("building done");
