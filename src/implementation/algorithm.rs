@@ -261,7 +261,6 @@ macro_rules! algorithm_simd {
                     idx += SIMD_CHUNK_SIZE;
                     if !simd_input.is_ascii() {
                         algorithm.check_block(simd_input);
-                        only_ascii = false;
                         break;
                     }
                 }
@@ -278,15 +277,7 @@ macro_rules! algorithm_simd {
                     .as_mut_ptr()
                     .copy_from_nonoverlapping(input.as_ptr().add(idx), len - idx);
                 let simd_input = SimdInput::new(&tmpbuf.1);
-                if only_ascii {
-                    if simd_input.is_ascii() {
-                        return Ok(());
-                    }
-                    algorithm.check_block(simd_input);
-                } else {
-                    algorithm.check_utf8(simd_input);
-                }
-                // algorithm.check_utf8(simd_input);
+                algorithm.check_utf8(simd_input);
             }
             algorithm.check_eof();
             if unlikely!(algorithm.has_error()) {
