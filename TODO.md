@@ -4,9 +4,22 @@
 * benchmark nightly, nightly+likely
 * test coverage
 * more fuzz testing
+* armv7 support with neon runtime selection
 
 # NEXT
-* check out exactly which aarch64 NEON intrinsics are missing and how we could
-  get them implemented quickly
-* Bench simdjson utf8 clang on RPi4.
-* Bench optimized memcpy
+* integrate neon support
+  * behind feature flag
+  * make ci build
+  * fuzz test a bit
+* test improved ASCII perf. idea
+* add _quick benchmarks, maybe default?
+* test improved memcpy vs. no memcpy
+* clean up algorithm src. after neon merge
+  * check_eof() -> |
+  * broadcast() -> splat()
+  * indirection functions
+  * self first always
+
+# OTHER
+* why does cargo asm not find from_utf8() on aarch64?
+* test aarch64 loop unrolling issue
