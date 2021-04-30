@@ -20,6 +20,8 @@
   * indirection functions
   * self first always
   * const?
+  * type -> pub use (mostly)
+  * use imports instead of fully qualified at places
 * test all available implementations by default as if public_imp were specified
 * don't inline with compile time selection at all call sites! (aarch64, avx2, no-std all)
 
