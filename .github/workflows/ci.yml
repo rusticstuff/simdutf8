@@ -90,7 +90,9 @@ jobs:
         features: ["--features std", ""]
         include:
           - toolchain: nightly
-            features: ["--features std,aarch64", ""--features aarch64"]
+            features: "--features std,aarch64"
+          - toolchain: nightly
+            features: "--features aarch64"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
