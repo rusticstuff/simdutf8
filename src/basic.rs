@@ -72,7 +72,7 @@ pub mod imp {
         }
     }
 
-    /// Includes the aarch64 NEON SIMD implementation.
+    /// Includes the aarch64 Neon SIMD implementation.
     #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
     pub mod aarch64 {
         pub use crate::implementation::aarch64::neon::validate_utf8_basic as validate_utf8;
