@@ -171,15 +171,14 @@ macro_rules! algorithm_simd {
 
             #[target_feature(enable = $feat)]
             #[inline]
-            unsafe fn check_bytes(current: SimdU8Value, previous: &mut Self) {
-                let prev1 = current.prev1(previous.prev);
-                let sc = Self::check_special_cases(current, prev1);
-                previous.error =
-                    previous
-                        .error
-                        .or(Self::check_multibyte_lengths(current, previous.prev, sc));
-                previous.incomplete = Self::is_incomplete(current);
-                previous.prev = current
+            unsafe fn check_bytes(&mut self, input: SimdU8Value) {
+                let prev1 = input.prev1(self.prev);
+                let sc = Self::check_special_cases(input, prev1);
+                self.error = self
+                    .error
+                    .or(Self::check_multibyte_lengths(input, self.prev, sc));
+                self.incomplete = Self::is_incomplete(input);
+                self.prev = input
             }
 
             #[target_feature(enable = $feat)]
@@ -196,7 +195,7 @@ macro_rules! algorithm_simd {
             #[inline]
             unsafe fn check_block(&mut self, input: SimdInput) {
                 for i in 0..input.vals.len() {
-                    Self::check_bytes(input.vals[i], self);
+                    self.check_bytes(input.vals[i]);
                 }
             }
         }
