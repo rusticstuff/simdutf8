@@ -16,7 +16,8 @@ fuzzing and there are no known bugs.
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Up to 22 times faster than the std library on non-ASCII, up to three times faster on ASCII
 * As fast as or faster than the original simdjson implementation
-* Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64. ARMv7 and ARMv8 neon support is planned
+* Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64. 
+* ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`). ARMv7 Neon support is planned.
 * Selects the fastest implementation at runtime based on CPU support
 * Written in pure Rust
 * No dependencies
@@ -28,6 +29,11 @@ Add the dependency to your Cargo.toml file:
 ```toml
 [dependencies]
 simdutf8 = { version = "0.1.1" }
+```
+or on ARM64:
+```toml
+[dependencies]
+simdutf8 = { version = "0.1.1", features = ["aarch64_neon"] }
 ```
 
 Use `simdutf8::basic::from_utf8` as a drop-in replacement for `std::str::from_utf8()`.
@@ -66,6 +72,8 @@ an invalid UTF-8 sequence is encountered, it returns without processing the rest
 This comes at a performance penality compared to the `basic` API even if the input is valid UTF-8.
 
 ## Implementation selection
+
+### X86
 The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the CPU
 targeted by the compiler supports the fastest available implementation.
 So if you compile with `RUSTFLAGS="-C target-cpu=native"` on a recent x86-64 machine, the AVX 2 implementation is selected at
@@ -77,6 +85,10 @@ for the SSE 4.2 implementation.
 
 If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
 implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(avx2|sse42)::validate_utf8()`.
+
+### ARM64
+For ARM64 support nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is 
+not turned on the non-SIMD std library implementation is used.
 
 ## When not to use
 This library uses unsafe code which has not been battle-tested and should not (yet) be used in production.
