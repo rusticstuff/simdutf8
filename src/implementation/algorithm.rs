@@ -246,7 +246,7 @@ macro_rules! algorithm_simd {
                         .copy_from_nonoverlapping(input.as_ptr(), to_copy);
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     idx += to_copy;
-                    if !simd_input.is_ascii() {
+                    if unlikely!(!simd_input.is_ascii()) {
                         algorithm.check_block(simd_input);
                         only_ascii = false;
                     }
@@ -255,7 +255,7 @@ macro_rules! algorithm_simd {
 
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
-            if only_ascii {
+            if likely!(only_ascii) {
                 while idx < iter_lim {
                     let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                     idx += SIMD_CHUNK_SIZE;
@@ -324,7 +324,7 @@ macro_rules! algorithm_simd {
                         .as_mut_ptr()
                         .copy_from_nonoverlapping(input.as_ptr(), to_copy);
                     let simd_input = SimdInput::new(&tmpbuf.0);
-                    if !simd_input.is_ascii() {
+                    if unlikely!(!simd_input.is_ascii()) {
                         algorithm.check_block(simd_input);
                         only_ascii = false;
                         if algorithm.has_error() {
@@ -337,7 +337,7 @@ macro_rules! algorithm_simd {
 
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
-            if only_ascii {
+            if likely!(only_ascii) {
                 while idx < iter_lim {
                     let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                     idx += SIMD_CHUNK_SIZE;
