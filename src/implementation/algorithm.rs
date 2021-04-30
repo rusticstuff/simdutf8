@@ -3,7 +3,6 @@
 /// `SimdInput` - which  holds 64 bytes of SIMD input
 /// `Temp2xSimdChunk` - correctly aligned Temp2xSimdChunk, either Temp2xSimdChunkA16 or Temp2xSimdChunkA32
 
-/// validate_utf8_basic_simd() strategy and wrapper
 macro_rules! algorithm_simd {
     ($feat:expr) => {
         impl Utf8CheckAlgorithm<SimdU8Value> {
