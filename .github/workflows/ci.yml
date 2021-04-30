@@ -104,7 +104,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        toolchain: [stable, nightly, "1.38.0"]
+        toolchain: [stable, nightly]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
         target: [i686-unknown-linux-gnu, i686-pc-windows-msvc]
@@ -113,8 +113,6 @@ jobs:
             target: i686-pc-windows-msvc
           - os: windows-latest
             target: i686-unknown-linux-gnu
-          - os: windows-latest
-            toolchain: "1.38.0"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
