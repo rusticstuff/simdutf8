@@ -16,7 +16,7 @@ cpb = [ "criterion-cycles-per-byte" ]
 [dependencies]
 core_affinity = "0.5"
 criterion = "0.3"
-simdutf8 = { version = "*", path = ".." }
+simdutf8 = { version = "*", path = "..", features = ["aarch64_neon"] }
 criterion-cycles-per-byte = { version = "0.1.2", optional = true }
 simdjson-utf8 = { version = "*", path = "simdjson-utf8", optional = true }
 
