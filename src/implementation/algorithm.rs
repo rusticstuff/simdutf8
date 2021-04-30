@@ -337,25 +337,31 @@ macro_rules! algorithm_simd {
 
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
-            if likely!(only_ascii) {
-                while idx < iter_lim {
-                    let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+            while idx < iter_lim {
+                let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                if likely!(only_ascii) {
                     if !simd_input.is_ascii() {
                         algorithm.check_block(simd_input);
                         if algorithm.has_error() {
                             return Err(idx);
                         }
-                        idx += SIMD_CHUNK_SIZE;
-                        break;
+                        only_ascii = false;
                     }
-                    idx += SIMD_CHUNK_SIZE;
-                }
-            }
-            while idx < iter_lim {
-                let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                algorithm.check_utf8(simd_input);
-                if algorithm.has_error() {
-                    return Err(idx);
+                } else {
+                    if simd_input.is_ascii() {
+                        algorithm.check_eof();
+                        if algorithm.has_error() {
+                            return Err(idx);
+                        } else {
+                            // we are in pure ASCII territory again
+                            only_ascii = true;
+                        }
+                    } else {
+                        algorithm.check_block(simd_input);
+                        if algorithm.has_error() {
+                            return Err(idx);
+                        }
+                    }
                 }
                 idx += SIMD_CHUNK_SIZE;
             }
