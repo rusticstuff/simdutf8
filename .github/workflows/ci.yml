@@ -113,6 +113,8 @@ jobs:
             target: i686-pc-windows-msvc
           - os: windows-latest
             target: i686-unknown-linux-gnu
+          - os: windows-latest
+            toolchain: "1.38.0"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
