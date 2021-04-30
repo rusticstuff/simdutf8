@@ -44,29 +44,35 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorC
 
 // aarch64 implementation
 
-#[cfg(any(target_arch = "aarch64"))]
+#[cfg(all(feature = "aarch64", target_arch = "aarch64"))]
 pub(crate) mod aarch64;
 
 // TBD: cleanup!
 // #[allow(clippy::inline_always)]
 // #[inline(never)]
-// #[cfg(any(target_arch = "aarch64"))]
+// #[cfg(all(feature = "aarch64", target_arch = "aarch64"))]
 // pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), Utf8ErrorBasic> {
 //     aarch64::validate_utf8_basic(input)
 // }
 
-#[cfg(any(target_arch = "aarch64"))]
+#[cfg(all(feature = "aarch64", target_arch = "aarch64"))]
 pub(super) use aarch64::validate_utf8_basic;
 
-#[cfg(any(target_arch = "aarch64"))]
+#[cfg(all(feature = "aarch64", target_arch = "aarch64"))]
 pub(super) use aarch64::validate_utf8_compat;
 
 // fallback for non-x86
 
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
+#[cfg(all(
+    not(any(target_arch = "x86", target_arch = "x86_64")),
+    not(all(feature = "aarch64", target_arch = "aarch64"))
+))]
 pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
 
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
+#[cfg(all(
+    not(any(target_arch = "x86", target_arch = "x86_64")),
+    not(all(feature = "aarch64", target_arch = "aarch64"))
+))]
 pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;
 
 // fallback method implementations
