@@ -13,9 +13,12 @@
 #![cfg_attr(feature = "hints", feature(core_intrinsics))]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![cfg_attr(all(feature = "aarch64", target_arch = "aarch64"), feature(stdsimd))]
 #![cfg_attr(
-    all(feature = "aarch64", target_arch = "aarch64"),
+    all(feature = "aarch64_neon", target_arch = "aarch64"),
+    feature(stdsimd)
+)]
+#![cfg_attr(
+    all(feature = "aarch64_neon", target_arch = "aarch64"),
     feature(aarch64_target_feature)
 )]
 

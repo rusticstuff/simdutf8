@@ -40,7 +40,7 @@ fn test_valid_public_imp(input: &[u8]) {
             assert!(crate::compat::imp::x86::sse42::validate_utf8(input).is_ok());
         }
     }
-    #[cfg(all(feature = "aarch64", target_arch = "aarch64"))]
+    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
     unsafe {
         assert!(crate::basic::imp::aarch64::validate_utf8(input).is_ok());
         assert!(crate::compat::imp::aarch64::validate_utf8(input).is_ok());
@@ -98,7 +98,7 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
             );
         }
     }
-    #[cfg(all(feature = "aarch64", target_arch = "aarch64"))]
+    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
     unsafe {
         assert!(crate::basic::imp::aarch64::validate_utf8(input).is_err());
         assert_eq!(
