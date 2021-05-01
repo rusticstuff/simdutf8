@@ -7,3 +7,4 @@
 simdutf8::implementation::helpers::get_compat_error
 simdutf8::implementation::x86::validate_utf8_basic
 simdutf8::implementation::x86::validate_utf8_compat
+simdutf8::implementation::x86::validate_utf8_compat_avx2
