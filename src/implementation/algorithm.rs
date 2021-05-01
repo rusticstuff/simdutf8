@@ -18,7 +18,7 @@ macro_rules! algorithm_simd {
 
             #[target_feature(enable = $feat)]
             #[inline]
-            unsafe fn check_eof(&mut self) {
+            unsafe fn check_incomplete_pending(&mut self) {
                 self.error = self.error.or(self.incomplete)
             }
 
@@ -184,7 +184,7 @@ macro_rules! algorithm_simd {
             #[inline]
             unsafe fn check_utf8(&mut self, input: SimdInput) {
                 if input.is_ascii() {
-                    self.check_eof();
+                    self.check_incomplete_pending();
                 } else {
                     self.check_block(input);
                 }
@@ -266,7 +266,7 @@ macro_rules! algorithm_simd {
                 let simd_input = SimdInput::new(&tmpbuf.1);
                 algorithm.check_utf8(simd_input);
             }
-            algorithm.check_eof();
+            algorithm.check_incomplete_pending();
             if algorithm.has_error() {
                 Err(crate::basic::Utf8Error {})
             } else {
@@ -347,7 +347,7 @@ macro_rules! algorithm_simd {
                     while idx < iter_lim {
                         let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                         if simd_input.is_ascii() {
-                            algorithm.check_eof();
+                            algorithm.check_incomplete_pending();
                             if algorithm.has_error() {
                                 return Err(idx);
                             } else {
@@ -377,7 +377,7 @@ macro_rules! algorithm_simd {
 
                 algorithm.check_utf8(simd_input);
             }
-            algorithm.check_eof();
+            algorithm.check_incomplete_pending();
             if algorithm.has_error() {
                 Err(idx)
             } else {
