@@ -206,5 +206,5 @@ impl From<uint8x16_t> for SimdU8Value {
 }
 
 use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
-simd_input_128_bit!("neon");
-algorithm_simd!("neon");
+simd_input_128_bit!("not_used");
+algorithm_simd!("not_used");

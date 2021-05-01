@@ -40,10 +40,14 @@ fn test_valid_public_imp(input: &[u8]) {
             assert!(crate::compat::imp::x86::sse42::validate_utf8(input).is_ok());
         }
     }
-    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
+    #[cfg(all(
+        feature = "aarch64_neon",
+        target_arch = "aarch64",
+        target_feature = "neon"
+    ))]
     unsafe {
-        assert!(crate::basic::imp::aarch64::validate_utf8(input).is_ok());
-        assert!(crate::compat::imp::aarch64::validate_utf8(input).is_ok());
+        assert!(crate::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
+        assert!(crate::compat::imp::aarch64::neon::validate_utf8(input).is_ok());
     }
 }
 
@@ -98,17 +102,21 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
             );
         }
     }
-    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
+    #[cfg(all(
+        feature = "aarch64_neon",
+        target_arch = "aarch64",
+        target_feature = "neon"
+    ))]
     unsafe {
-        assert!(crate::basic::imp::aarch64::validate_utf8(input).is_err());
+        assert!(crate::basic::imp::aarch64::neon::validate_utf8(input).is_err());
         assert_eq!(
-            crate::compat::imp::aarch64::validate_utf8(input)
+            crate::compat::imp::aarch64::neon::validate_utf8(input)
                 .unwrap_err()
                 .valid_up_to(),
             valid_up_to
         );
         assert_eq!(
-            crate::compat::imp::aarch64::validate_utf8(input)
+            crate::compat::imp::aarch64::neon::validate_utf8(input)
                 .unwrap_err()
                 .error_len(),
             error_len
