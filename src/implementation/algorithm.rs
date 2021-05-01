@@ -192,6 +192,7 @@ macro_rules! algorithm_simd {
 
             #[target_feature(enable = $feat)]
             #[inline]
+            #[allow(unconditional_panic)] // does not panic because len is checked
             unsafe fn check_block(&mut self, input: SimdInput) {
                 // necessary because a for loop is not unrolled on ARM64
                 if (input.vals.len() == 2) {
