@@ -8,6 +8,12 @@ pub(crate) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basi
         return super::validate_utf8_basic_fallback(input);
     }
 
+    validate_utf8_basic_neon(input)
+}
+
+#[inline(never)]
+#[cfg(feature = "aarch64_neon")]
+unsafe fn validate_utf8_basic_neon(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     neon::validate_utf8_basic(input)
 }
 
@@ -21,6 +27,12 @@ pub(crate) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
         return super::validate_utf8_compat_fallback(input);
     }
 
+    validate_utf8_compat_neon(input)
+}
+
+#[inline(never)]
+#[cfg(feature = "aarch64_neon")]
+unsafe fn validate_utf8_compat_neon(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
     neon::validate_utf8_compat(input)
 }
 
