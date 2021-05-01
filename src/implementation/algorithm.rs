@@ -183,7 +183,7 @@ macro_rules! algorithm_simd {
             #[target_feature(enable = $feat)]
             #[inline]
             unsafe fn check_utf8(&mut self, input: SimdInput) {
-                if likely!(input.is_ascii()) {
+                if input.is_ascii() {
                     self.check_eof();
                 } else {
                     self.check_block(input);
@@ -232,7 +232,7 @@ macro_rules! algorithm_simd {
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     idx += to_copy;
-                    if unlikely!(!simd_input.is_ascii()) {
+                    if !simd_input.is_ascii() {
                         algorithm.check_block(simd_input);
                         only_ascii = false;
                     }
@@ -241,7 +241,7 @@ macro_rules! algorithm_simd {
 
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
-            if likely!(only_ascii) {
+            if only_ascii {
                 while idx < iter_lim {
                     let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                     idx += SIMD_CHUNK_SIZE;
@@ -267,7 +267,7 @@ macro_rules! algorithm_simd {
                 algorithm.check_utf8(simd_input);
             }
             algorithm.check_eof();
-            if unlikely!(algorithm.has_error()) {
+            if algorithm.has_error() {
                 Err(crate::basic::Utf8Error {})
             } else {
                 Ok(())
@@ -313,7 +313,7 @@ macro_rules! algorithm_simd {
                         to_copy,
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
-                    if unlikely!(!simd_input.is_ascii()) {
+                    if !simd_input.is_ascii() {
                         algorithm.check_block(simd_input);
                         only_ascii = false;
                         if algorithm.has_error() {
@@ -327,10 +327,10 @@ macro_rules! algorithm_simd {
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
             'outer: loop {
-                if likely!(only_ascii) {
+                if only_ascii {
                     while idx < iter_lim {
                         let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                        if unlikely!(!simd_input.is_ascii()) {
+                        if !simd_input.is_ascii() {
                             algorithm.check_block(simd_input);
                             if algorithm.has_error() {
                                 return Err(idx);
@@ -378,7 +378,7 @@ macro_rules! algorithm_simd {
                 algorithm.check_utf8(simd_input);
             }
             algorithm.check_eof();
-            if unlikely!(algorithm.has_error()) {
+            if algorithm.has_error() {
                 Err(idx)
             } else {
                 Ok(())
