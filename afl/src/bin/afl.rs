@@ -27,6 +27,7 @@ fn check_compat_simd_res(
     }
 }
 
+#[cfg(target_arch = "x86-64")]
 fn main() {
     fuzz!(|data: &[u8]| {
         unsafe {
@@ -37,6 +38,19 @@ fn main() {
             check_compat_simd_res(std_res, compat_simd_res);
             let basic_simd_res = simdutf8::basic::imp::x86::sse42::validate_utf8(data);
             let compat_simd_res = simdutf8::compat::imp::x86::sse42::validate_utf8(data);
+            check_basic_simd_res(std_res, basic_simd_res);
+            check_compat_simd_res(std_res, compat_simd_res);
+        }
+    });
+}
+
+#[cfg(target_arch = "aarch64")]
+fn main() {
+    fuzz!(|data: &[u8]| {
+        unsafe {
+            let std_res = std::str::from_utf8(data);
+            let basic_simd_res = simdutf8::basic::imp::aarch64::validate_utf8(data);
+            let compat_simd_res = simdutf8::compat::imp::aarch64::validate_utf8(data);
             check_basic_simd_res(std_res, basic_simd_res);
             check_compat_simd_res(std_res, compat_simd_res);
         }
