@@ -224,9 +224,11 @@ macro_rules! algorithm_simd {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
                     let to_copy = align - off;
-                    tmpbuf.0[SIMD_CHUNK_SIZE - align + off..]
-                        .as_mut_ptr()
-                        .copy_from_nonoverlapping(input.as_ptr(), to_copy);
+                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
+                        input.as_ptr(),
+                        tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
+                        to_copy,
+                    );
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     algorithm.check_utf8(simd_input);
                     idx += to_copy;
@@ -242,10 +244,11 @@ macro_rules! algorithm_simd {
             }
 
             if idx < len {
-                tmpbuf
-                    .1
-                    .as_mut_ptr()
-                    .copy_from_nonoverlapping(input.as_ptr().add(idx), len - idx);
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
+                    input.as_ptr().add(idx),
+                    tmpbuf.1.as_mut_ptr(),
+                    len - idx,
+                );
                 let input = SimdInput::new(&tmpbuf.1);
 
                 algorithm.check_utf8(input);
@@ -290,9 +293,11 @@ macro_rules! algorithm_simd {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
                     let to_copy = align - off;
-                    tmpbuf.0[SIMD_CHUNK_SIZE - align + off..]
-                        .as_mut_ptr()
-                        .copy_from_nonoverlapping(input.as_ptr(), to_copy);
+                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
+                        input.as_ptr(),
+                        tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
+                        to_copy,
+                    );
                     let simd_input = SimdInput::new(&tmpbuf.0);
                     algorithm.check_utf8(simd_input);
                     if algorithm.has_error() {
@@ -313,10 +318,11 @@ macro_rules! algorithm_simd {
                 idx += SIMD_CHUNK_SIZE;
             }
             if idx < len {
-                tmpbuf
-                    .1
-                    .as_mut_ptr()
-                    .copy_from_nonoverlapping(input.as_ptr().add(idx), len - idx);
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
+                    input.as_ptr().add(idx),
+                    tmpbuf.1.as_mut_ptr(),
+                    len - idx,
+                );
                 let simd_input = SimdInput::new(&tmpbuf.1);
 
                 algorithm.check_utf8(simd_input);

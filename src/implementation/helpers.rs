@@ -37,6 +37,30 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
     validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
+#[inline]
+#[allow(dead_code)]
+#[allow(clippy::missing_const_for_fn)] // clippy is wrong, it cannot really be const
+pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline(
+    mut src: *const u8,
+    mut dest: *mut u8,
+    mut len: usize,
+) {
+    while len >= 8 {
+        #[allow(clippy::cast_ptr_alignment)]
+        dest.cast::<u64>()
+            .write_unaligned(src.cast::<u64>().read_unaligned());
+        src = src.offset(8);
+        dest = dest.offset(8);
+        len -= 8;
+    }
+    while len > 0 {
+        *dest = *src;
+        src = src.offset(1);
+        dest = dest.offset(1);
+        len -= 1;
+    }
+}
+
 pub(crate) const SIMD_CHUNK_SIZE: usize = 64;
 
 #[repr(C, align(32))]
