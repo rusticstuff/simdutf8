@@ -193,8 +193,17 @@ macro_rules! algorithm_simd {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn check_block(&mut self, input: SimdInput) {
-                for i in 0..input.vals.len() {
-                    self.check_bytes(input.vals[i]);
+                // necessary because a for loop is not unrolled on ARM64
+                if (input.vals.len() == 2) {
+                    self.check_bytes(input.vals[0]);
+                    self.check_bytes(input.vals[1]);
+                } else if (input.vals.len() == 4) {
+                    self.check_bytes(input.vals[0]);
+                    self.check_bytes(input.vals[1]);
+                    self.check_bytes(input.vals[2]);
+                    self.check_bytes(input.vals[3]);
+                } else {
+                    panic!("Unsupported number of chunks");
                 }
             }
         }
