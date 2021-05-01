@@ -195,10 +195,10 @@ macro_rules! algorithm_simd {
             #[allow(unconditional_panic)] // does not panic because len is checked
             unsafe fn check_block(&mut self, input: SimdInput) {
                 // necessary because a for loop is not unrolled on ARM64
-                if (input.vals.len() == 2) {
+                if input.vals.len() == 2 {
                     self.check_bytes(input.vals[0]);
                     self.check_bytes(input.vals[1]);
-                } else if (input.vals.len() == 4) {
+                } else if input.vals.len() == 4 {
                     self.check_bytes(input.vals[0]);
                     self.check_bytes(input.vals[1]);
                     self.check_bytes(input.vals[2]);
