@@ -5,10 +5,6 @@ type Utf8ErrorBasic = crate::basic::Utf8Error;
 
 #[allow(unused_macros)]
 #[macro_use]
-mod macros;
-
-#[allow(unused_macros)]
-#[macro_use]
 mod algorithm;
 
 pub(crate) mod helpers;

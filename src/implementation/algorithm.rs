@@ -183,7 +183,7 @@ macro_rules! algorithm_simd {
             #[target_feature(enable = $feat)]
             #[inline]
             unsafe fn check_utf8(&mut self, input: SimdInput) {
-                if likely!(input.is_ascii()) {
+                if input.is_ascii() {
                     self.check_eof();
                 } else {
                     self.check_block(input);
@@ -218,6 +218,7 @@ macro_rules! algorithm_simd {
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
             let mut tmpbuf = Temp2xSimdChunk::new();
+            let mut only_ascii = true;
 
             let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
             if len >= 4096 {
@@ -230,13 +231,26 @@ macro_rules! algorithm_simd {
                         to_copy,
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
-                    algorithm.check_utf8(simd_input);
                     idx += to_copy;
+                    if !simd_input.is_ascii() {
+                        algorithm.check_block(simd_input);
+                        only_ascii = false;
+                    }
                 }
             }
 
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
+            if only_ascii {
+                while idx < iter_lim {
+                    let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                    idx += SIMD_CHUNK_SIZE;
+                    if !simd_input.is_ascii() {
+                        algorithm.check_block(simd_input);
+                        break;
+                    }
+                }
+            }
             while idx < iter_lim {
                 let input = SimdInput::new(input.get_unchecked(idx as usize..));
                 algorithm.check_utf8(input);
@@ -249,12 +263,11 @@ macro_rules! algorithm_simd {
                     tmpbuf.1.as_mut_ptr(),
                     len - idx,
                 );
-                let input = SimdInput::new(&tmpbuf.1);
-
-                algorithm.check_utf8(input);
+                let simd_input = SimdInput::new(&tmpbuf.1);
+                algorithm.check_utf8(simd_input);
             }
             algorithm.check_eof();
-            if unlikely!(algorithm.has_error()) {
+            if algorithm.has_error() {
                 Err(crate::basic::Utf8Error {})
             } else {
                 Ok(())
@@ -287,6 +300,7 @@ macro_rules! algorithm_simd {
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
             let mut tmpbuf = Temp2xSimdChunk::new();
+            let mut only_ascii = true;
 
             let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
             if len >= 4096 {
@@ -299,9 +313,12 @@ macro_rules! algorithm_simd {
                         to_copy,
                     );
                     let simd_input = SimdInput::new(&tmpbuf.0);
-                    algorithm.check_utf8(simd_input);
-                    if algorithm.has_error() {
-                        return Err(idx);
+                    if !simd_input.is_ascii() {
+                        algorithm.check_block(simd_input);
+                        only_ascii = false;
+                        if algorithm.has_error() {
+                            return Err(idx);
+                        }
                     }
                     idx += to_copy;
                 }
@@ -309,13 +326,46 @@ macro_rules! algorithm_simd {
 
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
-            while idx < iter_lim {
-                let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                algorithm.check_utf8(simd_input);
-                if algorithm.has_error() {
-                    return Err(idx);
+            'outer: loop {
+                if only_ascii {
+                    while idx < iter_lim {
+                        let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                        if !simd_input.is_ascii() {
+                            algorithm.check_block(simd_input);
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            } else {
+                                only_ascii = false;
+                                idx += SIMD_CHUNK_SIZE;
+                                continue 'outer;
+                            }
+                        }
+                        idx += SIMD_CHUNK_SIZE;
+                    }
+                    break;
+                } else {
+                    while idx < iter_lim {
+                        let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                        if simd_input.is_ascii() {
+                            algorithm.check_eof();
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            } else {
+                                // we are in pure ASCII territory again
+                                only_ascii = true;
+                                idx += SIMD_CHUNK_SIZE;
+                                continue 'outer;
+                            }
+                        } else {
+                            algorithm.check_block(simd_input);
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            }
+                        }
+                        idx += SIMD_CHUNK_SIZE;
+                    }
+                    break;
                 }
-                idx += SIMD_CHUNK_SIZE;
             }
             if idx < len {
                 crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline(
@@ -328,7 +378,7 @@ macro_rules! algorithm_simd {
                 algorithm.check_utf8(simd_input);
             }
             algorithm.check_eof();
-            if unlikely!(algorithm.has_error()) {
+            if algorithm.has_error() {
                 Err(idx)
             } else {
                 Ok(())
