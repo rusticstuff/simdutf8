@@ -61,15 +61,15 @@ The `compat` flavor is fully API-compatible with `std::str::from_utf8`. In parti
 returns a `simdutf8::compat::Utf8Error`, which has `valid_up_to()` and `error_len()` methods. The first is useful for
 verification of streamed data. The second is useful e.g. for replacing invalid byte sequences with a replacement character.
 
-It also fails early: errors are checked on-the-fly as the string is processed and once
+It also fails early: errors are checked on the fly as the string is processed and once
 an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
-This comes at a performance penality compared to the `basic` API even if the input is valid UTF-8.
+This comes at a performance penalty compared to the `basic` API even if the input is valid UTF-8.
 
 ## Implementation selection
 The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the CPU
 targeted by the compiler supports the fastest available implementation.
 So if you compile with `RUSTFLAGS="-C target-cpu=native"` on a recent x86-64 machine, the AVX 2 implementation is selected at
-compile time and runtime selection is disabled.
+compile-time and runtime selection is disabled.
 
 For no-std support (compiled with `--no-default-features`) the implementation is always selected at compile time based on
 the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.2"`
@@ -89,7 +89,7 @@ The benchmarks have been done with [criterion](https://bheisler.github.io/criter
 are created with [critcmp](https://github.com/BurntSushi/critcmp). Source code and data are in the
 [bench directory](https://github.com/rusticstuff/simdutf8/tree/main/bench).
 
-The name schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/66536_ is a 64KiB slice where the very
+The naming schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/66536_ is a 64KiB slice where the very
 first character is invalid UTF-8. All benchmarks were run on a laptop with an Intel Core i7-10750H CPU (Comet Lake) on
 Windows with Rust 1.51.0 if not otherwise stated. Library versions are simdutf8 v0.1.1 and simdjson v0.9.2. When comparing
 with simdjson simdutf8 is compiled with `#inline(never)`.
@@ -126,7 +126,7 @@ leads to worse performance on byte sequences shorter than 2048 bytes. Thus, alig
 2048 bytes of data or more. Incomplete reads for the first unaligned and the last incomplete block are done in
 two aligned 64-byte buffers.
 
-For the compat API we need to check the error buffer on each 64-byte block instead of just aggregating it. If an
+For the compat API, we need to check the error buffer on each 64-byte block instead of just aggregating it. If an
 error is found, the last bytes of the previous block are checked for a cross-block continuation and then
 `std::str::from_utf8()` is run to find the exact location of the error.
 
