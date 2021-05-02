@@ -85,7 +85,7 @@ impl SimdU8Value {
     #[inline]
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        // WORKAROUND:
+        // WORKAROUND for https://github.com/rust-lang/stdarch/issues/1148
         // The vld1q_u8 intrinsic is currently broken, it treats it as individual
         // byte loads so the compiler sometimes decides it is a better to load
         // individual bytes to "optimize" a subsequent SIMD shuffle

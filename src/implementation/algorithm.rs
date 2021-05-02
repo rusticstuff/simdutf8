@@ -195,7 +195,8 @@ macro_rules! algorithm_simd {
             #[allow(unconditional_panic)] // does not panic because len is checked
             #[allow(const_err)] // the same, but for Rust 1.38.0
             unsafe fn check_block(&mut self, input: SimdInput) {
-                // necessary because a for loop is not unrolled on ARM64
+                // WORKAROUND
+                // necessary because the for loop is not unrolled on ARM64
                 if input.vals.len() == 2 {
                     self.check_bytes(input.vals[0]);
                     self.check_bytes(input.vals[1]);
