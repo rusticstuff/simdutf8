@@ -17,7 +17,7 @@ unsafe fn validate_utf8_basic_neon(input: &[u8]) -> Result<(), crate::basic::Utf
     neon::validate_utf8_basic(input)
 }
 
-#[cfg(not(feature = "aarch64_neon"))]
+#[cfg(not(all(feature = "aarch64_neon", target_feature = "neon")))]
 pub(crate) use super::validate_utf8_basic_fallback as validate_utf8_basic;
 
 #[inline]
