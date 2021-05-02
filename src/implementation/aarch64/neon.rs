@@ -91,13 +91,13 @@ impl SimdU8Value {
         // individual bytes to "optimize" a subsequent SIMD shuffle
         //
         // This code forces a full 128-bit load.
-        let mut dst = core::mem::MaybeUninit::<uint8x16_t>::uninit().assume_init();
+        let mut dst = core::mem::MaybeUninit::<uint8x16_t>::uninit();
         core::ptr::copy_nonoverlapping(
             ptr as *const u8,
-            &mut dst as *mut uint8x16_t as *mut u8,
+            dst.as_mut_ptr() as *mut u8,
             core::mem::size_of::<uint8x16_t>(),
         );
-        Self::from(dst)
+        Self::from(dst.assume_init())
     }
 
     #[inline]
