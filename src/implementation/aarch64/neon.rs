@@ -85,7 +85,19 @@ impl SimdU8Value {
     #[inline]
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        Self::from(vld1q_u8(ptr))
+        // WORKAROUND:
+        // The vld1q_u8 intrinsic is currently broken, it treats it as individual
+        // byte loads so the compiler sometimes decides it is a better to load
+        // individual bytes to "optimize" a subsequent SIMD shuffle
+        //
+        // This code forces a full 128-bit load.
+        let mut dst = core::mem::MaybeUninit::<uint8x16_t>::uninit();
+        core::ptr::copy_nonoverlapping(
+            ptr as *const u8,
+            dst.as_mut_ptr() as *mut u8,
+            core::mem::size_of::<uint8x16_t>(),
+        );
+        Self::from(dst.assume_init())
     }
 
     #[inline]
