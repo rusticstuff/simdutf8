@@ -221,23 +221,25 @@ macro_rules! algorithm_simd {
             let mut tmpbuf = Temp2xSimdChunk::new();
             let mut only_ascii = true;
 
-            let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
-            if len >= 4096 {
-                let off = (input.as_ptr() as usize) % align;
-                if off != 0 {
-                    let to_copy = align - off;
-                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                        input.as_ptr(),
-                        tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
-                        to_copy,
-                    );
-                    let simd_input = SimdInput::new(&tmpbuf.0);
-                    idx += to_copy;
-                    if !simd_input.is_ascii() {
-                        algorithm.check_block(simd_input);
-                        only_ascii = false;
+            if ALIGN_READS {
+                let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
+                if len >= 4096 {
+                    let off = (input.as_ptr() as usize) % align;
+                    if off != 0 {
+                        let to_copy = align - off;
+                        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                            input.as_ptr(),
+                            tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
+                            to_copy,
+                        );
+                        let simd_input = SimdInput::new(&tmpbuf.0);
+                        idx += to_copy;
+                        if !simd_input.is_ascii() {
+                            algorithm.check_block(simd_input);
+                            only_ascii = false;
+                        }
                     }
-                }
+                }    
             }
 
             let rem = len - idx;
@@ -303,25 +305,27 @@ macro_rules! algorithm_simd {
             let mut tmpbuf = Temp2xSimdChunk::new();
             let mut only_ascii = true;
 
-            let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
-            if len >= 4096 {
-                let off = (input.as_ptr() as usize) % align;
-                if off != 0 {
-                    let to_copy = align - off;
-                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                        input.as_ptr(),
-                        tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
-                        to_copy,
-                    );
-                    let simd_input = SimdInput::new(&tmpbuf.0);
-                    if !simd_input.is_ascii() {
-                        algorithm.check_block(simd_input);
-                        only_ascii = false;
-                        if algorithm.has_error() {
-                            return Err(idx);
+            if ALIGN_READS {
+                let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
+                if len >= 4096 {
+                    let off = (input.as_ptr() as usize) % align;
+                    if off != 0 {
+                        let to_copy = align - off;
+                        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                            input.as_ptr(),
+                            tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
+                            to_copy,
+                        );
+                        let simd_input = SimdInput::new(&tmpbuf.0);
+                        if !simd_input.is_ascii() {
+                            algorithm.check_block(simd_input);
+                            only_ascii = false;
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            }
                         }
+                        idx += to_copy;
                     }
-                    idx += to_copy;
                 }
             }
 

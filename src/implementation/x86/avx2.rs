@@ -255,6 +255,7 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
     }
 }
 
+const ALIGN_READS: bool = true;
 use crate::implementation::helpers::Temp2xSimdChunkA32 as Temp2xSimdChunk;
 simd_input_256_bit!("avx2");
 algorithm_simd!("avx2");
