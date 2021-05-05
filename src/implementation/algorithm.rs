@@ -176,7 +176,6 @@ macro_rules! algorithm_simd {
                 self.error = self
                     .error
                     .or(Self::check_multibyte_lengths(input, self.prev, sc));
-                self.incomplete = Self::is_incomplete(input);
                 self.prev = input
             }
 
@@ -200,11 +199,13 @@ macro_rules! algorithm_simd {
                 if input.vals.len() == 2 {
                     self.check_bytes(input.vals[0]);
                     self.check_bytes(input.vals[1]);
+                    self.incomplete = Self::is_incomplete(input.vals[1]);
                 } else if input.vals.len() == 4 {
                     self.check_bytes(input.vals[0]);
                     self.check_bytes(input.vals[1]);
                     self.check_bytes(input.vals[2]);
                     self.check_bytes(input.vals[3]);
+                    self.incomplete = Self::is_incomplete(input.vals[3]);
                 } else {
                     panic!("Unsupported number of chunks");
                 }
