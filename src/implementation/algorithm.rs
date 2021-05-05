@@ -239,7 +239,7 @@ macro_rules! algorithm_simd {
                             only_ascii = false;
                         }
                     }
-                }    
+                }
             }
 
             let rem = len - idx;
