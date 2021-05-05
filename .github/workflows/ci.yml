@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        toolchain: [stable, nightly, "1.38.0"]
+        toolchain: ["1.38.0", stable, beta, nightly ]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
         exclude:
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly, "1.38.0"]
+        toolchain: ["1.38.0", stable, beta, nightly ]
     defaults:
       run:
         working-directory: inlining
@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly, "1.38.0"]
+        toolchain: ["1.38.0", stable, beta, nightly ]
         target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]
         include:
