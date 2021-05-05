@@ -156,10 +156,10 @@ macro_rules! algorithm_simd {
                 prev2: SimdU8Value,
                 prev3: SimdU8Value,
             ) -> SimdU8Value {
-                let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0b1110_0000 - 1));
-                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0b1111_0000 - 1));
+                let is_third_byte = prev2.gt(SimdU8Value::splat(0b1110_0000 - 1));
+                let is_fourth_byte = prev3.gt(SimdU8Value::splat(0b1111_0000 - 1));
 
-                is_third_byte.or(is_fourth_byte).gt(SimdU8Value::splat0())
+                is_third_byte.or(is_fourth_byte)
             }
 
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
