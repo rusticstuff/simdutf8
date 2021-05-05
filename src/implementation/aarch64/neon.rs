@@ -195,7 +195,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    unsafe fn gt(self, other: Self) -> Self {
+    unsafe fn unsigned_gt(self, other: Self) -> Self {
         Self::from(vcgtq_u8(self.0, other.0))
     }
 
@@ -215,6 +215,15 @@ impl From<uint8x16_t> for SimdU8Value {
     fn from(val: uint8x16_t) -> Self {
         Self { 0: val }
     }
+}
+
+#[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+#[inline]
+unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+    let is_third_byte = prev2.unsigned_gt(SimdU8Value::splat(0b1110_0000 - 1));
+    let is_fourth_byte = prev3.unsigned_gt(SimdU8Value::splat(0b1111_0000 - 1));
+
+    is_third_byte.or(is_fourth_byte)
 }
 
 use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
