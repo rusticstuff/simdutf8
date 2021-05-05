@@ -217,13 +217,14 @@ impl From<uint8x16_t> for SimdU8Value {
     }
 }
 
-#[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
-#[inline]
-unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-    let is_third_byte = prev2.unsigned_gt(SimdU8Value::splat(0b1110_0000 - 1));
-    let is_fourth_byte = prev3.unsigned_gt(SimdU8Value::splat(0b1111_0000 - 1));
+impl Utf8CheckAlgorithm<SimdU8Value> {
+    #[inline]
+    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+        let is_third_byte = prev2.unsigned_gt(SimdU8Value::splat(0b1110_0000 - 1));
+        let is_fourth_byte = prev3.unsigned_gt(SimdU8Value::splat(0b1111_0000 - 1));
 
-    is_third_byte.or(is_fourth_byte)
+        is_third_byte.or(is_fourth_byte)
+    }
 }
 
 use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
