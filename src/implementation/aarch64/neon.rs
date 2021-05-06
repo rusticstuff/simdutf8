@@ -233,7 +233,6 @@ unsafe fn simd_prefetch(ptr: *const u8) {
     // _prefetch(ptr.cast::<i8>(), _PREFETCH_READ, _PREFETCH_LOCALITY3);
 }
 
-const ALIGN_READS: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!("not_used");
 algorithm_simd!("not_used");
