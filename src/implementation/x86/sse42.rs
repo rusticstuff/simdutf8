@@ -240,7 +240,7 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
     }
 }
 
-#[target_feature(enable = "avx2")]
+#[target_feature(enable = "sse4.2")]
 #[inline]
 unsafe fn simd_prefetch(ptr: *const u8) {
     _mm_prefetch(ptr.cast::<i8>(), _MM_HINT_T0);
