@@ -18,10 +18,10 @@
   * bikeshed: SimdU8Value -> SimdU8Vector | SimdU8xNative | ...
 
 * test all available stable implementations by default as if public_imp were specified
-* check remaining aarch64 perf. issues
 * document aarch64; docs-rs arch building
 * discourage -Oz
 * std handling: no-std + extern crate std if std
-+ Doc: remove for Rust from README header but not from description
+* Doc: remove for Rust from README header but not from description
+* proptests?
 
 # OTHER
