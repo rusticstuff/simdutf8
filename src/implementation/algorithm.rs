@@ -229,12 +229,12 @@ macro_rules! algorithm_simd {
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let mut tmpbuf = TempSimdChunk::new();
             let mut only_ascii = true;
             let align: usize = core::mem::align_of::<TempSimdChunk>();
             if len >= 4096 {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
+                    let mut tmpbuf = TempSimdChunk::new();
                     let to_copy = align - off;
                     crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                         input.as_ptr(),
@@ -270,6 +270,7 @@ macro_rules! algorithm_simd {
             }
 
             if idx < len {
+                let mut tmpbuf = TempSimdChunk::new();
                 crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                     input.as_ptr().add(idx),
                     tmpbuf.0.as_mut_ptr(),
@@ -311,13 +312,13 @@ macro_rules! algorithm_simd {
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let mut tmpbuf = TempSimdChunk::new();
             let mut only_ascii = true;
 
             let align: usize = core::mem::align_of::<TempSimdChunk>();
             if len >= 4096 {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
+                    let mut tmpbuf = TempSimdChunk::new();
                     let to_copy = align - off;
                     crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                         input.as_ptr(),
@@ -381,6 +382,7 @@ macro_rules! algorithm_simd {
                 }
             }
             if idx < len {
+                let mut tmpbuf = TempSimdChunk::new();
                 crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                     input.as_ptr().add(idx),
                     tmpbuf.0.as_mut_ptr(),
