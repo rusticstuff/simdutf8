@@ -242,6 +242,6 @@ impl From<__m256i> for SimdU8Value {
     }
 }
 
-use crate::implementation::helpers::Temp2xSimdChunkA32 as Temp2xSimdChunk;
+use crate::implementation::helpers::TempSimdChunkA32 as TempSimdChunk;
 simd_input_256_bit!("avx2");
 algorithm_simd!("avx2");

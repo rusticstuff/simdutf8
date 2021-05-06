@@ -89,31 +89,25 @@ pub(crate) struct Utf8CheckAlgorithm<T> {
 
 #[repr(C, align(16))]
 #[allow(dead_code)]
-pub(crate) struct Temp2xSimdChunkA16(
-    pub(crate) [u8; SIMD_CHUNK_SIZE],
-    pub(crate) [u8; SIMD_CHUNK_SIZE],
-);
+pub(crate) struct TempSimdChunkA16(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)]
-impl Temp2xSimdChunkA16 {
+impl TempSimdChunkA16 {
     #[inline]
     pub(crate) const fn new() -> Self {
-        Self([0; SIMD_CHUNK_SIZE], [0; SIMD_CHUNK_SIZE])
+        Self([0; SIMD_CHUNK_SIZE])
     }
 }
 
 #[repr(C, align(32))]
 #[allow(dead_code)]
-pub(crate) struct Temp2xSimdChunkA32(
-    pub(crate) [u8; SIMD_CHUNK_SIZE],
-    pub(crate) [u8; SIMD_CHUNK_SIZE],
-);
+pub(crate) struct TempSimdChunkA32(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)]
-impl Temp2xSimdChunkA32 {
+impl TempSimdChunkA32 {
     #[inline]
     pub(crate) const fn new() -> Self {
-        Self([0; SIMD_CHUNK_SIZE], [0; SIMD_CHUNK_SIZE])
+        Self([0; SIMD_CHUNK_SIZE])
     }
 }
 

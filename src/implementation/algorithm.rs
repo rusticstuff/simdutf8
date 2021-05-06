@@ -1,7 +1,7 @@
 /// Macros requires newtypes in scope:
 /// `SimdU8Value` - implementation of SIMD primitives
 /// `SimdInput` - which  holds 64 bytes of SIMD input
-/// `Temp2xSimdChunk` - correctly aligned Temp2xSimdChunk, either Temp2xSimdChunkA16 or Temp2xSimdChunkA32
+/// `TempSimdChunk` - correctly aligned TempSimdChunk, either TempSimdChunkA16 or TempSimdChunkA32
 
 macro_rules! algorithm_simd {
     ($feat:expr) => {
@@ -229,10 +229,9 @@ macro_rules! algorithm_simd {
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let mut tmpbuf = Temp2xSimdChunk::new();
+            let mut tmpbuf = TempSimdChunk::new();
             let mut only_ascii = true;
-
-            let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
+            let align: usize = core::mem::align_of::<TempSimdChunk>();
             if len >= 4096 {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
@@ -248,6 +247,7 @@ macro_rules! algorithm_simd {
                         algorithm.check_block(simd_input);
                         only_ascii = false;
                     }
+                    tmpbuf.0 = [0; SIMD_CHUNK_SIZE];
                 }
             }
 
@@ -272,10 +272,10 @@ macro_rules! algorithm_simd {
             if idx < len {
                 crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                     input.as_ptr().add(idx),
-                    tmpbuf.1.as_mut_ptr(),
+                    tmpbuf.0.as_mut_ptr(),
                     len - idx,
                 );
-                let simd_input = SimdInput::new(&tmpbuf.1);
+                let simd_input = SimdInput::new(&tmpbuf.0);
                 algorithm.check_utf8(simd_input);
             }
             algorithm.check_incomplete_pending();
@@ -311,10 +311,10 @@ macro_rules! algorithm_simd {
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let mut tmpbuf = Temp2xSimdChunk::new();
+            let mut tmpbuf = TempSimdChunk::new();
             let mut only_ascii = true;
 
-            let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
+            let align: usize = core::mem::align_of::<TempSimdChunk>();
             if len >= 4096 {
                 let off = (input.as_ptr() as usize) % align;
                 if off != 0 {
@@ -332,6 +332,7 @@ macro_rules! algorithm_simd {
                             return Err(idx);
                         }
                     }
+                    tmpbuf.0 = [0; SIMD_CHUNK_SIZE];
                     idx += to_copy;
                 }
             }
@@ -382,10 +383,10 @@ macro_rules! algorithm_simd {
             if idx < len {
                 crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
                     input.as_ptr().add(idx),
-                    tmpbuf.1.as_mut_ptr(),
+                    tmpbuf.0.as_mut_ptr(),
                     len - idx,
                 );
-                let simd_input = SimdInput::new(&tmpbuf.1);
+                let simd_input = SimdInput::new(&tmpbuf.0);
 
                 algorithm.check_utf8(simd_input);
             }

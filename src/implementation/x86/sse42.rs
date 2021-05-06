@@ -227,6 +227,6 @@ impl From<__m128i> for SimdU8Value {
     }
 }
 
-use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
+use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!("sse4.2");
 algorithm_simd!("sse4.2");
