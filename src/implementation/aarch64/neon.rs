@@ -228,6 +228,6 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
 }
 
 const ALIGN_READS: bool = false;
-use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
+use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!("not_used");
 algorithm_simd!("not_used");
