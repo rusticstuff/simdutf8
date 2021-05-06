@@ -152,18 +152,6 @@ macro_rules! algorithm_simd {
 
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            unsafe fn must_be_2_3_continuation(
-                prev2: SimdU8Value,
-                prev3: SimdU8Value,
-            ) -> SimdU8Value {
-                let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0b1110_0000 - 1));
-                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0b1111_0000 - 1));
-
-                is_third_byte.or(is_fourth_byte).gt(SimdU8Value::splat0())
-            }
-
-            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
-            #[inline]
             unsafe fn has_error(&self) -> bool {
                 self.error.any_bit_set()
             }
@@ -176,7 +164,6 @@ macro_rules! algorithm_simd {
                 self.error = self
                     .error
                     .or(Self::check_multibyte_lengths(input, self.prev, sc));
-                self.incomplete = Self::is_incomplete(input);
                 self.prev = input
             }
 
@@ -200,11 +187,13 @@ macro_rules! algorithm_simd {
                 if input.vals.len() == 2 {
                     self.check_bytes(input.vals[0]);
                     self.check_bytes(input.vals[1]);
+                    self.incomplete = Self::is_incomplete(input.vals[1]);
                 } else if input.vals.len() == 4 {
                     self.check_bytes(input.vals[0]);
                     self.check_bytes(input.vals[1]);
                     self.check_bytes(input.vals[2]);
                     self.check_bytes(input.vals[3]);
+                    self.incomplete = Self::is_incomplete(input.vals[3]);
                 } else {
                     panic!("Unsupported number of chunks");
                 }
@@ -230,24 +219,26 @@ macro_rules! algorithm_simd {
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
             let mut only_ascii = true;
-            let align: usize = core::mem::align_of::<TempSimdChunk>();
-            if len >= 4096 {
-                let off = (input.as_ptr() as usize) % align;
-                if off != 0 {
-                    let mut tmpbuf = TempSimdChunk::new();
-                    let to_copy = align - off;
-                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                        input.as_ptr(),
-                        tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
-                        to_copy,
-                    );
-                    let simd_input = SimdInput::new(&tmpbuf.0);
-                    idx += to_copy;
-                    if !simd_input.is_ascii() {
-                        algorithm.check_block(simd_input);
-                        only_ascii = false;
+
+            if ALIGN_READS {
+                let align: usize = core::mem::align_of::<TempSimdChunk>();
+                if len >= 4096 {
+                    let off = (input.as_ptr() as usize) % align;
+                    if off != 0 {
+                        let mut tmpbuf = TempSimdChunk::new();
+                        let to_copy = align - off;
+                        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                            input.as_ptr(),
+                            tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
+                            to_copy,
+                        );
+                        let simd_input = SimdInput::new(&tmpbuf.0);
+                        idx += to_copy;
+                        if !simd_input.is_ascii() {
+                            algorithm.check_block(simd_input);
+                            only_ascii = false;
+                        }
                     }
-                    tmpbuf.0 = [0; SIMD_CHUNK_SIZE];
                 }
             }
 
@@ -314,27 +305,28 @@ macro_rules! algorithm_simd {
             let mut idx: usize = 0;
             let mut only_ascii = true;
 
-            let align: usize = core::mem::align_of::<TempSimdChunk>();
-            if len >= 4096 {
-                let off = (input.as_ptr() as usize) % align;
-                if off != 0 {
-                    let mut tmpbuf = TempSimdChunk::new();
-                    let to_copy = align - off;
-                    crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                        input.as_ptr(),
-                        tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
-                        to_copy,
-                    );
-                    let simd_input = SimdInput::new(&tmpbuf.0);
-                    if !simd_input.is_ascii() {
-                        algorithm.check_block(simd_input);
-                        only_ascii = false;
-                        if algorithm.has_error() {
-                            return Err(idx);
+            if ALIGN_READS {
+                let align: usize = core::mem::align_of::<TempSimdChunk>();
+                if len >= 4096 {
+                    let off = (input.as_ptr() as usize) % align;
+                    if off != 0 {
+                        let mut tmpbuf = TempSimdChunk::new();
+                        let to_copy = align - off;
+                        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                            input.as_ptr(),
+                            tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
+                            to_copy,
+                        );
+                        let simd_input = SimdInput::new(&tmpbuf.0);
+                        if !simd_input.is_ascii() {
+                            algorithm.check_block(simd_input);
+                            only_ascii = false;
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            }
                         }
+                        idx += to_copy;
                     }
-                    tmpbuf.0 = [0; SIMD_CHUNK_SIZE];
-                    idx += to_copy;
                 }
             }
 

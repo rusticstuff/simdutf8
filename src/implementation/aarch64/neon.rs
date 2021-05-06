@@ -195,7 +195,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    unsafe fn gt(self, other: Self) -> Self {
+    unsafe fn unsigned_gt(self, other: Self) -> Self {
         Self::from(vcgtq_u8(self.0, other.0))
     }
 
@@ -217,6 +217,17 @@ impl From<uint8x16_t> for SimdU8Value {
     }
 }
 
+impl Utf8CheckAlgorithm<SimdU8Value> {
+    #[inline]
+    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+        let is_third_byte = prev2.unsigned_gt(SimdU8Value::splat(0b1110_0000 - 1));
+        let is_fourth_byte = prev3.unsigned_gt(SimdU8Value::splat(0b1111_0000 - 1));
+
+        is_third_byte.or(is_fourth_byte)
+    }
+}
+
+const ALIGN_READS: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!("not_used");
 algorithm_simd!("not_used");

@@ -218,7 +218,7 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn gt(self, other: Self) -> Self {
+    unsafe fn signed_gt(self, other: Self) -> Self {
         Self::from(_mm256_cmpgt_epi8(self.0, other.0))
     }
 
@@ -242,6 +242,20 @@ impl From<__m256i> for SimdU8Value {
     }
 }
 
+impl Utf8CheckAlgorithm<SimdU8Value> {
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0b1110_0000 - 1));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0b1111_0000 - 1));
+
+        is_third_byte
+            .or(is_fourth_byte)
+            .signed_gt(SimdU8Value::splat0())
+    }
+}
+
+const ALIGN_READS: bool = true;
 use crate::implementation::helpers::TempSimdChunkA32 as TempSimdChunk;
 simd_input_256_bit!("avx2");
 algorithm_simd!("avx2");
