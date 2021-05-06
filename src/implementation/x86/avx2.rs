@@ -5,14 +5,14 @@ use core::arch::x86::{
     __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
     _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8,
     _mm256_setr_epi8, _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16,
-    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
+    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
 };
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::{
     __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
     _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8,
     _mm256_setr_epi8, _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16,
-    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256,
+    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
@@ -253,6 +253,12 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
             .or(is_fourth_byte)
             .signed_gt(SimdU8Value::splat0())
     }
+}
+
+#[target_feature(enable = "avx2")]
+#[inline]
+unsafe fn simd_prefetch(ptr: *const u8) {
+    _mm_prefetch(ptr.cast::<i8>(), _MM_HINT_T0);
 }
 
 const ALIGN_READS: bool = true;
