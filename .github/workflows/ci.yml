@@ -35,7 +35,7 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
-  test-inlining:
+  test-inlining-x86:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -66,6 +66,31 @@ jobs:
           cargo clean;cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-fallback.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-avx2.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-sse42.txt -
+
+  test-inlining-aarch64:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [aarch64-unknown-linux-gnu, aarch64-apple-darwin]
+    defaults:
+      run:
+        working-directory: inlining
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            profile: minimal
+            target: ${{ matrix.target }}
+            override: true
+      - name: Install cargo-asm
+        run: cargo install cargo-asm
+      - name: Check if the expected fns are inlined
+        run: |
+          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-aarch64-fallback.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-aarch64-fallback.txt -
 
   test-doc:
     runs-on: ubuntu-latest
