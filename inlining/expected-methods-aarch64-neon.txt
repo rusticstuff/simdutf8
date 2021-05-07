@@ -1,0 +1,9 @@
+<&T as core::fmt::Debug>::fmt
+<() as core::fmt::Debug>::fmt
+<simdutf8::basic::Utf8Error as core::fmt::Debug>::fmt
+<simdutf8::basic::Utf8Error as core::fmt::Display>::fmt
+<simdutf8::compat::Utf8Error as core::fmt::Debug>::fmt
+<simdutf8::compat::Utf8Error as core::fmt::Display>::fmt
+simdutf8::implementation::aarch64::validate_utf8_basic_neon
+simdutf8::implementation::aarch64::validate_utf8_compat_neon
+simdutf8::implementation::helpers::get_compat_error
