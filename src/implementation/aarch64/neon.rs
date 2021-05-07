@@ -229,10 +229,7 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
 
 #[inline]
 unsafe fn simd_prefetch(ptr: *const u8) {
-    // disabled as it is slower with any stride on Apple M1 and Raspberry Pi 4
-    if false {
-        _prefetch(ptr.cast::<i8>(), _PREFETCH_READ, _PREFETCH_LOCALITY3);
-    }
+    _prefetch(ptr.cast::<i8>(), _PREFETCH_READ, _PREFETCH_LOCALITY3);
 }
 
 const ALIGN_READS: bool = false;
