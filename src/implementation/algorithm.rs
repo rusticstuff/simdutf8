@@ -218,20 +218,44 @@ macro_rules! algorithm_simd {
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
+            let mut only_ascii = true;
 
-            let rem = len - idx;
-            let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
-            while idx < iter_lim {
-                let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                idx += SIMD_CHUNK_SIZE;
-                if !simd_input.is_ascii() {
-                    algorithm.check_block(simd_input);
-                    break;
+            if ALIGN_READS {
+                let align: usize = core::mem::align_of::<TempSimdChunk>();
+                if len >= 4096 {
+                    let off = (input.as_ptr() as usize) % align;
+                    if off != 0 {
+                        let mut tmpbuf = TempSimdChunk::new();
+                        let to_copy = align - off;
+                        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                            input.as_ptr(),
+                            tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
+                            to_copy,
+                        );
+                        let simd_input = SimdInput::new(&tmpbuf.0);
+                        idx += to_copy;
+                        if !simd_input.is_ascii() {
+                            algorithm.check_block(simd_input);
+                            only_ascii = false;
+                        }
+                    }
                 }
             }
 
+            let rem = len - idx;
+            let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
+            if only_ascii {
+                while idx < iter_lim {
+                    let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                    idx += SIMD_CHUNK_SIZE;
+                    if !simd_input.is_ascii() {
+                        algorithm.check_block(simd_input);
+                        break;
+                    }
+                }
+            }
             while idx < iter_lim {
-                simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
+                // simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
                 let input = SimdInput::new(input.get_unchecked(idx as usize..));
                 algorithm.check_utf8(input);
                 idx += SIMD_CHUNK_SIZE;
@@ -282,6 +306,31 @@ macro_rules! algorithm_simd {
             let mut idx: usize = 0;
             let mut only_ascii = true;
 
+            if ALIGN_READS {
+                let align: usize = core::mem::align_of::<TempSimdChunk>();
+                if len >= 4096 {
+                    let off = (input.as_ptr() as usize) % align;
+                    if off != 0 {
+                        let mut tmpbuf = TempSimdChunk::new();
+                        let to_copy = align - off;
+                        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                            input.as_ptr(),
+                            tmpbuf.0[SIMD_CHUNK_SIZE - align + off..].as_mut_ptr(),
+                            to_copy,
+                        );
+                        let simd_input = SimdInput::new(&tmpbuf.0);
+                        if !simd_input.is_ascii() {
+                            algorithm.check_block(simd_input);
+                            only_ascii = false;
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            }
+                        }
+                        idx += to_copy;
+                    }
+                }
+            }
+
             let rem = len - idx;
             let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
             'outer: loop {
@@ -303,7 +352,7 @@ macro_rules! algorithm_simd {
                     break;
                 } else {
                     while idx < iter_lim {
-                        simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
+                        // simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
                         let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
                         if simd_input.is_ascii() {
                             algorithm.check_incomplete_pending();
