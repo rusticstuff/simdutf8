@@ -1,5 +1,7 @@
 //! Contains the x86-64/x86 AVX2 UTF-8 validation implementation.
 
+#![allow(clippy::too_many_arguments)]
+
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
     __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
@@ -24,8 +26,6 @@ type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m256i>;
 impl SimdU8Value {
     #[target_feature(enable = "avx2")]
     #[inline]
-    #[allow(clippy::too_many_arguments)]
-    #[allow(clippy::cast_possible_wrap)]
     unsafe fn from_32_cut_off_leading(
         v0: u8,
         v1: u8,
@@ -60,6 +60,7 @@ impl SimdU8Value {
         v30: u8,
         v31: u8,
     ) -> Self {
+        #[allow(clippy::cast_possible_wrap)]
         Self::from(_mm256_setr_epi8(
             v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
             v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
@@ -70,8 +71,6 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    #[allow(clippy::too_many_arguments)]
-    #[allow(clippy::cast_possible_wrap)]
     unsafe fn repeat_16(
         v0: u8,
         v1: u8,
@@ -90,6 +89,7 @@ impl SimdU8Value {
         v14: u8,
         v15: u8,
     ) -> Self {
+        #[allow(clippy::cast_possible_wrap)]
         Self::from_32_cut_off_leading(
             v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v0, v1, v2, v3,
             v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
@@ -98,14 +98,13 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    #[allow(clippy::cast_ptr_alignment)]
     unsafe fn load_from(ptr: *const u8) -> Self {
+        #[allow(clippy::cast_ptr_alignment)]
         Self::from(_mm256_loadu_si256(ptr.cast::<__m256i>()))
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    #[allow(clippy::too_many_arguments)]
     unsafe fn lookup_16(
         self,
         v0: u8,
@@ -136,14 +135,13 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    #[allow(clippy::cast_possible_wrap)]
     unsafe fn splat(val: u8) -> Self {
+        #[allow(clippy::cast_possible_wrap)]
         Self::from(_mm256_set1_epi8(val as i8))
     }
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    #[allow(clippy::cast_possible_wrap)]
     unsafe fn splat0() -> Self {
         Self::from(_mm256_setzero_si256())
     }
@@ -174,7 +172,6 @@ impl SimdU8Value {
 
     // ugly but shr<N> requires const generics
     #[target_feature(enable = "avx2")]
-    #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn shr4(self) -> Self {
         Self::from(_mm256_srli_epi16(self.0, 4)).and(Self::splat(0xFF >> 4))
@@ -182,7 +179,6 @@ impl SimdU8Value {
 
     // ugly but prev<N> requires const generics
     #[target_feature(enable = "avx2")]
-    #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev1(self, prev: Self) -> Self {
         Self::from(_mm256_alignr_epi8(
@@ -194,7 +190,6 @@ impl SimdU8Value {
 
     // ugly but prev<N> requires const generics
     #[target_feature(enable = "avx2")]
-    #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev2(self, prev: Self) -> Self {
         Self::from(_mm256_alignr_epi8(
@@ -206,7 +201,6 @@ impl SimdU8Value {
 
     // ugly but prev<N> requires const generics
     #[target_feature(enable = "avx2")]
-    #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev3(self, prev: Self) -> Self {
         Self::from(_mm256_alignr_epi8(
