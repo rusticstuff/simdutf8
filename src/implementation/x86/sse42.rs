@@ -17,7 +17,7 @@ use core::arch::x86_64::{
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
 
-// SSE 4.2 2 SIMD primitives
+// SSE 4.2 SIMD primitives
 
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
 
