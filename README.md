@@ -139,7 +139,7 @@ On X86 and ARM64 for inputs shorter than 64 bytes validation is delegated to `co
 The SIMD implementation is mostly similar to the one in simdjson except that it is has additional optimizations
 for the pure ASCII case. Also it uses prefetch with AVX 2 on x86 which leads to better performance with some Intel CPUs.
 
-For the compat API, we need to check the error buffer on each 64-byte block instead of just aggregating it. If an
+For the compat API, we need to check the error status vector on each 64-byte block instead of just aggregating it. If an
 error is found, the last bytes of the previous block are checked for a cross-block continuation and then
 `std::str::from_utf8()` is run to find the exact location of the error.
 
