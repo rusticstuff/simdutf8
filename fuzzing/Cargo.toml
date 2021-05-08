@@ -1,0 +1,8 @@
+# Not a real package! cargo-fuzz requires this directory structure, see https://github.com/rust-fuzz/cargo-fuzz/issues/238
+[package]
+name = "xxx"
+version = "0.1.0"
+authors = ["hans"]
+edition = "2018"
+
+[dependencies]

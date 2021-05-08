@@ -1,0 +1,20 @@
+[package]
+name = "simdutf8-fuzz"
+version = "0.0.1"
+authors = ["Hans Kratz <hans@appfour.com>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "*"
+common = { version = "*", path = "../common" }
+
+[[bin]]
+name = "simd"
+path = "targets/simd.rs"
+doc = false
+test = false

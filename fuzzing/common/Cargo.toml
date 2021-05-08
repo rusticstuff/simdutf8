@@ -1,0 +1,8 @@
+[package]
+name = "common"
+version = "0.1.0"
+authors = ["Hans Kratz <hans@appfour.com>"]
+edition = "2018"
+
+[dependencies]
+simdutf8 = { version = "*", path = "../..", features = [ "public_imp", "aarch64_neon" ] }

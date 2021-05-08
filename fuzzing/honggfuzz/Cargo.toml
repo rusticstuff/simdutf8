@@ -1,0 +1,11 @@
+[package]
+name = "honggfuzz"
+version = "0.1.0"
+authors = ["hans"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+honggfuzz = "0.5"
+common = { version = "*", path = "../common" }
