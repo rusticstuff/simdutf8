@@ -93,8 +93,8 @@ impl SimdU8Value {
         // This code forces a full 128-bit load.
         let mut dst = core::mem::MaybeUninit::<uint8x16_t>::uninit();
         core::ptr::copy_nonoverlapping(
-            ptr as *const u8,
-            dst.as_mut_ptr() as *mut u8,
+            ptr.cast::<u8>(),
+            dst.as_mut_ptr().cast::<u8>(),
             core::mem::size_of::<uint8x16_t>(),
         );
         Self::from(dst.assume_init())
