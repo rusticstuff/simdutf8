@@ -2,23 +2,24 @@
 [![crates.io](https://img.shields.io/crates/v/simdutf8.svg)](https://crates.io/crates/simdutf8)
 [![docs.rs](https://docs.rs/simdutf8/badge.svg)](https://docs.rs/simdutf8)
 
-# simdutf8 – High-speed UTF-8 validation for Rust
+# simdutf8 – High-speed UTF-8 validation
 
 Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
-[simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs).
+[simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs), but now heavily improved.
 
-## Disclaimer
-This software should not (yet) be used in production, though it has been tested with sample data as well as
-fuzzing and there are no known bugs.
+## Status
+This library has been heavily tested with sample data as well as fuzzing and there are no known bugs.
 
 ## Features
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
-* Up to 22 times faster than the std library on non-ASCII, up to three times faster on ASCII
+* Up to 22 times faster than the std library on non-ASCII, up to three times faster on ASCII on x86-64
+* Up to nine times faster than the std library on non-ASCII, up to three times faster on ASCII on Apple Silicon
 * As fast as or faster than the original simdjson implementation
-* Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64. 
-* ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`). ARMv7 Neon support is planned.
-* Selects the fastest implementation at runtime based on CPU support
+* Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
+* ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
+* ARMv7 Neon support is planned.
+* Selects the fastest implementation at runtime based on CPU support (on x86)
 * Written in pure Rust
 * No dependencies
 * No-std support
@@ -28,12 +29,12 @@ fuzzing and there are no known bugs.
 Add the dependency to your Cargo.toml file:
 ```toml
 [dependencies]
-simdutf8 = { version = "0.1.1" }
+simdutf8 = { version = "0.1.2" }
 ```
 or on ARM64:
 ```toml
 [dependencies]
-simdutf8 = { version = "0.1.1", features = ["aarch64_neon"] }
+simdutf8 = { version = "0.1.2", features = ["aarch64_neon"] }
 ```
 
 Use `simdutf8::basic::from_utf8` as a drop-in replacement for `std::str::from_utf8()`.
@@ -69,12 +70,12 @@ verification of streamed data. The second is useful e.g. for replacing invalid b
 
 It also fails early: errors are checked on the fly as the string is processed and once
 an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
-This comes at a performance penalty compared to the `basic` API even if the input is valid UTF-8.
+This comes at a slight performance penalty compared to the `basic` API even if the input is valid UTF-8.
 
 ## Implementation selection
 
 ### X86
-The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro unless the CPU
+The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro, unless the CPU
 targeted by the compiler supports the fastest available implementation.
 So if you compile with `RUSTFLAGS="-C target-cpu=native"` on a recent x86-64 machine, the AVX 2 implementation is selected at
 compile-time and runtime selection is disabled.
@@ -87,11 +88,12 @@ If you want to be able to call a SIMD implementation directly, use the `public_i
 implementations are then accessible via `simdutf8::(basic|compat)::imp::x86::(avx2|sse42)::validate_utf8()`.
 
 ### ARM64
-For ARM64 support nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is 
+For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
 not turned on the non-SIMD std library implementation is used.
 
-## When not to use
-This library uses unsafe code which has not been battle-tested and should not (yet) be used in production.
+## Optimisation flags
+Do not use [`opt-level = "z"`](https://doc.rust-lang.org/cargo/reference/profiles.html), which prevents inlining and makes
+the code quite slow.
 
 ## Minimum Supported Rust Version (MSRV)
 This crate's minimum supported Rust version is 1.38.0.
@@ -112,9 +114,9 @@ simdutf8 performs better or as well as the std library.
 
 ### simdutf8 basic vs simdjson UTF-8 validation on Intel Comet Lake
 ![critcmp stimdutf8 v0.1.1 basic vs simdjson WSL](https://user-images.githubusercontent.com/3736990/116121748-38656480-a6c1-11eb-8cb4-385c7516a46a.png)
-simdutf8 beats simdjson on almost all inputs on this CPU. This benchmark is run on 
-[WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) 
-since I could not get simdjson to reach maximum performance on Windows with any C++ toolchain (see also simdjson issues 
+simdutf8 beats simdjson on almost all inputs on this CPU. This benchmark is run on
+[WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+since I could not get simdjson to reach maximum performance on Windows with any C++ toolchain (see also simdjson issues
 [847](https://github.com/simdjson/simdjson/issues/847) and [848](https://github.com/simdjson/simdjson/issues/848)).
 
 ### simdutf8 basic vs simdjson UTF-8 validation on AMD Zen 2
@@ -129,14 +131,10 @@ There is a small performance penalty to continuously checking the error status w
 errors early provides a huge benefit for the _x-error/66536_ benchmark.
 
 ## Technical details
-On X86 for inputs shorter than 64 bytes validation is delegated to `core::str::from_utf8()`.
+On X86 and ARM64 for inputs shorter than 64 bytes validation is delegated to `core::str::from_utf8()`.
 
-The SIMD implementation is similar to the one in simdjson except that it aligns reads to the block size of the
-SIMD extension, which leads to better peak performance compared to the implementation in simdjson on some CPUs.
-This alignment means that an incomplete block needs to be processed before the aligned data is read, which
-leads to worse performance on byte sequences shorter than 2048 bytes. Thus, aligned reads are only used with
-2048 bytes of data or more. Incomplete reads for the first unaligned and the last incomplete block are done in
-two aligned 64-byte buffers.
+The SIMD implementation is mostly similar to the one in simdjson except that it is has additional optimizations
+for the pure ASCII case. Also it uses prefetch with AVX 2 on x86 which leads to better performance with some Intel CPUs.
 
 For the compat API, we need to check the error buffer on each 64-byte block instead of just aggregating it. If an
 error is found, the last bytes of the previous block are checked for a cross-block continuation and then
