@@ -134,10 +134,12 @@ There is a small performance penalty to continuously checking the error status w
 errors early provides a huge benefit for the _x-error/66536_ benchmark.
 
 ## Technical details
-On X86 and ARM64 for inputs shorter than 64 bytes validation is delegated to `core::str::from_utf8()`.
+For inputs shorter than 64 bytes validation is delegated to `core::str::from_utf8()` except for the direct-access
+functions in `simdutf8::{basic, compat}::imp`.
 
 The SIMD implementation is mostly similar to the one in simdjson except that it is has additional optimizations
-for the pure ASCII case. Also it uses prefetch with AVX 2 on x86 which leads to better performance with some Intel CPUs.
+for the pure ASCII case. Also it uses prefetch with AVX 2 on x86 which leads to better performance with some Intel CPUs
+on synthetic benchmarks.
 
 For the compat API, we need to check the error status vector on each 64-byte block instead of just aggregating it. If an
 error is found, the last bytes of the previous block are checked for a cross-block continuation and then
