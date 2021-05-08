@@ -8,7 +8,7 @@ Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, b
 [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs), but now heavily improved.
 
 ## Status
-This library has been heavily tested with sample data as well as fuzzing and there are no known bugs.
+This library has been thoroughly tested with sample data as well as fuzzing and there are no known bugs.
 
 ## Features
 * `basic` API for the fastest validation, optimized for valid UTF-8
