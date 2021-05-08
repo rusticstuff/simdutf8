@@ -1,7 +1,9 @@
 #![allow(clippy::non_ascii_literal)]
 
 use crate::basic::from_utf8 as basic_from_utf8;
+use crate::basic::from_utf8_mut as basic_from_utf8_mut;
 use crate::compat::from_utf8 as compat_from_utf8;
+use crate::compat::from_utf8_mut as compat_from_utf8_mut;
 
 #[cfg(not(features = "std"))]
 extern crate std;
@@ -15,8 +17,15 @@ fn repeat(ch: u8, len: usize) -> std::vec::Vec<u8> {
 }
 
 fn test_valid(input: &[u8]) {
+    // std lib sanity check
+    assert!(std::str::from_utf8(input).is_ok());
+
     assert!(basic_from_utf8(input).is_ok());
     assert!(compat_from_utf8(input).is_ok());
+
+    let mut mut_input = input.to_owned();
+    assert!(basic_from_utf8_mut(mut_input.as_mut_slice()).is_ok());
+    assert!(compat_from_utf8_mut(mut_input.as_mut_slice()).is_ok());
 
     #[cfg(feature = "public_imp")]
     test_valid_public_imp(input);
@@ -52,12 +61,18 @@ fn test_valid_public_imp(input: &[u8]) {
 }
 
 fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
+    // std lib sanity check
+    let err = std::str::from_utf8(input).unwrap_err();
+    assert_eq!(err.valid_up_to(), valid_up_to);
+    if err.error_len() != error_len {
+        println!("{:x?}", input);
+    }
+    assert_eq!(err.error_len(), error_len);
+
     assert!(basic_from_utf8(input).is_err());
-    assert_eq!(
-        compat_from_utf8(input).unwrap_err().valid_up_to(),
-        valid_up_to
-    );
-    assert_eq!(compat_from_utf8(input).unwrap_err().error_len(), error_len);
+    let err = compat_from_utf8(input).unwrap_err();
+    assert_eq!(err.valid_up_to(), valid_up_to);
+    assert_eq!(err.error_len(), error_len);
 
     #[cfg(feature = "public_imp")]
     test_invalid_public_imp(input, valid_up_to, error_len);
@@ -72,34 +87,16 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
         #[cfg(target_feature = "avx2")]
         unsafe {
             assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_err());
-            assert_eq!(
-                crate::compat::imp::x86::avx2::validate_utf8(input)
-                    .unwrap_err()
-                    .valid_up_to(),
-                valid_up_to
-            );
-            assert_eq!(
-                crate::compat::imp::x86::avx2::validate_utf8(input)
-                    .unwrap_err()
-                    .error_len(),
-                error_len
-            );
+            let err = crate::compat::imp::x86::avx2::validate_utf8(input).unwrap_err();
+            assert_eq!(err.valid_up_to(), valid_up_to);
+            assert_eq!(err.error_len(), error_len);
         }
         #[cfg(target_feature = "sse4.2")]
         unsafe {
             assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_err());
-            assert_eq!(
-                crate::compat::imp::x86::sse42::validate_utf8(input)
-                    .unwrap_err()
-                    .valid_up_to(),
-                valid_up_to
-            );
-            assert_eq!(
-                crate::compat::imp::x86::sse42::validate_utf8(input)
-                    .unwrap_err()
-                    .error_len(),
-                error_len
-            );
+            let err = crate::compat::imp::x86::sse42::validate_utf8(input).unwrap_err();
+            assert_eq!(err.valid_up_to(), valid_up_to);
+            assert_eq!(err.error_len(), error_len);
         }
     }
     #[cfg(all(
@@ -126,7 +123,14 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
 
 #[test]
 fn simple_valid() {
+    test_valid(b"");
+
     test_valid(b"\0");
+
+    test_valid(b"a".repeat(64).as_ref());
+
+    test_valid(b"a".repeat(128).as_ref());
+
     test_valid(b"The quick brown fox jumps over the lazy dog");
 
     // umlauts
@@ -145,17 +149,99 @@ fn simple_valid() {
     test_valid("3인은 대법원장이 지명하는 자를 임명한다, 대통령은 제3항과 제4항의 사유를 지체없이 공포하여야 한다, 제한하는 경우에도 자유와 권리의 본질적인 내용을 침해할 수 없다, 국가는 전통문화의 계승·발전과 민족문화의 창달에 노력하여야 한다.".as_bytes());
 }
 
+fn test_invalid_after_specific_prefix(
+    input: &[u8],
+    valid_up_to: usize,
+    error_len: Option<usize>,
+    with_suffix_error_len: Option<usize>,
+    repeat: usize,
+    prefix_bytes: &[u8],
+) {
+    {
+        let mut prefixed_input = prefix_bytes.repeat(repeat);
+        let prefix_len = prefixed_input.len();
+        prefixed_input.extend_from_slice(input);
+        test_invalid(prefixed_input.as_ref(), valid_up_to + prefix_len, error_len)
+    }
+
+    if repeat != 0 {
+        let mut prefixed_input = prefix_bytes.repeat(repeat);
+        let prefix_len = prefixed_input.len();
+        prefixed_input.extend_from_slice(input);
+        prefixed_input.extend_from_slice(prefix_bytes.repeat(repeat).as_slice());
+        test_invalid(
+            prefixed_input.as_ref(),
+            valid_up_to + prefix_len,
+            with_suffix_error_len,
+        )
+    }
+}
+
+fn test_invalid_after_prefix(
+    input: &[u8],
+    valid_up_to: usize,
+    error_len: Option<usize>,
+    with_suffix_error_len: Option<usize>,
+    repeat: usize,
+) {
+    test_invalid_after_specific_prefix(
+        input,
+        valid_up_to,
+        error_len,
+        with_suffix_error_len,
+        repeat,
+        b"a",
+    );
+    test_invalid_after_specific_prefix(
+        input,
+        valid_up_to,
+        error_len,
+        with_suffix_error_len,
+        repeat,
+        "ö".as_bytes(),
+    );
+    test_invalid_after_specific_prefix(
+        input,
+        valid_up_to,
+        error_len,
+        with_suffix_error_len,
+        repeat,
+        "😊".as_bytes(),
+    );
+}
+
+fn test_invalid_after_prefixes(
+    input: &[u8],
+    valid_up_to: usize,
+    error_len: Option<usize>,
+    with_suffix_error_len: Option<usize>,
+) {
+    [
+        0, 1, 2, 7, 8, 9, 15, 16, 16, 31, 32, 33, 63, 64, 65, 127, 128, 129, 65535, 65536, 65537,
+    ]
+    .iter()
+    .for_each(|repeat| {
+        test_invalid_after_prefix(
+            input,
+            valid_up_to,
+            error_len,
+            with_suffix_error_len,
+            *repeat,
+        );
+    });
+}
+
 #[test]
 fn simple_invalid() {
-    test_invalid(b"\xFF", 0, Some(1));
+    test_invalid_after_prefixes(b"\xFF", 0, Some(1), Some(1));
 
     // incomplete umlaut
-    test_invalid(b"\xC3", 0, None);
+    test_invalid_after_prefixes(b"\xC3", 0, None, Some(1));
 
     // incomplete emoji
-    test_invalid(b"\xF0", 0, None);
-    test_invalid(b"\xF0\x9F", 0, None);
-    test_invalid(b"\xF0\x9F\x98", 0, None);
+    test_invalid_after_prefixes(b"\xF0", 0, None, Some(1));
+    test_invalid_after_prefixes(b"\xF0\x9F", 0, None, Some(2));
+    test_invalid_after_prefixes(b"\xF0\x9F\x98", 0, None, Some(3));
 }
 
 #[test]
