@@ -148,7 +148,8 @@ error is found, the last bytes of the previous block are checked for a cross-blo
 Care is taken that all functions are properly inlined up to the public interface.
 
 ## Thanks
-* to the authors of simdjson for coming up with the high-performance SIMD implementation.
+* to the authors of simdjson for coming up with the high-performance SIMD implementation and in particular to Daniel Lemire
+  for his feedback. It was very helpful.
 * to the authors of the simdjson Rust port who did most of the heavy lifting of porting the C++ code to Rust.
 
 
