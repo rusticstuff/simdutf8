@@ -8,12 +8,29 @@ use crate::compat::from_utf8_mut as compat_from_utf8_mut;
 #[cfg(not(features = "std"))]
 extern crate std;
 
-fn repeat(ch: u8, len: usize) -> std::vec::Vec<u8> {
-    let mut res = std::vec::Vec::with_capacity(len);
-    for _ in 0..len {
-        res.push(ch);
+#[cfg(not(features = "std"))]
+use std::{borrow::ToOwned, format, vec::Vec};
+
+pub trait BStrExt {
+    fn repeat_x(&self, count: usize) -> Vec<u8>;
+}
+
+/// b"a".repeat() is not implemented for Rust 1.38.0 (MSRV)
+impl<T> BStrExt for T
+where
+    T: AsRef<[u8]>,
+{
+    fn repeat_x(&self, count: usize) -> Vec<u8> {
+        use std::io::Write;
+
+        let x = self.as_ref();
+        let mut res = Vec::with_capacity(x.len() * count);
+        for _ in 0..count {
+            #[allow(clippy::clippy::unwrap_used)]
+            res.write_all(x).unwrap();
+        }
+        res
     }
-    res
 }
 
 fn test_valid(input: &[u8]) {
@@ -127,17 +144,17 @@ fn test_invalid_after_specific_prefix(
     prefix_bytes: &[u8],
 ) {
     {
-        let mut prefixed_input = prefix_bytes.repeat(repeat);
+        let mut prefixed_input = prefix_bytes.repeat_x(repeat);
         let prefix_len = prefixed_input.len();
         prefixed_input.extend_from_slice(input);
         test_invalid(prefixed_input.as_ref(), valid_up_to + prefix_len, error_len)
     }
 
     if repeat != 0 {
-        let mut prefixed_input = prefix_bytes.repeat(repeat);
+        let mut prefixed_input = prefix_bytes.repeat_x(repeat);
         let prefix_len = prefixed_input.len();
         prefixed_input.extend_from_slice(input);
-        prefixed_input.extend_from_slice(prefix_bytes.repeat(repeat).as_slice());
+        prefixed_input.extend_from_slice(prefix_bytes.repeat_x(repeat).as_slice());
         test_invalid(
             prefixed_input.as_ref(),
             valid_up_to + prefix_len,
@@ -200,9 +217,9 @@ fn simple_valid() {
 
     test_valid(b"\0");
 
-    test_valid(b"a".repeat(64).as_ref());
+    test_valid(b"a".repeat_x(64).as_ref());
 
-    test_valid(b"a".repeat(128).as_ref());
+    test_valid(b"a".repeat_x(128).as_ref());
 
     test_valid(b"The quick brown fox jumps over the lazy dog");
 
@@ -237,21 +254,21 @@ fn simple_invalid() {
 
 #[test]
 fn incomplete_on_32nd_byte() {
-    let mut invalid = repeat(b'a', 31);
+    let mut invalid = b"a".repeat_x(31);
     invalid.push(b'\xF0');
     test_invalid(&invalid, 31, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte() {
-    let mut invalid = repeat(b'a', 63);
+    let mut invalid = b"a".repeat_x(63);
     invalid.push(b'\xF0');
     test_invalid(&invalid, 63, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte_65_bytes_total() {
-    let mut invalid = repeat(b'a', 63);
+    let mut invalid = b"a".repeat_x(63);
     invalid.push(b'\xF0');
     invalid.push(b'a');
     test_invalid(&invalid, 63, Some(1))
@@ -260,11 +277,11 @@ fn incomplete_on_64th_byte_65_bytes_total() {
 #[test]
 fn error_display_basic() {
     assert_eq!(
-        std::format!("{}", basic_from_utf8(b"\xF0").unwrap_err()),
+        format!("{}", basic_from_utf8(b"\xF0").unwrap_err()),
         "invalid utf-8 sequence"
     );
     assert_eq!(
-        std::format!("{}", basic_from_utf8(b"a\xF0a").unwrap_err()),
+        format!("{}", basic_from_utf8(b"a\xF0a").unwrap_err()),
         "invalid utf-8 sequence"
     );
 }
@@ -272,19 +289,19 @@ fn error_display_basic() {
 #[test]
 fn error_display_compat() {
     assert_eq!(
-        std::format!("{}", compat_from_utf8(b"\xF0").unwrap_err()),
+        format!("{}", compat_from_utf8(b"\xF0").unwrap_err()),
         "incomplete utf-8 byte sequence from index 0"
     );
     assert_eq!(
-        std::format!("{}", compat_from_utf8(b"a\xF0a").unwrap_err()),
+        format!("{}", compat_from_utf8(b"a\xF0a").unwrap_err()),
         "invalid utf-8 sequence of 1 bytes from index 1"
     );
     assert_eq!(
-        std::format!("{}", compat_from_utf8(b"a\xF0\x9Fa").unwrap_err()),
+        format!("{}", compat_from_utf8(b"a\xF0\x9Fa").unwrap_err()),
         "invalid utf-8 sequence of 2 bytes from index 1"
     );
     assert_eq!(
-        std::format!("{}", compat_from_utf8(b"a\xF0\x9F\x98a").unwrap_err()),
+        format!("{}", compat_from_utf8(b"a\xF0\x9F\x98a").unwrap_err()),
         "invalid utf-8 sequence of 3 bytes from index 1"
     );
 }
@@ -292,7 +309,7 @@ fn error_display_compat() {
 #[test]
 fn error_debug_basic() {
     assert_eq!(
-        std::format!("{:?}", basic_from_utf8(b"\xF0").unwrap_err()),
+        format!("{:?}", basic_from_utf8(b"\xF0").unwrap_err()),
         "Utf8Error"
     );
 }
@@ -300,11 +317,11 @@ fn error_debug_basic() {
 #[test]
 fn error_debug_compat() {
     assert_eq!(
-        std::format!("{:?}", compat_from_utf8(b"\xF0").unwrap_err()),
+        format!("{:?}", compat_from_utf8(b"\xF0").unwrap_err()),
         "Utf8Error { valid_up_to: 0, error_len: None }"
     );
     assert_eq!(
-        std::format!("{:?}", compat_from_utf8(b"a\xF0a").unwrap_err()),
+        format!("{:?}", compat_from_utf8(b"a\xF0a").unwrap_err()),
         "Utf8Error { valid_up_to: 1, error_len: Some(1) }"
     );
 }
