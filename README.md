@@ -37,7 +37,7 @@ or on ARM64 with Rust Nightly:
 simdutf8 = { version = "0.1.2", features = ["aarch64_neon"] }
 ```
 
-Use `simdutf8::basic::from_utf8` as a drop-in replacement for `std::str::from_utf8()`.
+Use `simdutf8::basic::from_utf8()` as a drop-in replacement for `std::str::from_utf8()`.
 
 ```rust
 use simdutf8::basic::from_utf8;
@@ -45,7 +45,7 @@ use simdutf8::basic::from_utf8;
 println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 ```
 
-If you need detailed information on validation failures, use `simdutf8::compat::from_utf8`
+If you need detailed information on validation failures, use `simdutf8::compat::from_utf8()`
 instead.
 
 ```rust
@@ -64,7 +64,7 @@ for errors after processing the whole byte sequence and does not provide detaile
 is not valid UTF-8. `simdutf8::basic::Utf8Error` is a zero-sized error struct.
 
 ### Compat flavor
-The `compat` flavor is fully API-compatible with `std::str::from_utf8`. In particular, `simdutf8::compat::from_utf8()`
+The `compat` flavor is fully API-compatible with `std::str::from_utf8()`. In particular, `simdutf8::compat::from_utf8()`
 returns a `simdutf8::compat::Utf8Error`, which has `valid_up_to()` and `error_len()` methods. The first is useful for
 verification of streamed data. The second is useful e.g. for replacing invalid byte sequences with a replacement character.
 
