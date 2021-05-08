@@ -9,6 +9,7 @@
 )]
 #![allow(clippy::redundant_pub_crate)] // check is broken
 #![allow(clippy::redundant_else)] // can make code more readable
+#![allow(clippy::explicit_iter_loop)] // can make code more readable
 #![deny(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
