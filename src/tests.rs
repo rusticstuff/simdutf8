@@ -49,7 +49,6 @@ fn test_valid(input: &[u8]) {
 }
 
 #[cfg(feature = "public_imp")]
-#[allow(clippy::collapsible_if)]
 #[allow(clippy::missing_const_for_fn)]
 #[allow(unused_variables)]
 fn test_valid_public_imp(input: &[u8]) {
@@ -93,7 +92,6 @@ fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
 }
 
 #[cfg(feature = "public_imp")]
-#[allow(clippy::collapsible_if)]
 #[allow(clippy::missing_const_for_fn)]
 #[allow(unused_variables)]
 fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
