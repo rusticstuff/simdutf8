@@ -1,29 +1,54 @@
 #![allow(clippy::non_ascii_literal)]
 
 use crate::basic::from_utf8 as basic_from_utf8;
+use crate::basic::from_utf8_mut as basic_from_utf8_mut;
 use crate::compat::from_utf8 as compat_from_utf8;
+use crate::compat::from_utf8_mut as compat_from_utf8_mut;
 
 #[cfg(not(features = "std"))]
 extern crate std;
 
-fn repeat(ch: u8, len: usize) -> std::vec::Vec<u8> {
-    let mut res = std::vec::Vec::with_capacity(len);
-    for _ in 0..len {
-        res.push(ch);
+#[cfg(not(features = "std"))]
+use std::{borrow::ToOwned, format, vec::Vec};
+
+pub trait BStrExt {
+    fn repeat_x(&self, count: usize) -> Vec<u8>;
+}
+
+/// b"a".repeat() is not implemented for Rust 1.38.0 (MSRV)
+impl<T> BStrExt for T
+where
+    T: AsRef<[u8]>,
+{
+    fn repeat_x(&self, count: usize) -> Vec<u8> {
+        use std::io::Write;
+
+        let x = self.as_ref();
+        let mut res = Vec::with_capacity(x.len() * count);
+        for _ in 0..count {
+            #[allow(clippy::unwrap_used)]
+            res.write_all(x).unwrap();
+        }
+        res
     }
-    res
 }
 
 fn test_valid(input: &[u8]) {
+    // std lib sanity check
+    assert!(std::str::from_utf8(input).is_ok());
+
     assert!(basic_from_utf8(input).is_ok());
     assert!(compat_from_utf8(input).is_ok());
+
+    let mut mut_input = input.to_owned();
+    assert!(basic_from_utf8_mut(mut_input.as_mut_slice()).is_ok());
+    assert!(compat_from_utf8_mut(mut_input.as_mut_slice()).is_ok());
 
     #[cfg(feature = "public_imp")]
     test_valid_public_imp(input);
 }
 
 #[cfg(feature = "public_imp")]
-#[allow(clippy::collapsible_if)]
 #[allow(clippy::missing_const_for_fn)]
 #[allow(unused_variables)]
 fn test_valid_public_imp(input: &[u8]) {
@@ -40,27 +65,33 @@ fn test_valid_public_imp(input: &[u8]) {
             assert!(crate::compat::imp::x86::sse42::validate_utf8(input).is_ok());
         }
     }
-    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
+    #[cfg(all(
+        feature = "aarch64_neon",
+        target_arch = "aarch64",
+        target_feature = "neon"
+    ))]
     unsafe {
-        assert!(crate::basic::imp::aarch64::validate_utf8(input).is_ok());
-        assert!(crate::compat::imp::aarch64::validate_utf8(input).is_ok());
+        assert!(crate::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
+        assert!(crate::compat::imp::aarch64::neon::validate_utf8(input).is_ok());
     }
 }
 
 fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
+    // std lib sanity check
+    let err = std::str::from_utf8(input).unwrap_err();
+    assert_eq!(err.valid_up_to(), valid_up_to);
+    assert_eq!(err.error_len(), error_len);
+
     assert!(basic_from_utf8(input).is_err());
-    assert_eq!(
-        compat_from_utf8(input).unwrap_err().valid_up_to(),
-        valid_up_to
-    );
-    assert_eq!(compat_from_utf8(input).unwrap_err().error_len(), error_len);
+    let err = compat_from_utf8(input).unwrap_err();
+    assert_eq!(err.valid_up_to(), valid_up_to);
+    assert_eq!(err.error_len(), error_len);
 
     #[cfg(feature = "public_imp")]
     test_invalid_public_imp(input, valid_up_to, error_len);
 }
 
 #[cfg(feature = "public_imp")]
-#[allow(clippy::collapsible_if)]
 #[allow(clippy::missing_const_for_fn)]
 #[allow(unused_variables)]
 fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
@@ -68,47 +99,33 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
         #[cfg(target_feature = "avx2")]
         unsafe {
             assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_err());
-            assert_eq!(
-                crate::compat::imp::x86::avx2::validate_utf8(input)
-                    .unwrap_err()
-                    .valid_up_to(),
-                valid_up_to
-            );
-            assert_eq!(
-                crate::compat::imp::x86::avx2::validate_utf8(input)
-                    .unwrap_err()
-                    .error_len(),
-                error_len
-            );
+            let err = crate::compat::imp::x86::avx2::validate_utf8(input).unwrap_err();
+            assert_eq!(err.valid_up_to(), valid_up_to);
+            assert_eq!(err.error_len(), error_len);
         }
         #[cfg(target_feature = "sse4.2")]
         unsafe {
             assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_err());
-            assert_eq!(
-                crate::compat::imp::x86::sse42::validate_utf8(input)
-                    .unwrap_err()
-                    .valid_up_to(),
-                valid_up_to
-            );
-            assert_eq!(
-                crate::compat::imp::x86::sse42::validate_utf8(input)
-                    .unwrap_err()
-                    .error_len(),
-                error_len
-            );
+            let err = crate::compat::imp::x86::sse42::validate_utf8(input).unwrap_err();
+            assert_eq!(err.valid_up_to(), valid_up_to);
+            assert_eq!(err.error_len(), error_len);
         }
     }
-    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
+    #[cfg(all(
+        feature = "aarch64_neon",
+        target_arch = "aarch64",
+        target_feature = "neon"
+    ))]
     unsafe {
-        assert!(crate::basic::imp::aarch64::validate_utf8(input).is_err());
+        assert!(crate::basic::imp::aarch64::neon::validate_utf8(input).is_err());
         assert_eq!(
-            crate::compat::imp::aarch64::validate_utf8(input)
+            crate::compat::imp::aarch64::neon::validate_utf8(input)
                 .unwrap_err()
                 .valid_up_to(),
             valid_up_to
         );
         assert_eq!(
-            crate::compat::imp::aarch64::validate_utf8(input)
+            crate::compat::imp::aarch64::neon::validate_utf8(input)
                 .unwrap_err()
                 .error_len(),
             error_len
@@ -116,9 +133,92 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
     }
 }
 
+fn test_invalid_after_specific_prefix(
+    input: &[u8],
+    valid_up_to: usize,
+    error_len: Option<usize>,
+    with_suffix_error_len: Option<usize>,
+    repeat: usize,
+    prefix_bytes: &[u8],
+) {
+    {
+        let mut prefixed_input = prefix_bytes.repeat_x(repeat);
+        let prefix_len = prefixed_input.len();
+        prefixed_input.extend_from_slice(input);
+        test_invalid(prefixed_input.as_ref(), valid_up_to + prefix_len, error_len)
+    }
+
+    if repeat != 0 {
+        let mut prefixed_input = prefix_bytes.repeat_x(repeat);
+        let prefix_len = prefixed_input.len();
+        prefixed_input.extend_from_slice(input);
+        prefixed_input.extend_from_slice(prefix_bytes.repeat_x(repeat).as_slice());
+        test_invalid(
+            prefixed_input.as_ref(),
+            valid_up_to + prefix_len,
+            with_suffix_error_len,
+        )
+    }
+}
+
+fn test_invalid_after_prefix(
+    input: &[u8],
+    valid_up_to: usize,
+    error_len: Option<usize>,
+    with_suffix_error_len: Option<usize>,
+    repeat: usize,
+) {
+    for prefix in [
+        "a",
+        "ö",
+        "😊",
+        "a".repeat(64).as_str(),
+        ("a".repeat(64) + "ö".repeat(32).as_str()).as_str(),
+    ]
+    .iter()
+    {
+        test_invalid_after_specific_prefix(
+            input,
+            valid_up_to,
+            error_len,
+            with_suffix_error_len,
+            repeat,
+            prefix.as_bytes(),
+        );
+    }
+}
+
+fn test_invalid_after_prefixes(
+    input: &[u8],
+    valid_up_to: usize,
+    error_len: Option<usize>,
+    with_suffix_error_len: Option<usize>,
+) {
+    for repeat in [
+        0, 1, 2, 7, 8, 9, 15, 16, 16, 31, 32, 33, 63, 64, 65, 127, 128, 129,
+    ]
+    .iter()
+    {
+        test_invalid_after_prefix(
+            input,
+            valid_up_to,
+            error_len,
+            with_suffix_error_len,
+            *repeat,
+        );
+    }
+}
+
 #[test]
 fn simple_valid() {
+    test_valid(b"");
+
     test_valid(b"\0");
+
+    test_valid(b"a".repeat_x(64).as_ref());
+
+    test_valid(b"a".repeat_x(128).as_ref());
+
     test_valid(b"The quick brown fox jumps over the lazy dog");
 
     // umlauts
@@ -139,35 +239,105 @@ fn simple_valid() {
 
 #[test]
 fn simple_invalid() {
-    test_invalid(b"\xFF", 0, Some(1));
+    test_invalid_after_prefixes(b"\xFF", 0, Some(1), Some(1));
 
     // incomplete umlaut
-    test_invalid(b"\xC3", 0, None);
+    test_invalid_after_prefixes(b"\xC3", 0, None, Some(1));
 
     // incomplete emoji
-    test_invalid(b"\xF0", 0, None);
-    test_invalid(b"\xF0\x9F", 0, None);
-    test_invalid(b"\xF0\x9F\x98", 0, None);
+    test_invalid_after_prefixes(b"\xF0", 0, None, Some(1));
+    test_invalid_after_prefixes(b"\xF0\x9F", 0, None, Some(2));
+    test_invalid_after_prefixes(b"\xF0\x9F\x98", 0, None, Some(3));
 }
 
 #[test]
 fn incomplete_on_32nd_byte() {
-    let mut invalid = repeat(b'a', 31);
+    let mut invalid = b"a".repeat_x(31);
     invalid.push(b'\xF0');
     test_invalid(&invalid, 31, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte() {
-    let mut invalid = repeat(b'a', 63);
+    let mut invalid = b"a".repeat_x(63);
     invalid.push(b'\xF0');
     test_invalid(&invalid, 63, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte_65_bytes_total() {
-    let mut invalid = repeat(b'a', 63);
+    let mut invalid = b"a".repeat_x(63);
     invalid.push(b'\xF0');
     invalid.push(b'a');
     test_invalid(&invalid, 63, Some(1))
+}
+
+#[test]
+fn error_display_basic() {
+    assert_eq!(
+        format!("{}", basic_from_utf8(b"\xF0").unwrap_err()),
+        "invalid utf-8 sequence"
+    );
+    assert_eq!(
+        format!("{}", basic_from_utf8(b"a\xF0a").unwrap_err()),
+        "invalid utf-8 sequence"
+    );
+}
+
+#[test]
+fn error_display_compat() {
+    assert_eq!(
+        format!("{}", compat_from_utf8(b"\xF0").unwrap_err()),
+        "incomplete utf-8 byte sequence from index 0"
+    );
+    assert_eq!(
+        format!("{}", compat_from_utf8(b"a\xF0a").unwrap_err()),
+        "invalid utf-8 sequence of 1 bytes from index 1"
+    );
+    assert_eq!(
+        format!("{}", compat_from_utf8(b"a\xF0\x9Fa").unwrap_err()),
+        "invalid utf-8 sequence of 2 bytes from index 1"
+    );
+    assert_eq!(
+        format!("{}", compat_from_utf8(b"a\xF0\x9F\x98a").unwrap_err()),
+        "invalid utf-8 sequence of 3 bytes from index 1"
+    );
+}
+
+#[test]
+fn error_debug_basic() {
+    assert_eq!(
+        format!("{:?}", basic_from_utf8(b"\xF0").unwrap_err()),
+        "Utf8Error"
+    );
+}
+
+#[test]
+fn error_debug_compat() {
+    assert_eq!(
+        format!("{:?}", compat_from_utf8(b"\xF0").unwrap_err()),
+        "Utf8Error { valid_up_to: 0, error_len: None }"
+    );
+    assert_eq!(
+        format!("{:?}", compat_from_utf8(b"a\xF0a").unwrap_err()),
+        "Utf8Error { valid_up_to: 1, error_len: Some(1) }"
+    );
+}
+
+#[test]
+fn error_derives_basic() {
+    let err = basic_from_utf8(b"\xF0").unwrap_err();
+    #[allow(clippy::clone_on_copy)] // used for coverage
+    let err2 = err.clone();
+    assert_eq!(err, err2);
+    assert!(!(err != err2));
+}
+
+#[test]
+fn error_derives_compat() {
+    let err = compat_from_utf8(b"\xF0").unwrap_err();
+    #[allow(clippy::clone_on_copy)] // used for coverage
+    let err2 = err.clone();
+    assert_eq!(err, err2);
+    assert!(!(err != err2));
 }

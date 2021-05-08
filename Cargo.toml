@@ -11,7 +11,7 @@ readme = "README.md"
 keywords = ["utf-8", "unicode", "string", "validation", "simd"]
 categories = ["encoding", "algorithms", "no-std"]
 license = "MIT OR Apache-2.0"
-exclude = ["/.github", "/.vscode", "/bench", "/afl", "/fuzz", "/img", "expected-methods-*.txt"]
+exclude = ["/.github", "/.vscode", "/bench", "/fuzzing", "/img", "expected-methods-*.txt"]
 
 [features]
 default = ["std"]
@@ -25,7 +25,7 @@ public_imp = []
 # aarch64 NEON SIMD implementation - requires nightly
 aarch64_neon = []
 
-# use branch hints - requires nightly
+# deprecated - does not do anything
 hints = []
 
 [package.metadata.docs.rs]

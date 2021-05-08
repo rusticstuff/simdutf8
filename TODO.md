@@ -1,30 +1,27 @@
 # TODO
 
 # LATER
-* benchmark nightly, nightly+likely
 * test coverage
 * more fuzz testing
-* armv7 support with neon runtime selection
+* armv7 support (with neon runtime selection?)
+* fuzzers: extract common code into crate/module and add honggfuzz
+* streaming API + experimental simdjson support
+* faster/smarter error position detection
+* try out [multiversion](https://docs.rs/multiversion/0.6.1/multiversion/)
 
 # NEXT
-* integrate neon support
-  * behind feature flag
-  * make ci build
-  * fuzz test a bit
-* test improved ASCII perf. idea
-* add _quick benchmarks, maybe default?
-* test improved memcpy vs. no memcpy
-* clean up algorithm src. after neon merge
-  * check_eof() -> |
-  * broadcast() -> splat()
-  * indirection functions
-  * self first always
-  * const?
-  * type -> pub use (mostly)
+* clean up algorithm src.
+  * document prev()
+  * newtype -> use (mostly)
   * use imports instead of fully qualified at places
-* test all available implementations by default as if public_imp were specified
-* don't inline with compile time selection at all call sites! (aarch64, avx2, no-std all)
+  * trait for SimdU8Value impl.
+  * bikeshed: SimdU8Value -> SimdU8Vector | SimdU8xNative | ...
+
+* test all available stable implementations by default as if public_imp were specified
+* document aarch64; docs-rs arch building
+* discourage -Oz
+* std handling: no-std + extern crate std if std
+* Doc: remove for Rust from README header but not from description
+* proptests?
 
 # OTHER
-* why does cargo asm not find from_utf8() on aarch64?
-* test aarch64 loop unrolling issue

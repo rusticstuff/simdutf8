@@ -1,8 +1,8 @@
 //! Contains the aarch64 UTF-8 validation implementation.
 
 use core::arch::aarch64::{
-    uint8x16_t, vandq_u8, vcgtq_u8, vdupq_n_u8, veorq_u8, vextq_u8, vld1q_u8, vmaxvq_u8,
-    vmovq_n_u8, vorrq_u8, vqsubq_u8, vqtbl1q_u8, vshrq_n_u8,
+    _prefetch, uint8x16_t, vandq_u8, vcgtq_u8, vdupq_n_u8, veorq_u8, vextq_u8, vld1q_u8, vmaxvq_u8,
+    vmovq_n_u8, vorrq_u8, vqsubq_u8, vqtbl1q_u8, vshrq_n_u8, _PREFETCH_LOCALITY3, _PREFETCH_READ,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
@@ -85,7 +85,19 @@ impl SimdU8Value {
     #[inline]
     #[allow(clippy::cast_ptr_alignment)]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        Self::from(vld1q_u8(ptr))
+        // WORKAROUND for https://github.com/rust-lang/stdarch/issues/1148
+        // The vld1q_u8 intrinsic is currently broken, it treats it as individual
+        // byte loads so the compiler sometimes decides it is a better to load
+        // individual bytes to "optimize" a subsequent SIMD shuffle
+        //
+        // This code forces a full 128-bit load.
+        let mut dst = core::mem::MaybeUninit::<uint8x16_t>::uninit();
+        core::ptr::copy_nonoverlapping(
+            ptr.cast::<u8>(),
+            dst.as_mut_ptr().cast::<u8>(),
+            core::mem::size_of::<uint8x16_t>(),
+        );
+        Self::from(dst.assume_init())
     }
 
     #[inline]
@@ -120,13 +132,13 @@ impl SimdU8Value {
 
     #[inline]
     #[allow(clippy::cast_possible_wrap)]
-    unsafe fn broadcast(val: u8) -> Self {
+    unsafe fn splat(val: u8) -> Self {
         Self::from(vmovq_n_u8(val))
     }
 
     #[inline]
     #[allow(clippy::cast_possible_wrap)]
-    unsafe fn broadcast0() -> Self {
+    unsafe fn splat0() -> Self {
         Self::from(vdupq_n_u8(0))
     }
 
@@ -183,7 +195,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    unsafe fn gt(self, other: Self) -> Self {
+    unsafe fn unsigned_gt(self, other: Self) -> Self {
         Self::from(vcgtq_u8(self.0, other.0))
     }
 
@@ -205,6 +217,22 @@ impl From<uint8x16_t> for SimdU8Value {
     }
 }
 
-use crate::implementation::helpers::Temp2xSimdChunkA16 as Temp2xSimdChunk;
-simd_input_128_bit!("neon");
-algorithm_simd!("neon");
+impl Utf8CheckAlgorithm<SimdU8Value> {
+    #[inline]
+    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+        let is_third_byte = prev2.unsigned_gt(SimdU8Value::splat(0b1110_0000 - 1));
+        let is_fourth_byte = prev3.unsigned_gt(SimdU8Value::splat(0b1111_0000 - 1));
+
+        is_third_byte.or(is_fourth_byte)
+    }
+}
+
+#[inline]
+unsafe fn simd_prefetch(ptr: *const u8) {
+    _prefetch(ptr.cast::<i8>(), _PREFETCH_READ, _PREFETCH_LOCALITY3);
+}
+
+const PREFETCH: bool = false;
+use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
+simd_input_128_bit!("not_used");
+algorithm_simd!("not_used");

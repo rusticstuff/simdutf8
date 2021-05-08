@@ -9,17 +9,13 @@
 )]
 #![allow(clippy::redundant_pub_crate)] // check is broken
 #![allow(clippy::redundant_else)] // can make code more readable
+#![allow(clippy::explicit_iter_loop)] // can make code more readable
 #![deny(missing_docs)]
-#![cfg_attr(feature = "hints", feature(core_intrinsics))]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(
     all(feature = "aarch64_neon", target_arch = "aarch64"),
     feature(stdsimd)
-)]
-#![cfg_attr(
-    all(feature = "aarch64_neon", target_arch = "aarch64"),
-    feature(aarch64_target_feature)
 )]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from

@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        toolchain: [stable, nightly, "1.38.0"]
+        toolchain: ["1.38.0", stable, beta, nightly ]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
         exclude:
@@ -35,11 +35,11 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
-  test-inlining:
+  test-inlining-x86:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly, "1.38.0"]
+        toolchain: ["1.38.0", stable, beta, nightly ]
     defaults:
       run:
         working-directory: inlining
@@ -67,6 +67,31 @@ jobs:
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-avx2.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-sse42.txt -
 
+  test-inlining-aarch64:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [aarch64-unknown-linux-gnu, aarch64-apple-darwin]
+    defaults:
+      run:
+        working-directory: inlining
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            profile: minimal
+            target: ${{ matrix.target }}
+            override: true
+      - name: Install cargo-asm
+        run: cargo install cargo-asm
+      - name: Check if the expected fns are inlined
+        run: |
+          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-aarch64-fallback.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-aarch64-fallback.txt -
+
   test-doc:
     runs-on: ubuntu-latest
     steps:
@@ -85,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [stable, nightly, "1.38.0"]
+        toolchain: ["1.38.0", stable, beta, nightly ]
         target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]
         include:

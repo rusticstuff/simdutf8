@@ -57,6 +57,14 @@ pub(crate) unsafe fn validate_utf8_basic(
         return super::validate_utf8_basic_fallback(input);
     }
 
+    validate_utf8_basic_avx2(input)
+}
+
+#[cfg(target_feature = "avx2")]
+#[inline(never)]
+unsafe fn validate_utf8_basic_avx2(
+    input: &[u8],
+) -> core::result::Result<(), crate::basic::Utf8Error> {
     avx2::validate_utf8_basic(input)
 }
 
@@ -72,6 +80,18 @@ pub(crate) unsafe fn validate_utf8_basic(
         return super::validate_utf8_basic_fallback(input);
     }
 
+    validate_utf8_basic_sse42(input)
+}
+
+#[cfg(all(
+    not(feature = "std"),
+    not(target_feature = "avx2"),
+    target_feature = "sse4.2"
+))]
+#[inline(never)]
+unsafe fn validate_utf8_basic_sse42(
+    input: &[u8],
+) -> core::result::Result<(), crate::basic::Utf8Error> {
     sse42::validate_utf8_basic(input)
 }
 
@@ -133,6 +153,14 @@ pub(crate) unsafe fn validate_utf8_compat(
         return super::validate_utf8_compat_fallback(input);
     }
 
+    validate_utf8_compat_avx2(input)
+}
+
+#[cfg(target_feature = "avx2")]
+#[inline(never)]
+unsafe fn validate_utf8_compat_avx2(
+    input: &[u8],
+) -> core::result::Result<(), crate::compat::Utf8Error> {
     avx2::validate_utf8_compat(input)
 }
 
@@ -148,6 +176,18 @@ pub(crate) unsafe fn validate_utf8_compat(
         return super::validate_utf8_compat_fallback(input);
     }
 
+    validate_utf8_compat_sse42(input)
+}
+
+#[cfg(all(
+    not(feature = "std"),
+    not(target_feature = "avx2"),
+    target_feature = "sse4.2"
+))]
+#[inline(never)]
+pub(crate) unsafe fn validate_utf8_compat_sse42(
+    input: &[u8],
+) -> core::result::Result<(), crate::compat::Utf8Error> {
     sse42::validate_utf8_compat(input)
 }
 

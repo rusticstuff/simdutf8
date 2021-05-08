@@ -1,35 +1,28 @@
 /// Macros requires newtypes in scope:
 /// `SimdU8Value` - implementation of SIMD primitives
 /// `SimdInput` - which  holds 64 bytes of SIMD input
-/// `Temp2xSimdChunk` - correctly aligned Temp2xSimdChunk, either Temp2xSimdChunkA16 or Temp2xSimdChunkA32
+/// `TempSimdChunk` - correctly aligned TempSimdChunk, either TempSimdChunkA16 or TempSimdChunkA32
 
-/// validate_utf8_basic_simd() strategy and wrapper
 macro_rules! algorithm_simd {
     ($feat:expr) => {
         impl Utf8CheckAlgorithm<SimdU8Value> {
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn default() -> Self {
                 Self {
-                    prev: SimdU8Value::broadcast0(),
-                    incomplete: SimdU8Value::broadcast0(),
-                    error: SimdU8Value::broadcast0(),
+                    prev: SimdU8Value::splat0(),
+                    incomplete: SimdU8Value::splat0(),
+                    error: SimdU8Value::splat0(),
                 }
             }
 
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            unsafe fn or(a: SimdU8Value, b: SimdU8Value) -> SimdU8Value {
-                a.or(b)
-            }
-
-            #[target_feature(enable = $feat)]
-            #[inline]
-            unsafe fn check_eof(&mut self) {
+            unsafe fn check_incomplete_pending(&mut self) {
                 self.error = self.error.or(self.incomplete)
             }
 
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn is_incomplete(input: SimdU8Value) -> SimdU8Value {
                 input.saturating_sub(SimdU8Value::from_32_cut_off_leading(
@@ -68,13 +61,7 @@ macro_rules! algorithm_simd {
                 ))
             }
 
-            #[target_feature(enable = $feat)]
-            #[inline]
-            unsafe fn prev1(input: SimdU8Value, prev: SimdU8Value) -> SimdU8Value {
-                input.prev1(prev)
-            }
-
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(clippy::too_many_lines)]
             unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
@@ -108,7 +95,7 @@ macro_rules! algorithm_simd {
                     TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
                 );
 
-                let byte_1_low = prev1.and(SimdU8Value::broadcast(0x0F)).lookup_16(
+                let byte_1_low = prev1.and(SimdU8Value::splat(0x0F)).lookup_16(
                     CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
                     CARRY | OVERLONG_2,
                     CARRY,
@@ -149,7 +136,7 @@ macro_rules! algorithm_simd {
                 byte_1_high.and(byte_1_low).and(byte_2_high)
             }
 
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn check_multibyte_lengths(
                 input: SimdU8Value,
@@ -159,58 +146,56 @@ macro_rules! algorithm_simd {
                 let prev2 = input.prev2(prev);
                 let prev3 = input.prev3(prev);
                 let must23 = Self::must_be_2_3_continuation(prev2, prev3);
-                let must23_80 = must23.and(SimdU8Value::broadcast(0x80));
+                let must23_80 = must23.and(SimdU8Value::splat(0x80));
                 must23_80.xor(special_cases)
             }
 
-            #[target_feature(enable = $feat)]
-            #[inline]
-            unsafe fn must_be_2_3_continuation(
-                prev2: SimdU8Value,
-                prev3: SimdU8Value,
-            ) -> SimdU8Value {
-                let is_third_byte = prev2.saturating_sub(SimdU8Value::broadcast(0b1110_0000 - 1));
-                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::broadcast(0b1111_0000 - 1));
-
-                is_third_byte
-                    .or(is_fourth_byte)
-                    .gt(SimdU8Value::broadcast0())
-            }
-
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn has_error(&self) -> bool {
                 self.error.any_bit_set()
             }
 
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            unsafe fn check_bytes(current: SimdU8Value, previous: &mut Self) {
-                let prev1 = Self::prev1(current, previous.prev);
-                let sc = Self::check_special_cases(current, prev1);
-                previous.error = Self::or(
-                    previous.error,
-                    Self::check_multibyte_lengths(current, previous.prev, sc),
-                );
-                previous.incomplete = Self::is_incomplete(current);
-                previous.prev = current
+            unsafe fn check_bytes(&mut self, input: SimdU8Value) {
+                let prev1 = input.prev1(self.prev);
+                let sc = Self::check_special_cases(input, prev1);
+                self.error = self
+                    .error
+                    .or(Self::check_multibyte_lengths(input, self.prev, sc));
+                self.prev = input
             }
 
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn check_utf8(&mut self, input: SimdInput) {
-                if likely!(input.is_ascii()) {
-                    self.check_eof();
+                if input.is_ascii() {
+                    self.check_incomplete_pending();
                 } else {
                     self.check_block(input);
                 }
             }
 
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
+            #[allow(unconditional_panic)] // does not panic because len is checked
+            #[allow(const_err)] // the same, but for Rust 1.38.0
             unsafe fn check_block(&mut self, input: SimdInput) {
-                for i in 0..input.vals.len() {
-                    Self::check_bytes(input.vals[i], self);
+                // WORKAROUND
+                // necessary because the for loop is not unrolled on ARM64
+                if input.vals.len() == 2 {
+                    self.check_bytes(input.vals[0]);
+                    self.check_bytes(input.vals[1]);
+                    self.incomplete = Self::is_incomplete(input.vals[1]);
+                } else if input.vals.len() == 4 {
+                    self.check_bytes(input.vals[0]);
+                    self.check_bytes(input.vals[1]);
+                    self.check_bytes(input.vals[2]);
+                    self.check_bytes(input.vals[3]);
+                    self.incomplete = Self::is_incomplete(input.vals[3]);
+                } else {
+                    panic!("Unsupported number of chunks");
                 }
             }
         }
@@ -224,7 +209,7 @@ macro_rules! algorithm_simd {
         /// This function is inherently unsafe because it is compiled with SIMD extensions
         /// enabled. Make sure that the CPU supports it before calling.
         ///
-        #[target_feature(enable = $feat)]
+        #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
         #[inline]
         pub unsafe fn validate_utf8_basic(
             input: &[u8],
@@ -233,41 +218,38 @@ macro_rules! algorithm_simd {
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let mut tmpbuf = Temp2xSimdChunk::new();
+            let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
-            let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
-            if len >= 4096 {
-                let off = (input.as_ptr() as usize) % align;
-                if off != 0 {
-                    let to_copy = align - off;
-                    tmpbuf.0[SIMD_CHUNK_SIZE - align + off..]
-                        .as_mut_ptr()
-                        .copy_from_nonoverlapping(input.as_ptr(), to_copy);
-                    let simd_input = SimdInput::new(&tmpbuf.0);
-                    algorithm.check_utf8(simd_input);
-                    idx += to_copy;
+            while idx < iter_lim {
+                let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                idx += SIMD_CHUNK_SIZE;
+                if !simd_input.is_ascii() {
+                    algorithm.check_block(simd_input);
+                    break;
                 }
             }
 
-            let rem = len - idx;
-            let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
             while idx < iter_lim {
+                if PREFETCH {
+                    simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
+                }
                 let input = SimdInput::new(input.get_unchecked(idx as usize..));
                 algorithm.check_utf8(input);
                 idx += SIMD_CHUNK_SIZE;
             }
 
             if idx < len {
-                tmpbuf
-                    .1
-                    .as_mut_ptr()
-                    .copy_from_nonoverlapping(input.as_ptr().add(idx), len - idx);
-                let input = SimdInput::new(&tmpbuf.1);
-
-                algorithm.check_utf8(input);
+                let mut tmpbuf = TempSimdChunk::new();
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                    input.as_ptr().add(idx),
+                    tmpbuf.0.as_mut_ptr(),
+                    len - idx,
+                );
+                let simd_input = SimdInput::new(&tmpbuf.0);
+                algorithm.check_utf8(simd_input);
             }
-            algorithm.check_eof();
-            if unlikely!(algorithm.has_error()) {
+            algorithm.check_incomplete_pending();
+            if algorithm.has_error() {
                 Err(crate::basic::Utf8Error {})
             } else {
                 Ok(())
@@ -283,7 +265,7 @@ macro_rules! algorithm_simd {
         /// This function is inherently unsafe because it is compiled with SIMD extensions
         /// enabled. Make sure that the CPU supports it before calling.
         ///
-        #[target_feature(enable = $feat)]
+        #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
         #[inline]
         pub unsafe fn validate_utf8_compat(
             input: &[u8],
@@ -292,53 +274,73 @@ macro_rules! algorithm_simd {
                 .map_err(|idx| crate::implementation::helpers::get_compat_error(input, idx))
         }
 
-        #[target_feature(enable = $feat)]
+        #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
         #[inline]
         unsafe fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
             use crate::implementation::helpers::SIMD_CHUNK_SIZE;
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let mut tmpbuf = Temp2xSimdChunk::new();
+            let mut only_ascii = true;
+            let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
-            let align: usize = core::mem::align_of::<Temp2xSimdChunk>();
-            if len >= 4096 {
-                let off = (input.as_ptr() as usize) % align;
-                if off != 0 {
-                    let to_copy = align - off;
-                    tmpbuf.0[SIMD_CHUNK_SIZE - align + off..]
-                        .as_mut_ptr()
-                        .copy_from_nonoverlapping(input.as_ptr(), to_copy);
-                    let simd_input = SimdInput::new(&tmpbuf.0);
-                    algorithm.check_utf8(simd_input);
-                    if algorithm.has_error() {
-                        return Err(idx);
+            'outer: loop {
+                if only_ascii {
+                    while idx < iter_lim {
+                        let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                        if !simd_input.is_ascii() {
+                            algorithm.check_block(simd_input);
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            } else {
+                                only_ascii = false;
+                                idx += SIMD_CHUNK_SIZE;
+                                continue 'outer;
+                            }
+                        }
+                        idx += SIMD_CHUNK_SIZE;
                     }
-                    idx += to_copy;
+                    break;
+                } else {
+                    while idx < iter_lim {
+                        if PREFETCH {
+                            simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
+                        }
+                        let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                        if simd_input.is_ascii() {
+                            algorithm.check_incomplete_pending();
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            } else {
+                                // we are in pure ASCII territory again
+                                only_ascii = true;
+                                idx += SIMD_CHUNK_SIZE;
+                                continue 'outer;
+                            }
+                        } else {
+                            algorithm.check_block(simd_input);
+                            if algorithm.has_error() {
+                                return Err(idx);
+                            }
+                        }
+                        idx += SIMD_CHUNK_SIZE;
+                    }
+                    break;
                 }
-            }
-
-            let rem = len - idx;
-            let iter_lim = idx + (rem - (rem % SIMD_CHUNK_SIZE));
-            while idx < iter_lim {
-                let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                algorithm.check_utf8(simd_input);
-                if algorithm.has_error() {
-                    return Err(idx);
-                }
-                idx += SIMD_CHUNK_SIZE;
             }
             if idx < len {
-                tmpbuf
-                    .1
-                    .as_mut_ptr()
-                    .copy_from_nonoverlapping(input.as_ptr().add(idx), len - idx);
-                let simd_input = SimdInput::new(&tmpbuf.1);
+                let mut tmpbuf = TempSimdChunk::new();
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                    input.as_ptr().add(idx),
+                    tmpbuf.0.as_mut_ptr(),
+                    len - idx,
+                );
+                let simd_input = SimdInput::new(&tmpbuf.0);
 
                 algorithm.check_utf8(simd_input);
             }
-            algorithm.check_eof();
-            if unlikely!(algorithm.has_error()) {
+            algorithm.check_incomplete_pending();
+            if algorithm.has_error() {
                 Err(idx)
             } else {
                 Ok(())
@@ -355,7 +357,7 @@ macro_rules! simd_input_128_bit {
         }
 
         impl SimdInput {
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
@@ -369,7 +371,7 @@ macro_rules! simd_input_128_bit {
                 }
             }
 
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 let r1 = self.vals[0].or(self.vals[1]);
@@ -389,7 +391,7 @@ macro_rules! simd_input_256_bit {
         }
 
         impl SimdInput {
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
@@ -401,7 +403,7 @@ macro_rules! simd_input_256_bit {
                 }
             }
 
-            #[target_feature(enable = $feat)]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 self.vals[0].or(self.vals[1]).is_ascii()

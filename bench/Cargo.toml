@@ -11,13 +11,11 @@ license = "MIT OR Apache-2.0"
 
 [features]
 simdjson = [ "simdjson-utf8" ]
-cpb = [ "criterion-cycles-per-byte" ]
 
 [dependencies]
 core_affinity = "0.5"
 criterion = "0.3"
 simdutf8 = { version = "*", path = "..", features = ["aarch64_neon"] }
-criterion-cycles-per-byte = { version = "0.1.2", optional = true }
 simdjson-utf8 = { version = "*", path = "simdjson-utf8", optional = true }
 
 [[bench]]
@@ -40,23 +38,3 @@ harness = false
 name = "throughput_simdjson"
 harness = false
 required-features = ["simdjson"]
-
-[[bench]]
-name = "cpb_basic"
-harness = false
-required-features = ["cpb"]
-
-[[bench]]
-name = "cpb_compat"
-harness = false
-required-features = ["cpb"]
-
-[[bench]]
-name = "cpb_std"
-harness = false
-required-features = ["cpb"]
-
-[[bench]]
-name = "cpb_simdjson"
-harness = false
-required-features = ["cpb", "simdjson"]
