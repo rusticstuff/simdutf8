@@ -46,7 +46,7 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
 ) {
     // This gets properly auto-vectorized on AVX 2 and SSE 4.2
     #[inline]
-    unsafe fn memcpy_long(src: &mut *const u8, dest: &mut *mut u8) {
+    unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
         #[allow(clippy::cast_ptr_alignment)]
         dest.cast::<u64>()
             .write_unaligned(src.cast::<u64>().read_unaligned());
@@ -54,19 +54,19 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
         *dest = dest.offset(8);
     }
     if len >= 32 {
-        memcpy_long(&mut src, &mut dest);
-        memcpy_long(&mut src, &mut dest);
-        memcpy_long(&mut src, &mut dest);
-        memcpy_long(&mut src, &mut dest);
+        memcpy_u64(&mut src, &mut dest);
+        memcpy_u64(&mut src, &mut dest);
+        memcpy_u64(&mut src, &mut dest);
+        memcpy_u64(&mut src, &mut dest);
         len -= 32;
     }
     if len >= 16 {
-        memcpy_long(&mut src, &mut dest);
-        memcpy_long(&mut src, &mut dest);
+        memcpy_u64(&mut src, &mut dest);
+        memcpy_u64(&mut src, &mut dest);
         len -= 16;
     }
     if len >= 8 {
-        memcpy_long(&mut src, &mut dest);
+        memcpy_u64(&mut src, &mut dest);
         len -= 8;
     }
     while len > 0 {
