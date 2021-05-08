@@ -31,7 +31,7 @@ Add the dependency to your Cargo.toml file:
 [dependencies]
 simdutf8 = { version = "0.1.2" }
 ```
-or on ARM64:
+or on ARM64 with Rust Nightly:
 ```toml
 [dependencies]
 simdutf8 = { version = "0.1.2", features = ["aarch64_neon"] }
