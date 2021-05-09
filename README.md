@@ -115,15 +115,18 @@ Configurations:
 
 
 ### simdutf8 basic vs std library on x86-64 (AMD Zen2)
+![image](https://user-images.githubusercontent.com/3736990/117568104-1c00f900-b0bf-11eb-938f-4c253d192480.png)
 simdutf8 performs better or as well as the std library.
 
 ### simdutf8 basic vs std library on aarch64 (Apple Silicon)
+![image](https://user-images.githubusercontent.com/3736990/117568160-42bf2f80-b0bf-11eb-86a4-9aeee4cee87d.png)
 simdutf8 performs better or as well as the std library.
 
 ### simdutf8 basic vs simdjson on x86-64
+![image](https://user-images.githubusercontent.com/3736990/117568231-80bc5380-b0bf-11eb-8e90-1dcc6d966ebd.png)
 
 ### simdutf8 basic vs simdutf8 compat UTF-8 on x86-64
-
+![image](https://user-images.githubusercontent.com/3736990/117568270-af3a2e80-b0bf-11eb-8ec4-e5a0a4ad7210.png)
 There is a small performance penalty to continuously checking the error status while processing data, but detecting
 errors early provides a huge benefit for the _x-error/66536_ benchmark.
 
