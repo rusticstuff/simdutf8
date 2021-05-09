@@ -29,5 +29,7 @@ aarch64_neon = []
 hints = []
 
 [package.metadata.docs.rs]
-features = ["public_imp"]
+all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
+default-target = "x86_64-unknown-linux-gnu"
+targets = ["aarch64-unknown-linux-gnu"]
