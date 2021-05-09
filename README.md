@@ -112,7 +112,7 @@ with simdjson simdutf8 is compiled with `#inline(never)`.
 
 Configurations:
 * X86-64: PC with an AMD Ryzen 7 PRO 3700 CPU (Zen2) on Linux with Rust 1.52.0 
-* Aarch64: Macbook Air with an Apple M1 CPU (Apple Silicon) on macOS with Rust 1.54.0 if not otherwise stated. 
+* Aarch64: Macbook Air with an Apple M1 CPU (Apple Silicon) on macOS with Rust rustc 1.54.0-nightly (881c1ac40 2021-05-08). 
 
 
 ### simdutf8 basic vs std library UTF-8 validation x86-64
