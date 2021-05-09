@@ -14,7 +14,7 @@ macro_rules! define_throughput_benchmark {
 
         criterion_group!(
             name = benches;
-            config = Criterion::default().measurement_time(Duration::from_secs(1)).warm_up_time(Duration::from_secs(1)).sample_size(100);
+            config = Criterion::default().measurement_time(Duration::from_secs(1)).warm_up_time(Duration::from_secs(1)).sample_size(300);
             targets = benchmark_compat
         );
 
