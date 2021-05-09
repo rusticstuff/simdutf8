@@ -81,15 +81,13 @@
 //! the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.2"`
 //! for the SSE 4.2 implementation.
 //!
-//! If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
-//! implementations are then accessible via [`basic::imp::x86`] and [`compat::imp::x86`].
-//!
 //! ### ARM64
 //! For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
 //! not turned on the non-SIMD std library implementation is used.
 //!
-//! If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation implementations
-//! are then accessible via [`basic::imp::aarch64::neon`] and [`compat::imp::aarch64::neon`].
+//! ### Direct call
+//! If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
+//! implementations are then accessible via [`basic::imp`] and [`compat::imp`].
 //!
 //! ## Optimisation flags
 //! Do not use [`opt-level = "z"`](https://doc.rust-lang.org/cargo/reference/profiles.html), which prevents inlining and makes
