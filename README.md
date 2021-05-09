@@ -113,17 +113,17 @@ Configurations:
 * X86-64: PC with an AMD Ryzen 7 PRO 3700 CPU (Zen2) on Linux with Rust 1.52.0 
 * Aarch64: Macbook Air with an Apple M1 CPU (Apple Silicon) on macOS with Rust rustc 1.54.0-nightly (881c1ac40 2021-05-08). 
 
-
 ### simdutf8 basic vs std library on x86-64 (AMD Zen2)
 ![image](https://user-images.githubusercontent.com/3736990/117568104-1c00f900-b0bf-11eb-938f-4c253d192480.png)
-simdutf8 performs better or as well as the std library.
+Simdutf8 is up to 23 times faster than the std library on non-ASCII, up to four times faster on ASCII.
 
 ### simdutf8 basic vs std library on aarch64 (Apple Silicon)
 ![image](https://user-images.githubusercontent.com/3736990/117568160-42bf2f80-b0bf-11eb-86a4-9aeee4cee87d.png)
-simdutf8 performs better or as well as the std library.
+Simdutf8 is up to to eleven times faster than the std library on non-ASCII, up to four times faster on ASCII.
 
 ### simdutf8 basic vs simdjson on x86-64
 ![image](https://user-images.githubusercontent.com/3736990/117568231-80bc5380-b0bf-11eb-8e90-1dcc6d966ebd.png)
+Simdutf8 is faster than simdjson on almost all inputs.
 
 ### simdutf8 basic vs simdutf8 compat UTF-8 on x86-64
 ![image](https://user-images.githubusercontent.com/3736990/117568270-af3a2e80-b0bf-11eb-8ec4-e5a0a4ad7210.png)
