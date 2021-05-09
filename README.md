@@ -107,12 +107,15 @@ are created with [critcmp](https://github.com/BurntSushi/critcmp). Source code a
 [bench directory](https://github.com/rusticstuff/simdutf8/tree/main/bench).
 
 The naming schema is id-charset/size. _0-empty_ is the empty byte slice, _x-error/66536_ is a 64KiB slice where the very
-first character is invalid UTF-8. All benchmarks were run on a laptop with an Intel Core i7-10750H CPU (Comet Lake) on
-Windows with Rust 1.51.0 if not otherwise stated. Library versions are simdutf8 v0.1.1 and simdjson v0.9.2. When comparing
+first character is invalid UTF-8. Library versions are simdutf8 v0.1.2 and simdjson v0.9.2. When comparing
 with simdjson simdutf8 is compiled with `#inline(never)`.
 
-### simdutf8 basic vs std library UTF-8 validation
-![critcmp stimdutf8 v0.1.1 basic vs std lib](https://user-images.githubusercontent.com/3736990/116121179-a8271f80-a6c0-11eb-9b2b-6233c3c824f2.png)
+Configurations:
+* X86-64: PC with an AMD Ryzen 7 PRO 3700 CPU (Zen2) on Linux with Rust 1.52.0 
+* Aarch64: Macbook Air with an Apple M1 CPU (Apple Silicon) on macOS with Rust 1.54.0 if not otherwise stated. 
+
+
+### simdutf8 basic vs std library UTF-8 validation x86-64
 simdutf8 performs better or as well as the std library.
 
 ### simdutf8 basic vs simdjson UTF-8 validation on Intel Comet Lake
