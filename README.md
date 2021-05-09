@@ -15,8 +15,8 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
 * :new: ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
-* x86-64: Up to 23 times faster than the std library on non-ASCII, up to four times faster on ASCII
-* aarch64: Up to eleven times faster than the std library on non-ASCII, up to four times faster on ASCII (Apple Silicon)
+* x86-64: Up to 23 times faster than the std library on valid non-ASCII, up to four times faster on ASCII
+* aarch64: Up to eleven times faster than the std library on valid non-ASCII, up to four times faster on ASCII (Apple Silicon)
 * Faster than the original simdjson implementation
 * Selects the fastest implementation at runtime based on CPU support (on x86)
 * Falls back to the excellent std implementation if SIMD extensions are not supported
@@ -115,11 +115,12 @@ Configurations:
 
 ### simdutf8 basic vs std library on x86-64 (AMD Zen2)
 ![image](https://user-images.githubusercontent.com/3736990/117568104-1c00f900-b0bf-11eb-938f-4c253d192480.png)
-Simdutf8 is up to 23 times faster than the std library on non-ASCII, up to four times faster on ASCII.
+Simdutf8 is up to 23 times faster than the std library on valid non-ASCII, up to four times on pure ASCII.
 
 ### simdutf8 basic vs std library on aarch64 (Apple Silicon)
 ![image](https://user-images.githubusercontent.com/3736990/117568160-42bf2f80-b0bf-11eb-86a4-9aeee4cee87d.png)
-Simdutf8 is up to to eleven times faster than the std library on non-ASCII, up to four times faster on ASCII.
+Simdutf8 is up to to eleven times faster than the std library on valid non-ASCII, up to four times faster on 
+pure ASCII.
 
 ### simdutf8 basic vs simdjson on x86-64
 ![image](https://user-images.githubusercontent.com/3736990/117568231-80bc5380-b0bf-11eb-8e90-1dcc6d966ebd.png)
