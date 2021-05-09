@@ -14,7 +14,7 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
-* :new: ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
+* 🆕 ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
 * x86-64: Up to 23 times faster than the std library on valid non-ASCII, up to four times faster on ASCII
 * aarch64: Up to eleven times faster than the std library on valid non-ASCII, up to four times faster on ASCII (Apple Silicon)
 * Faster than the original simdjson implementation
@@ -90,7 +90,7 @@ implementations are then accessible via `simdutf8::{basic, compat}::imp::x86::{a
 For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
 not turned on the non-SIMD std library implementation is used.
 
-If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation implementations 
+If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation implementations
 are then accessible via `simdutf8::{basic, compat}::imp::aarch64::neon::validate_utf8()`.
 
 ## Optimisation flags
@@ -110,8 +110,8 @@ first character is invalid UTF-8. Library versions are simdutf8 v0.1.2 and simdj
 with simdjson simdutf8 is compiled with `#inline(never)`.
 
 Configurations:
-* X86-64: PC with an AMD Ryzen 7 PRO 3700 CPU (Zen2) on Linux with Rust 1.52.0 
-* Aarch64: Macbook Air with an Apple M1 CPU (Apple Silicon) on macOS with Rust rustc 1.54.0-nightly (881c1ac40 2021-05-08). 
+* X86-64: PC with an AMD Ryzen 7 PRO 3700 CPU (Zen2) on Linux with Rust 1.52.0
+* Aarch64: Macbook Air with an Apple M1 CPU (Apple Silicon) on macOS with Rust rustc 1.54.0-nightly (881c1ac40 2021-05-08).
 
 ### simdutf8 basic vs std library on x86-64 (AMD Zen2)
 ![image](https://user-images.githubusercontent.com/3736990/117568104-1c00f900-b0bf-11eb-938f-4c253d192480.png)
@@ -119,7 +119,7 @@ Simdutf8 is up to 23 times faster than the std library on valid non-ASCII, up to
 
 ### simdutf8 basic vs std library on aarch64 (Apple Silicon)
 ![image](https://user-images.githubusercontent.com/3736990/117568160-42bf2f80-b0bf-11eb-86a4-9aeee4cee87d.png)
-Simdutf8 is up to to eleven times faster than the std library on valid non-ASCII, up to four times faster on 
+Simdutf8 is up to to eleven times faster than the std library on valid non-ASCII, up to four times faster on
 pure ASCII.
 
 ### simdutf8 basic vs simdjson on x86-64
@@ -136,7 +136,7 @@ For inputs shorter than 64 bytes validation is delegated to `core::str::from_utf
 functions in `simdutf8::{basic, compat}::imp`.
 
 The SIMD implementation is mostly similar to the one in simdjson except that it is has additional optimizations
-for the pure ASCII case. Also it uses prefetch with AVX 2 on x86 which leads to slightly better performance with 
+for the pure ASCII case. Also it uses prefetch with AVX 2 on x86 which leads to slightly better performance with
 some Intel CPUs on synthetic benchmarks.
 
 For the compat API, we need to check the error status vector on each 64-byte block instead of just aggregating it. If an
