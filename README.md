@@ -13,17 +13,16 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 ## Features
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
-* Up to 22 times faster than the std library on non-ASCII, up to three times faster on ASCII on x86-64
-* Up to nine times faster than the std library on non-ASCII, up to three times faster on ASCII on Apple Silicon
-* As fast as or faster than the original simdjson implementation
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
-* ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
-* ARMv7 Neon support is planned.
+* :new: ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
+* x86-64: Up to 23 times faster than the std library on non-ASCII, up to three times faster on ASCII
+* aarch64: Up to nine times faster than the std library on non-ASCII, up to three times faster on ASCII (Apple Silicon)
+* Faster than the original simdjson implementation
 * Selects the fastest implementation at runtime based on CPU support (on x86)
+* Falls back to the excellent std implementation if SIMD extensions are not supported
 * Written in pure Rust
 * No dependencies
 * No-std support
-* Falls back to the excellent std implementation if SIMD extensions are not supported
 
 ## Quick start
 Add the dependency to your Cargo.toml file:
