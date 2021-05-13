@@ -466,10 +466,15 @@ macro_rules! algorithm_simd {
             ///
             /// # Safety
             /// TBD
+            ///
+            /// # Panics
+            /// If input.len() is not exactly 64 bytes.
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             pub unsafe fn update_chunk(&mut self, input: &[u8]) {
-                assert_eq!(input.len(), 64);
+                if input.len() != 64 {
+                    panic!("Input size must be exactly 64 bytes.")
+                }
                 let input = SimdInput::new(input.get_unchecked(..));
                 self.algorithm.check_utf8(input);
             }
