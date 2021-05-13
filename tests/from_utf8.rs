@@ -1,5 +1,8 @@
 #![allow(clippy::non_ascii_literal)]
 
+mod common;
+use common::BStrExt;
+
 use simdutf8::basic::from_utf8 as basic_from_utf8;
 use simdutf8::basic::from_utf8_mut as basic_from_utf8_mut;
 use simdutf8::compat::from_utf8 as compat_from_utf8;
@@ -10,28 +13,6 @@ extern crate std;
 
 #[cfg(not(features = "std"))]
 use std::{borrow::ToOwned, format, vec::Vec};
-
-pub trait BStrExt {
-    fn repeat_x(&self, count: usize) -> Vec<u8>;
-}
-
-/// b"a".repeat() is not implemented for Rust 1.38.0 (MSRV)
-impl<T> BStrExt for T
-where
-    T: AsRef<[u8]>,
-{
-    fn repeat_x(&self, count: usize) -> Vec<u8> {
-        use std::io::Write;
-
-        let x = self.as_ref();
-        let mut res = Vec::with_capacity(x.len() * count);
-        for _ in 0..count {
-            #[allow(clippy::unwrap_used)]
-            res.write_all(x).unwrap();
-        }
-        res
-    }
-}
 
 fn test_valid(input: &[u8]) {
     // std lib sanity check
