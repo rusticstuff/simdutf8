@@ -27,6 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Update rustup
+        if: ${{ matrix.os == 'windows-latest' }}
         run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
@@ -48,8 +49,6 @@ jobs:
         working-directory: inlining
     steps:
       - uses: actions/checkout@v2
-      - name: Update rustup
-        run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: stable
@@ -159,6 +158,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Update rustup
+        if: ${{ matrix.os == 'windows-latest' }}
         run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
