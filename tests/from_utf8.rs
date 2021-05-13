@@ -1,9 +1,9 @@
 #![allow(clippy::non_ascii_literal)]
 
-use crate::basic::from_utf8 as basic_from_utf8;
-use crate::basic::from_utf8_mut as basic_from_utf8_mut;
-use crate::compat::from_utf8 as compat_from_utf8;
-use crate::compat::from_utf8_mut as compat_from_utf8_mut;
+use simdutf8::basic::from_utf8 as basic_from_utf8;
+use simdutf8::basic::from_utf8_mut as basic_from_utf8_mut;
+use simdutf8::compat::from_utf8 as compat_from_utf8;
+use simdutf8::compat::from_utf8_mut as compat_from_utf8_mut;
 
 #[cfg(not(features = "std"))]
 extern crate std;
@@ -55,14 +55,14 @@ fn test_valid_public_imp(input: &[u8]) {
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
         #[cfg(target_feature = "avx2")]
         unsafe {
-            assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_ok());
-            assert!(crate::compat::imp::x86::avx2::validate_utf8(input).is_ok());
+            assert!(simdutf8::basic::imp::x86::avx2::validate_utf8(input).is_ok());
+            assert!(simdutf8::compat::imp::x86::avx2::validate_utf8(input).is_ok());
         }
 
         #[cfg(target_feature = "sse4.2")]
         unsafe {
-            assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_ok());
-            assert!(crate::compat::imp::x86::sse42::validate_utf8(input).is_ok());
+            assert!(simdutf8::basic::imp::x86::sse42::validate_utf8(input).is_ok());
+            assert!(simdutf8::compat::imp::x86::sse42::validate_utf8(input).is_ok());
         }
     }
     #[cfg(all(
@@ -71,8 +71,8 @@ fn test_valid_public_imp(input: &[u8]) {
         target_feature = "neon"
     ))]
     unsafe {
-        assert!(crate::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
-        assert!(crate::compat::imp::aarch64::neon::validate_utf8(input).is_ok());
+        assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
+        assert!(simdutf8::compat::imp::aarch64::neon::validate_utf8(input).is_ok());
     }
 }
 
@@ -98,15 +98,15 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
         #[cfg(target_feature = "avx2")]
         unsafe {
-            assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_err());
-            let err = crate::compat::imp::x86::avx2::validate_utf8(input).unwrap_err();
+            assert!(simdutf8::basic::imp::x86::avx2::validate_utf8(input).is_err());
+            let err = simdutf8::compat::imp::x86::avx2::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
         }
         #[cfg(target_feature = "sse4.2")]
         unsafe {
-            assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_err());
-            let err = crate::compat::imp::x86::sse42::validate_utf8(input).unwrap_err();
+            assert!(simdutf8::basic::imp::x86::sse42::validate_utf8(input).is_err());
+            let err = simdutf8::compat::imp::x86::sse42::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
         }
@@ -117,15 +117,15 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
         target_feature = "neon"
     ))]
     unsafe {
-        assert!(crate::basic::imp::aarch64::neon::validate_utf8(input).is_err());
+        assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_err());
         assert_eq!(
-            crate::compat::imp::aarch64::neon::validate_utf8(input)
+            simdutf8::compat::imp::aarch64::neon::validate_utf8(input)
                 .unwrap_err()
                 .valid_up_to(),
             valid_up_to
         );
         assert_eq!(
-            crate::compat::imp::aarch64::neon::validate_utf8(input)
+            simdutf8::compat::imp::aarch64::neon::validate_utf8(input)
                 .unwrap_err()
                 .error_len(),
             error_len

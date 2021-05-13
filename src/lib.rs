@@ -104,6 +104,3 @@
 pub mod basic;
 pub mod compat;
 mod implementation;
-
-#[cfg(test)]
-mod tests;
