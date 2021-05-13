@@ -370,19 +370,6 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            /// TBD
-            ///
-            /// # Safety
-            /// TBD
-            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
-            #[inline]
-            pub unsafe fn update_chunk(&mut self, input: &[u8]) {
-                assert_eq!(self.incomplete_len, 0);
-                assert_eq!(input.len(), 64);
-                let input = SimdInput::new(input.get_unchecked(..));
-                self.algorithm.check_utf8(input);
-            }
-
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn update_from_incomplete_data(&mut self) {
@@ -447,6 +434,56 @@ macro_rules! algorithm_simd {
                     }
                     self.update_from_incomplete_data();
                 }
+                self.algorithm.check_incomplete_pending();
+                if self.algorithm.has_error() {
+                    Err(crate::basic::Utf8Error {})
+                } else {
+                    Ok(())
+                }
+            }
+        }
+
+        /// TBD
+        pub struct Utf8ChunkValidator {
+            algorithm: Utf8CheckAlgorithm<SimdU8Value>,
+        }
+
+        impl Utf8ChunkValidator {
+            /// TBD
+            ///
+            /// # Safety
+            /// TBD
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            #[must_use]
+            pub unsafe fn new() -> Self {
+                Self {
+                    algorithm: Utf8CheckAlgorithm::<SimdU8Value>::default(),
+                }
+            }
+
+            /// TBD
+            ///
+            /// # Safety
+            /// TBD
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            pub unsafe fn update_chunk(&mut self, input: &[u8]) {
+                assert_eq!(input.len(), 64);
+                let input = SimdInput::new(input.get_unchecked(..));
+                self.algorithm.check_utf8(input);
+            }
+
+            /// TBD
+            ///
+            /// # Safety
+            /// TBD
+            ///
+            /// # Errors
+            /// TBD
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            pub unsafe fn finish(mut self) -> core::result::Result<(), crate::basic::Utf8Error> {
                 self.algorithm.check_incomplete_pending();
                 if self.algorithm.has_error() {
                     Err(crate::basic::Utf8Error {})

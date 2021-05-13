@@ -65,11 +65,13 @@ pub mod imp {
         /// Includes the validation implementation for AVX 2-compatible CPUs.
         pub mod avx2 {
             pub use crate::implementation::x86::avx2::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::x86::avx2::Utf8ChunkValidator;
             pub use crate::implementation::x86::avx2::Utf8Validator;
         }
         /// Includes the validation implementation for SSE 4.2-compatible CPUs.
         pub mod sse42 {
             pub use crate::implementation::x86::sse42::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::x86::sse42::Utf8ChunkValidator;
             pub use crate::implementation::x86::sse42::Utf8Validator;
         }
     }
@@ -80,6 +82,7 @@ pub mod imp {
         /// Includes the validation implementation for Neon SIMD.
         pub mod neon {
             pub use crate::implementation::aarch64::neon::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::aarch64::neon::Utf8ChunkValidator;
             pub use crate::implementation::aarch64::neon::Utf8Validator;
         }
     }
