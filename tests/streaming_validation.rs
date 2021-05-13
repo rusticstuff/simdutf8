@@ -1,4 +1,6 @@
 mod common;
+
+#[allow(unused_imports)]
 use common::BStrExt;
 
 #[cfg(all(feature = "public_imp", target_feature = "avx2"))]

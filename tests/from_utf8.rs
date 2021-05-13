@@ -12,7 +12,7 @@ use simdutf8::compat::from_utf8_mut as compat_from_utf8_mut;
 extern crate std;
 
 #[cfg(not(features = "std"))]
-use std::{borrow::ToOwned, format, vec::Vec};
+use std::{borrow::ToOwned, format};
 
 fn test_valid(input: &[u8]) {
     // std lib sanity check
