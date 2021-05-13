@@ -472,10 +472,12 @@ macro_rules! algorithm_simd {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             pub unsafe fn update_chunks(&mut self, input: &[u8]) {
-                if input.len() % 64 != 0 {
+                use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+
+                if input.len() % SIMD_CHUNK_SIZE != 0 {
                     panic!("Input size must be a multiple of 64.")
                 }
-                for chunk in input.chunks(64) {
+                for chunk in input.chunks_exact(SIMD_CHUNK_SIZE) {
                     let input = SimdInput::new(chunk);
                     self.algorithm.check_utf8(input);
                 }
@@ -498,8 +500,10 @@ macro_rules! algorithm_simd {
                 mut self,
                 last_bytes: core::option::Option<&[u8]>,
             ) -> core::result::Result<(), crate::basic::Utf8Error> {
+                use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+
                 if let Some(last_bytes) = last_bytes {
-                    if last_bytes.len() > 64 {
+                    if last_bytes.len() > SIMD_CHUNK_SIZE {
                         panic!("last_bytes > 64")
                     }
                     let mut tmpbuf = TempSimdChunk::new();
