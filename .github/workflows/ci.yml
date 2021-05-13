@@ -10,6 +10,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTUP_UNPACK_RAM: 128000000 
 
 jobs:
   test:
