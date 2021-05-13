@@ -468,15 +468,17 @@ macro_rules! algorithm_simd {
             /// TBD
             ///
             /// # Panics
-            /// If input.len() is not exactly 64 bytes.
+            /// If input.len() is not a multiple of 64.
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            pub unsafe fn update_chunk(&mut self, input: &[u8]) {
-                if input.len() != 64 {
-                    panic!("Input size must be exactly 64 bytes.")
+            pub unsafe fn update_chunks(&mut self, input: &[u8]) {
+                if input.len() % 64 != 0 {
+                    panic!("Input size must be a multiple of 64.")
                 }
-                let input = SimdInput::new(input.get_unchecked(..));
-                self.algorithm.check_utf8(input);
+                for chunk in input.chunks(64) {
+                    let input = SimdInput::new(chunk);
+                    self.algorithm.check_utf8(input);
+                }
             }
 
             /// TBD
@@ -486,9 +488,28 @@ macro_rules! algorithm_simd {
             ///
             /// # Errors
             /// TBD
+            ///
+            /// # Panics
+            /// If `last_bytes.len()` > 64
+
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            pub unsafe fn finish(mut self) -> core::result::Result<(), crate::basic::Utf8Error> {
+            pub unsafe fn finish(
+                mut self,
+                last_bytes: core::option::Option<&[u8]>,
+            ) -> core::result::Result<(), crate::basic::Utf8Error> {
+                if let Some(last_bytes) = last_bytes {
+                    if last_bytes.len() > 64 {
+                        panic!("last_bytes > 64")
+                    }
+                    let mut tmpbuf = TempSimdChunk::new();
+                    tmpbuf
+                        .0
+                        .as_mut_ptr()
+                        .copy_from_nonoverlapping(last_bytes.as_ptr(), last_bytes.len());
+                    let simd_input = SimdInput::new(&tmpbuf.0);
+                    self.algorithm.check_utf8(simd_input);
+                }
                 self.algorithm.check_incomplete_pending();
                 if self.algorithm.has_error() {
                     Err(crate::basic::Utf8Error {})
