@@ -26,6 +26,9 @@ jobs:
               rustflags: "-C target-feature=+avx2"
     steps:
       - uses: actions/checkout@v2
+      - name: Update rustup
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: ${{ matrix.toolchain }}
@@ -78,6 +81,8 @@ jobs:
         working-directory: inlining
     steps:
       - uses: actions/checkout@v2
+      - name: Update rustup
+        run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: nightly
@@ -97,6 +102,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Update rustup
+        run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: nightly
@@ -123,6 +130,8 @@ jobs:
             target: aarch64-unknown-linux-gnu
     steps:
       - uses: actions/checkout@v2
+      - name: Update rustup
+        run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: ${{ matrix.toolchain }}
@@ -148,6 +157,9 @@ jobs:
             target: i686-unknown-linux-gnu
     steps:
       - uses: actions/checkout@v2
+      - name: Update rustup
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: ${{ matrix.toolchain }}
@@ -163,6 +175,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Update rustup
+        run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: stable
@@ -176,6 +190,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Update rustup
+        run: rustup self update
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: nightly
