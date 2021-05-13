@@ -10,7 +10,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUSTUP_UNPACK_RAM: 128000000 
+  RUSTUP_UPDATE_ROOT: https://dev-static.rust-lang.org/rustup
 
 jobs:
   test:
