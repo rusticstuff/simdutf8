@@ -85,9 +85,10 @@
 //! For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
 //! not turned on the non-SIMD std library implementation is used.
 //!
-//! ### Direct call
+//! ### Access to low-level functionality
 //! If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
-//! implementations are then accessible via [`basic::imp`] and [`compat::imp`].
+//! implementations are then accessible via [`basic::imp`] and [`compat::imp`].Traits facilitating streaming validation are available
+//! there as well.
 //!
 //! ## Optimisation flags
 //! Do not use [`opt-level = "z"`](https://doc.rust-lang.org/cargo/reference/profiles.html), which prevents inlining and makes
