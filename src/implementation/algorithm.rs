@@ -387,6 +387,9 @@ macro_rules! algorithm_simd {
             #[inline]
             unsafe fn update(&mut self, mut input: &[u8]) {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+                if input.len() == 0 {
+                    return;
+                }
                 if self.incomplete_len != 0 {
                     let to_copy =
                         core::cmp::min(SIMD_CHUNK_SIZE - self.incomplete_len, input.len());
