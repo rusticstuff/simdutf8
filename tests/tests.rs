@@ -412,3 +412,30 @@ fn error_derives_compat() {
     assert_eq!(err, err2);
     assert!(!(err != err2));
 }
+
+#[test]
+#[should_panic]
+#[cfg(all(feature = "public_imp", target_feature = "avx2"))]
+fn test_avx2_chunked_panic() {
+    test_chunked_streaming_with_chunk_size::<
+        simdutf8::basic::imp::x86::avx2::ChunkedUtf8ValidatorImp,
+    >(b"abcd", 1, true);
+}
+
+#[test]
+#[should_panic]
+#[cfg(all(feature = "public_imp", target_feature = "sse4.2"))]
+fn test_sse42_chunked_panic() {
+    test_chunked_streaming_with_chunk_size::<
+        simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp,
+    >(b"abcd", 1, true);
+}
+
+#[test]
+#[should_panic]
+#[cfg(all(feature = "public_imp", target_arch = "aarch64"))]
+fn test_sse42_chunked_panic() {
+    test_chunked_streaming_with_chunk_size::<
+        simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp,
+    >(b"abcd", 1, true);
+}
