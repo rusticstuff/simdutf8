@@ -46,7 +46,7 @@
 ## [0.0.1] - 2021-04-20
 - Initial release.
 
-[Unreleased]: https://github.com/rusticstuff/simdutf8/compare/v.1.2...HEAD
+[Unreleased]: https://github.com/rusticstuff/simdutf8/compare/v0.1.2...HEAD
 [0.1.2]: https://github.com/rusticstuff/simdutf8/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/rusticstuff/simdutf8/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/rusticstuff/simdutf8/compare/v0.0.3...v0.1.0
