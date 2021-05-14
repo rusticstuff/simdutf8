@@ -1,30 +1,35 @@
+#![cfg(feature = "public_imp")]
+
 mod common;
 
 #[allow(unused_imports)]
 use common::BStrExt;
 
-#[cfg(all(feature = "public_imp", target_feature = "avx2"))]
-use simdutf8::basic::imp::x86::avx2::Utf8Validator;
+#[allow(unused_imports)]
+use simdutf8::basic::imp::Utf8Validator;
+
+#[cfg(target_feature = "avx2")]
+use simdutf8::basic::imp::x86::avx2::Utf8ValidatorImp;
 
 #[test]
-#[cfg(all(feature = "public_imp", target_feature = "avx2"))]
+#[cfg(target_feature = "avx2")]
 fn streaming_64_invalid() {
     let mut input = b"a".repeat_x(63);
     input.push(b'\xff');
     unsafe {
-        let mut validator = Utf8Validator::new();
+        let mut validator = Utf8ValidatorImp::new();
         validator.update(&input);
-        assert!(validator.finish().is_err());
+        assert!(validator.finalize().is_err());
     }
 }
 
 #[test]
-#[cfg(all(feature = "public_imp", target_feature = "avx2"))]
+#[cfg(target_feature = "avx2")]
 fn streaming_64_valid() {
     let mut input = b"a".repeat_x(64);
     unsafe {
-        let mut validator = Utf8Validator::new();
+        let mut validator = Utf8ValidatorImp::new();
         validator.update(&input);
-        assert!(validator.finish().is_ok())
+        assert!(validator.finalize().is_ok())
     }
 }

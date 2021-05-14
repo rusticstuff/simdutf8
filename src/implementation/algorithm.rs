@@ -347,22 +347,35 @@ macro_rules! algorithm_simd {
             }
         }
 
-        /// TBD
-        pub struct Utf8Validator {
+        /// Low-level implementation of the [`crate::basic::imp::Utf8Validator]` trait.
+        ///
+        /// This is implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not
+        /// available.
+        #[cfg(feature = "public_imp")]
+        pub struct Utf8ValidatorImp {
             algorithm: Utf8CheckAlgorithm<SimdU8Value>,
             incomplete_data: [u8; 64],
             incomplete_len: usize,
         }
 
-        impl Utf8Validator {
-            /// TBD
-            ///
-            /// # Safety
-            /// TBD
+        #[cfg(feature = "public_imp")]
+        impl Utf8ValidatorImp {
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            unsafe fn update_from_incomplete_data(&mut self) {
+                let simd_input = SimdInput::new(&self.incomplete_data);
+                self.algorithm.check_utf8(simd_input);
+                self.incomplete_len = 0;
+            }
+        }
+
+        #[cfg(feature = "public_imp")]
+        impl crate::basic::imp::Utf8Validator for Utf8ValidatorImp {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[must_use]
-            pub unsafe fn new() -> Self {
+            unsafe fn new() -> Self {
                 Self {
                     algorithm: Utf8CheckAlgorithm::<SimdU8Value>::default(),
                     incomplete_data: [0; 64],
@@ -372,19 +385,7 @@ macro_rules! algorithm_simd {
 
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            unsafe fn update_from_incomplete_data(&mut self) {
-                let simd_input = SimdInput::new(&self.incomplete_data);
-                self.algorithm.check_utf8(simd_input);
-                self.incomplete_len = 0;
-            }
-
-            /// TBD
-            ///
-            /// # Safety
-            /// TBD
-            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
-            #[inline]
-            pub unsafe fn update(&mut self, mut input: &[u8]) {
+            unsafe fn update(&mut self, mut input: &[u8]) {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
                 if self.incomplete_len != 0 {
                     let to_copy =
@@ -418,16 +419,9 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            /// TBD
-            ///
-            /// # Safety
-            /// TBD
-            ///
-            /// # Errors
-            /// TBD
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            pub unsafe fn finish(mut self) -> core::result::Result<(), crate::basic::Utf8Error> {
+            unsafe fn finalize(mut self) -> core::result::Result<(), crate::basic::Utf8Error> {
                 if self.incomplete_len != 0 {
                     for i in &mut self.incomplete_data[self.incomplete_len..] {
                         *i = 0
@@ -443,35 +437,30 @@ macro_rules! algorithm_simd {
             }
         }
 
-        /// TBD
-        pub struct Utf8ChunkValidator {
+        /// Low-level implementation of the [`crate::basic::imp::ChunkedUtf8Validator]` trait.
+        ///
+        /// This is implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not
+        /// available.
+        #[cfg(feature = "public_imp")]
+        pub struct ChunkedUtf8ValidatorImp {
             algorithm: Utf8CheckAlgorithm<SimdU8Value>,
         }
 
-        impl Utf8ChunkValidator {
-            /// TBD
-            ///
-            /// # Safety
-            /// TBD
+        #[cfg(feature = "public_imp")]
+        impl crate::basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[must_use]
-            pub unsafe fn new() -> Self {
+            unsafe fn new() -> Self {
                 Self {
                     algorithm: Utf8CheckAlgorithm::<SimdU8Value>::default(),
                 }
             }
 
-            /// TBD
-            ///
-            /// # Safety
-            /// TBD
-            ///
-            /// # Panics
-            /// If input.len() is not a multiple of 64.
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            pub unsafe fn update_chunks(&mut self, input: &[u8]) {
+            unsafe fn update_from_chunks(&mut self, input: &[u8]) {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
 
                 if input.len() % SIMD_CHUNK_SIZE != 0 {
@@ -483,20 +472,9 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            /// TBD
-            ///
-            /// # Safety
-            /// TBD
-            ///
-            /// # Errors
-            /// TBD
-            ///
-            /// # Panics
-            /// If `last_bytes.len()` > 64
-
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            pub unsafe fn finish(
+            unsafe fn finalize(
                 mut self,
                 last_bytes: core::option::Option<&[u8]>,
             ) -> core::result::Result<(), crate::basic::Utf8Error> {
