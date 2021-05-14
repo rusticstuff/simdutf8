@@ -11,7 +11,16 @@ readme = "README.md"
 keywords = ["utf-8", "unicode", "string", "validation", "simd"]
 categories = ["encoding", "algorithms", "no-std"]
 license = "MIT OR Apache-2.0"
-exclude = ["/.github", "/.vscode", "/bench", "/fuzzing", "/img", "expected-methods-*.txt"]
+exclude = [
+    "/.gitignore",
+    "/.github",
+    "/.vscode",
+    "/bench",
+    "/fuzzing",
+    "/img",
+    "/inlining",
+    "TODO.md",
+]
 
 [features]
 default = ["std"]
