@@ -87,7 +87,7 @@
 //!
 //! ### Access to low-level functionality
 //! If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
-//! implementations are then accessible via [`basic::imp`] and [`compat::imp`].Traits facilitating streaming validation are available
+//! implementations are then accessible via [`basic::imp`] and [`compat::imp`]. Traits facilitating streaming validation are available
 //! there as well.
 //!
 //! ## Optimisation flags

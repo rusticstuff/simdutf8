@@ -5,6 +5,8 @@
 
 macro_rules! algorithm_simd {
     ($feat:expr) => {
+        use crate::{basic, compat};
+
         impl Utf8CheckAlgorithm<SimdU8Value> {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
@@ -203,7 +205,7 @@ macro_rules! algorithm_simd {
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
-        /// Return the zero-sized [`crate::basic::Utf8Error`] on failure.
+        /// Returns the zero-sized [`basic::Utf8Error`] on failure.
         ///
         /// # Safety
         /// This function is inherently unsafe because it is compiled with SIMD extensions
@@ -213,7 +215,7 @@ macro_rules! algorithm_simd {
         #[inline]
         pub unsafe fn validate_utf8_basic(
             input: &[u8],
-        ) -> core::result::Result<(), crate::basic::Utf8Error> {
+        ) -> core::result::Result<(), basic::Utf8Error> {
             use crate::implementation::helpers::SIMD_CHUNK_SIZE;
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
@@ -250,7 +252,7 @@ macro_rules! algorithm_simd {
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
-                Err(crate::basic::Utf8Error {})
+                Err(basic::Utf8Error {})
             } else {
                 Ok(())
             }
@@ -259,7 +261,7 @@ macro_rules! algorithm_simd {
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
         ///
         /// # Errors
-        /// Return [`crate::compat::Utf8Error`] with detailed error information on failure.
+        /// Returns [`compat::Utf8Error`] with detailed error information on failure.
         ///
         /// # Safety
         /// This function is inherently unsafe because it is compiled with SIMD extensions
@@ -269,7 +271,7 @@ macro_rules! algorithm_simd {
         #[inline]
         pub unsafe fn validate_utf8_compat(
             input: &[u8],
-        ) -> core::result::Result<(), crate::compat::Utf8Error> {
+        ) -> core::result::Result<(), compat::Utf8Error> {
             validate_utf8_compat_simd0(input)
                 .map_err(|idx| crate::implementation::helpers::get_compat_error(input, idx))
         }
@@ -347,7 +349,7 @@ macro_rules! algorithm_simd {
             }
         }
 
-        /// Low-level implementation of the [`crate::basic::imp::Utf8Validator]` trait.
+        /// Low-level implementation of the [`basic::imp::Utf8Validator`] trait.
         ///
         /// This is implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not
@@ -371,7 +373,7 @@ macro_rules! algorithm_simd {
         }
 
         #[cfg(feature = "public_imp")]
-        impl crate::basic::imp::Utf8Validator for Utf8ValidatorImp {
+        impl basic::imp::Utf8Validator for Utf8ValidatorImp {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[must_use]
@@ -424,7 +426,7 @@ macro_rules! algorithm_simd {
 
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
-            unsafe fn finalize(mut self) -> core::result::Result<(), crate::basic::Utf8Error> {
+            unsafe fn finalize(mut self) -> core::result::Result<(), basic::Utf8Error> {
                 if self.incomplete_len != 0 {
                     for i in &mut self.incomplete_data[self.incomplete_len..] {
                         *i = 0
@@ -433,14 +435,14 @@ macro_rules! algorithm_simd {
                 }
                 self.algorithm.check_incomplete_pending();
                 if self.algorithm.has_error() {
-                    Err(crate::basic::Utf8Error {})
+                    Err(basic::Utf8Error {})
                 } else {
                     Ok(())
                 }
             }
         }
 
-        /// Low-level implementation of the [`crate::basic::imp::ChunkedUtf8Validator]` trait.
+        /// Low-level implementation of the [`basic::imp::ChunkedUtf8Validator`] trait.
         ///
         /// This is implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not
@@ -451,7 +453,7 @@ macro_rules! algorithm_simd {
         }
 
         #[cfg(feature = "public_imp")]
-        impl crate::basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
+        impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[must_use]
@@ -480,7 +482,7 @@ macro_rules! algorithm_simd {
             unsafe fn finalize(
                 mut self,
                 remaining_input: core::option::Option<&[u8]>,
-            ) -> core::result::Result<(), crate::basic::Utf8Error> {
+            ) -> core::result::Result<(), basic::Utf8Error> {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
 
                 if let Some(mut remaining_input) = remaining_input {
@@ -505,7 +507,7 @@ macro_rules! algorithm_simd {
                 }
                 self.algorithm.check_incomplete_pending();
                 if self.algorithm.has_error() {
-                    Err(crate::basic::Utf8Error {})
+                    Err(basic::Utf8Error {})
                 } else {
                     Ok(())
                 }
