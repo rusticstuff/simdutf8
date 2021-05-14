@@ -57,27 +57,170 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 
 /// Allows direct access to the platform-specific unsafe validation implementations.
 #[cfg(feature = "public_imp")]
-#[cfg_attr(docsrs, doc(cfg(feature = "public_imp")))]
 pub mod imp {
+    /// A low-level interfacne for streaming validation of UTF-8 data. It is meant to be integrated
+    /// in high-performance data processing pipelines.
+    ///
+    /// Data can be streamed in arbitrarily-sized chunks using the [`Self::update()`] method. There is
+    /// no way to find out if the input so far was valid UTF-8 during the validation. Only when
+    /// the validation is completed with the [`Self::finalize()`] method the result of the validation is
+    /// returned. Use [`ChunkedUtf8Validator`] is possible for highest performance.
+    ///
+    /// This implementation requires CPU SIMD features specified by the module it resides in.
+    /// It is undefined behavior to call it if the required CPU features are not available which
+    /// is why all trait methods are `unsafe`.
+    ///
+    /// General usage:
+    /// ```rust
+    /// use simdutf8::basic::imp::Utf8Validator;
+    /// use std::io::{stdin, Read, Result};
+    ///
+    /// fn main() -> Result<()> {
+    ///     unsafe {
+    ///         if !std::is_x86_feature_detected!("avx2") {
+    ///             panic!("This example only works with CPUs supporting AVX 2");
+    ///         }
+    ///
+    ///         let mut validator = simdutf8::basic::imp::x86::avx2::Utf8ValidatorImp::new();
+    ///         let mut buf = vec![0; 8192];
+    ///         loop {
+    ///             let bytes_read = stdin().read(buf.as_mut())?;
+    ///             if bytes_read == 0 {
+    ///                 break;
+    ///             }
+    ///             validator.update(&buf);
+    ///         }
+    ///
+    ///         if validator.finalize().is_ok() {
+    ///             println!("Input is valid UTF-8");
+    ///         } else {
+    ///             println!("Input is not valid UTF-8");
+    ///         }
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    ///
+    pub trait Utf8Validator {
+        /// Creates a new validator.
+        ///
+        /// # Safety
+        /// This implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not available.
+        #[must_use]
+        unsafe fn new() -> Self
+        where
+            Self: Sized;
+
+        /// Updates the validator with `input`.
+        ///
+        /// # Safety
+        /// This implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not available.
+        unsafe fn update(&mut self, input: &[u8]);
+
+        /// Finishes the validation and returns `Ok(())` if the input was valid UTF-8.
+        ///
+        /// # Errors
+        /// A [`crate::basic::Utf8Error`] is returned if the input was not valid UTF-8. No
+        /// further information about the location of the error is provided.
+        ///
+        /// # Safety
+        /// This implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not available.
+        unsafe fn finalize(self) -> core::result::Result<(), crate::basic::Utf8Error>;
+    }
+
+    /// Like [`Utf8Validator`] this low-level API is for streaming validation of UTF-8 data.
+    /// It has additional restrictions imposed on how the input is passed in to allow
+    /// validation with as little overhead as possible.
+    ///
+    /// To feed it data you need to call the [`Self::update_from_chunks()`] method which takes slices which
+    /// have to be a multiple of 64 bytes long. The method will panic otherwise.  There is
+    /// no way to find out if the input so far was valid UTF-8 during the validation. Only when
+    /// the validation is completed with the [`Self::finalize()`] method the result of the validation is
+    /// returned.
+    ///
+    /// The `Self::finalize()` method can be fed the rest of the data. There is no restriction on the
+    /// data passed to it.
+    ///
+    /// This implementation requires CPU SIMD features specified by the module it resides in.
+    /// It is undefined behavior to call it if the required CPU features are not available which
+    /// is why all trait methods are `unsafe`.
+    pub trait ChunkedUtf8Validator {
+        /// Creates a new validator.
+        ///
+        /// # Safety
+        /// This implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not available.
+        #[must_use]
+        unsafe fn new() -> Self
+        where
+            Self: Sized;
+
+        /// Updates the validator with `input`.
+        ///
+        /// # Panics
+        /// If `input.len()` is not a multiple of 64.
+        ///
+        /// # Safety
+        /// This implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not available.
+        unsafe fn update_from_chunks(&mut self, input: &[u8]);
+
+        /// Updates the validator with remaining input if any. There is no restriction on the
+        /// data provided.
+        ///
+        /// Finishes the validation and returns `Ok(())` if the input was valid UTF-8.
+        ///
+        /// # Errors
+        /// A [`crate::basic::Utf8Error`] is returned if the input was not valid UTF-8. No
+        /// further information about the location of the error is provided.
+        ///
+        /// # Safety
+        /// This implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not available.
+        unsafe fn finalize(
+            self,
+            remaining_input: core::option::Option<&[u8]>,
+        ) -> core::result::Result<(), crate::basic::Utf8Error>;
+    }
+
     /// Includes the x86/x86-64 SIMD implementations.
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
     pub mod x86 {
         /// Includes the validation implementation for AVX 2-compatible CPUs.
+        ///
+        /// Using the provided functionality on CPUs which do not support AVX 2 is undefined
+        /// behavior and will very likely cause a crash.
         pub mod avx2 {
             pub use crate::implementation::x86::avx2::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::x86::avx2::ChunkedUtf8ValidatorImp;
+            pub use crate::implementation::x86::avx2::Utf8ValidatorImp;
         }
         /// Includes the validation implementation for SSE 4.2-compatible CPUs.
+        ///
+        /// Using the provided functionality on CPUs which do not support AVX 2 is undefined
+        /// behavior and will very likely cause a crash.
         pub mod sse42 {
             pub use crate::implementation::x86::sse42::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::x86::sse42::ChunkedUtf8ValidatorImp;
+            pub use crate::implementation::x86::sse42::Utf8ValidatorImp;
         }
     }
 
     /// Includes the aarch64 SIMD implementations.
     #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
     pub mod aarch64 {
-        /// Includes the validation implementation for Neon SIMD.
+        /// Includes the Neon-based validation implementation for aarch64 CPUs.
+        ///
+        /// Should be supported on all ARM64 CPUSs. If it is not supported by the operating
+        /// system using it is undefined behavior and will likely cause a crash.
         pub mod neon {
             pub use crate::implementation::aarch64::neon::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::aarch64::neon::ChunkedUtf8ValidatorImp;
+            pub use crate::implementation::aarch64::neon::Utf8ValidatorImp;
         }
     }
 }

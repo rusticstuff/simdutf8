@@ -102,7 +102,6 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 
 /// Allows direct access to the platform-specific unsafe validation implementations.
 #[cfg(feature = "public_imp")]
-#[cfg_attr(docsrs, doc(cfg(feature = "public_imp")))]
 pub mod imp {
     /// Includes the x86/x86-64 SIMD implementations.
     #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]

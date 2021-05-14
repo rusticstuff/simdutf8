@@ -83,15 +83,14 @@ For no-std support (compiled with `--no-default-features`) the implementation is
 the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.2"`
 for the SSE 4.2 implementation.
 
-If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
-implementations are then accessible via `simdutf8::{basic, compat}::imp::x86::{avx2, sse42}::validate_utf8()`.
-
 ### ARM64
 For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
 not turned on the non-SIMD std library implementation is used.
 
-If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation implementations
-are then accessible via `simdutf8::{basic, compat}::imp::aarch64::neon::validate_utf8()`.
+### Access to low-level functionality
+
+If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation implementations are then accessible in the `simdutf8::{basic, compat}::imp` hierarchy. Traits
+facilitating streaming validation are available there as well.
 
 ## Optimisation flags
 Do not use [`opt-level = "z"`](https://doc.rust-lang.org/cargo/reference/profiles.html), which prevents inlining and makes

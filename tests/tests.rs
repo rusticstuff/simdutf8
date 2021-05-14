@@ -1,15 +1,15 @@
 #![allow(clippy::non_ascii_literal)]
 
-use crate::basic::from_utf8 as basic_from_utf8;
-use crate::basic::from_utf8_mut as basic_from_utf8_mut;
-use crate::compat::from_utf8 as compat_from_utf8;
-use crate::compat::from_utf8_mut as compat_from_utf8_mut;
+use simdutf8::basic::from_utf8 as basic_from_utf8;
+use simdutf8::basic::from_utf8_mut as basic_from_utf8_mut;
+use simdutf8::compat::from_utf8 as compat_from_utf8;
+use simdutf8::compat::from_utf8_mut as compat_from_utf8_mut;
 
 #[cfg(not(features = "std"))]
 extern crate std;
 
 #[cfg(not(features = "std"))]
-use std::{borrow::ToOwned, format, vec::Vec};
+use std::{borrow::ToOwned, format};
 
 pub trait BStrExt {
     fn repeat_x(&self, count: usize) -> Vec<u8>;
@@ -49,20 +49,80 @@ fn test_valid(input: &[u8]) {
 }
 
 #[cfg(feature = "public_imp")]
+fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool) {
+    unsafe {
+        let mut validator = T::new();
+        validator.update(input);
+        assert_eq!(validator.finalize().is_ok(), ok);
+    }
+    for i in [64, 128, 256, 1024, 65536, 1, 2, 3, 36, 99].iter() {
+        test_streaming_blocks::<T>(input, *i, ok)
+    }
+}
+
+#[cfg(feature = "public_imp")]
+fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
+    input: &[u8],
+    block_size: usize,
+    ok: bool,
+) {
+    unsafe {
+        let mut validator = T::new();
+        for chunk in input.chunks(block_size) {
+            validator.update(chunk);
+        }
+        assert_eq!(validator.finalize().is_ok(), ok);
+    }
+}
+
+#[cfg(feature = "public_imp")]
+fn test_chunked_streaming<T: simdutf8::basic::imp::ChunkedUtf8Validator>(input: &[u8], ok: bool) {
+    for i in [64, 128, 256, 1024, 65536].iter() {
+        test_chunked_streaming_with_chunk_size::<T>(input, *i, ok)
+    }
+}
+
+#[cfg(feature = "public_imp")]
+fn test_chunked_streaming_with_chunk_size<T: simdutf8::basic::imp::ChunkedUtf8Validator>(
+    input: &[u8],
+    chunk_size: usize,
+    ok: bool,
+) {
+    unsafe {
+        let mut validator = T::new();
+        let mut chunks = input.chunks_exact(chunk_size);
+        for chunk in &mut chunks {
+            validator.update_from_chunks(chunk);
+        }
+        assert_eq!(validator.finalize(Some(chunks.remainder())).is_ok(), ok);
+    }
+}
+
+#[cfg(feature = "public_imp")]
 #[allow(clippy::missing_const_for_fn)]
 #[allow(unused_variables)]
 fn test_valid_public_imp(input: &[u8]) {
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
         #[cfg(target_feature = "avx2")]
         unsafe {
-            assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_ok());
-            assert!(crate::compat::imp::x86::avx2::validate_utf8(input).is_ok());
+            assert!(simdutf8::basic::imp::x86::avx2::validate_utf8(input).is_ok());
+            assert!(simdutf8::compat::imp::x86::avx2::validate_utf8(input).is_ok());
+
+            test_streaming::<simdutf8::basic::imp::x86::avx2::Utf8ValidatorImp>(input, true);
+            test_chunked_streaming::<simdutf8::basic::imp::x86::avx2::ChunkedUtf8ValidatorImp>(
+                input, true,
+            );
         }
 
         #[cfg(target_feature = "sse4.2")]
         unsafe {
-            assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_ok());
-            assert!(crate::compat::imp::x86::sse42::validate_utf8(input).is_ok());
+            assert!(simdutf8::basic::imp::x86::sse42::validate_utf8(input).is_ok());
+            assert!(simdutf8::compat::imp::x86::sse42::validate_utf8(input).is_ok());
+
+            test_streaming::<simdutf8::basic::imp::x86::sse42::Utf8ValidatorImp>(input, true);
+            test_chunked_streaming::<simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp>(
+                input, true,
+            );
         }
     }
     #[cfg(all(
@@ -71,8 +131,13 @@ fn test_valid_public_imp(input: &[u8]) {
         target_feature = "neon"
     ))]
     unsafe {
-        assert!(crate::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
-        assert!(crate::compat::imp::aarch64::neon::validate_utf8(input).is_ok());
+        assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
+        assert!(simdutf8::compat::imp::aarch64::neon::validate_utf8(input).is_ok());
+
+        test_streaming::<simdutf8::basic::imp::aarch64::neon::Utf8ValidatorImp>(input, true);
+        test_chunked_streaming::<simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp>(
+            input, true,
+        );
     }
 }
 
@@ -98,17 +163,27 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
         #[cfg(target_feature = "avx2")]
         unsafe {
-            assert!(crate::basic::imp::x86::avx2::validate_utf8(input).is_err());
-            let err = crate::compat::imp::x86::avx2::validate_utf8(input).unwrap_err();
+            assert!(simdutf8::basic::imp::x86::avx2::validate_utf8(input).is_err());
+            let err = simdutf8::compat::imp::x86::avx2::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
+
+            test_streaming::<simdutf8::basic::imp::x86::avx2::Utf8ValidatorImp>(input, false);
+            test_chunked_streaming::<simdutf8::basic::imp::x86::avx2::ChunkedUtf8ValidatorImp>(
+                input, false,
+            );
         }
         #[cfg(target_feature = "sse4.2")]
         unsafe {
-            assert!(crate::basic::imp::x86::sse42::validate_utf8(input).is_err());
-            let err = crate::compat::imp::x86::sse42::validate_utf8(input).unwrap_err();
+            assert!(simdutf8::basic::imp::x86::sse42::validate_utf8(input).is_err());
+            let err = simdutf8::compat::imp::x86::sse42::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
+
+            test_streaming::<simdutf8::basic::imp::x86::sse42::Utf8ValidatorImp>(input, false);
+            test_chunked_streaming::<simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp>(
+                input, false,
+            );
         }
     }
     #[cfg(all(
@@ -117,18 +192,14 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
         target_feature = "neon"
     ))]
     unsafe {
-        assert!(crate::basic::imp::aarch64::neon::validate_utf8(input).is_err());
-        assert_eq!(
-            crate::compat::imp::aarch64::neon::validate_utf8(input)
-                .unwrap_err()
-                .valid_up_to(),
-            valid_up_to
-        );
-        assert_eq!(
-            crate::compat::imp::aarch64::neon::validate_utf8(input)
-                .unwrap_err()
-                .error_len(),
-            error_len
+        assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_err());
+        let err = simdutf8::compat::imp::aarch64::neon::validate_utf8(input).unwrap_err();
+        assert_eq!(err.valid_up_to(), valid_up_to);
+        assert_eq!(err.error_len(), error_len);
+
+        test_streaming::<simdutf8::basic::imp::aarch64::neon::Utf8ValidatorImp>(input, false);
+        test_chunked_streaming::<simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp>(
+            input, false,
         );
     }
 }
@@ -340,4 +411,31 @@ fn error_derives_compat() {
     let err2 = err.clone();
     assert_eq!(err, err2);
     assert!(!(err != err2));
+}
+
+#[test]
+#[should_panic]
+#[cfg(all(feature = "public_imp", target_feature = "avx2"))]
+fn test_avx2_chunked_panic() {
+    test_chunked_streaming_with_chunk_size::<
+        simdutf8::basic::imp::x86::avx2::ChunkedUtf8ValidatorImp,
+    >(b"abcd", 1, true);
+}
+
+#[test]
+#[should_panic]
+#[cfg(all(feature = "public_imp", target_feature = "sse4.2"))]
+fn test_sse42_chunked_panic() {
+    test_chunked_streaming_with_chunk_size::<
+        simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp,
+    >(b"abcd", 1, true);
+}
+
+#[test]
+#[should_panic]
+#[cfg(all(feature = "public_imp", target_arch = "aarch64"))]
+fn test_sse42_chunked_panic() {
+    test_chunked_streaming_with_chunk_size::<
+        simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp,
+    >(b"abcd", 1, true);
 }

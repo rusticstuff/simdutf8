@@ -35,7 +35,7 @@ jobs:
             profile: minimal
             override: true
       - name: Run tests
-        run: cargo test --no-default-features ${{ matrix.features }} --verbose
+        run: cargo test --no-default-features ${{ matrix.features }} --all-targets --verbose
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 

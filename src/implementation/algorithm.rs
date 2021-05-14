@@ -346,6 +346,171 @@ macro_rules! algorithm_simd {
                 Ok(())
             }
         }
+
+        /// Low-level implementation of the [`crate::basic::imp::Utf8Validator]` trait.
+        ///
+        /// This is implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not
+        /// available.
+        #[cfg(feature = "public_imp")]
+        pub struct Utf8ValidatorImp {
+            algorithm: Utf8CheckAlgorithm<SimdU8Value>,
+            incomplete_data: [u8; 64],
+            incomplete_len: usize,
+        }
+
+        #[cfg(feature = "public_imp")]
+        impl Utf8ValidatorImp {
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            unsafe fn update_from_incomplete_data(&mut self) {
+                let simd_input = SimdInput::new(&self.incomplete_data);
+                self.algorithm.check_utf8(simd_input);
+                self.incomplete_len = 0;
+            }
+        }
+
+        #[cfg(feature = "public_imp")]
+        impl crate::basic::imp::Utf8Validator for Utf8ValidatorImp {
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            #[must_use]
+            unsafe fn new() -> Self {
+                Self {
+                    algorithm: Utf8CheckAlgorithm::<SimdU8Value>::default(),
+                    incomplete_data: [0; 64],
+                    incomplete_len: 0,
+                }
+            }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            unsafe fn update(&mut self, mut input: &[u8]) {
+                use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+                if input.len() == 0 {
+                    return;
+                }
+                if self.incomplete_len != 0 {
+                    let to_copy =
+                        core::cmp::min(SIMD_CHUNK_SIZE - self.incomplete_len, input.len());
+                    self.incomplete_data
+                        .as_mut_ptr()
+                        .add(self.incomplete_len)
+                        .copy_from_nonoverlapping(input.as_ptr(), to_copy);
+                    if self.incomplete_len + to_copy == SIMD_CHUNK_SIZE {
+                        self.update_from_incomplete_data();
+                        input = &input[to_copy..];
+                    } else {
+                        self.incomplete_len += to_copy;
+                        return;
+                    }
+                }
+                let len = input.len();
+                let mut idx: usize = 0;
+                let iter_lim = len - (len % SIMD_CHUNK_SIZE);
+                while idx < iter_lim {
+                    let input = SimdInput::new(input.get_unchecked(idx as usize..));
+                    self.algorithm.check_utf8(input);
+                    idx += SIMD_CHUNK_SIZE;
+                }
+                if idx < len {
+                    let to_copy = len - idx;
+                    self.incomplete_data
+                        .as_mut_ptr()
+                        .copy_from_nonoverlapping(input.as_ptr().add(idx), to_copy);
+                    self.incomplete_len = to_copy;
+                }
+            }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            unsafe fn finalize(mut self) -> core::result::Result<(), crate::basic::Utf8Error> {
+                if self.incomplete_len != 0 {
+                    for i in &mut self.incomplete_data[self.incomplete_len..] {
+                        *i = 0
+                    }
+                    self.update_from_incomplete_data();
+                }
+                self.algorithm.check_incomplete_pending();
+                if self.algorithm.has_error() {
+                    Err(crate::basic::Utf8Error {})
+                } else {
+                    Ok(())
+                }
+            }
+        }
+
+        /// Low-level implementation of the [`crate::basic::imp::ChunkedUtf8Validator]` trait.
+        ///
+        /// This is implementation requires CPU SIMD features specified by the module it resides in.
+        /// It is undefined behavior to call it if the required CPU features are not
+        /// available.
+        #[cfg(feature = "public_imp")]
+        pub struct ChunkedUtf8ValidatorImp {
+            algorithm: Utf8CheckAlgorithm<SimdU8Value>,
+        }
+
+        #[cfg(feature = "public_imp")]
+        impl crate::basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            #[must_use]
+            unsafe fn new() -> Self {
+                Self {
+                    algorithm: Utf8CheckAlgorithm::<SimdU8Value>::default(),
+                }
+            }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            unsafe fn update_from_chunks(&mut self, input: &[u8]) {
+                use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+
+                if input.len() % SIMD_CHUNK_SIZE != 0 {
+                    panic!("Input size must be a multiple of 64.")
+                }
+                for chunk in input.chunks_exact(SIMD_CHUNK_SIZE) {
+                    let input = SimdInput::new(chunk);
+                    self.algorithm.check_utf8(input);
+                }
+            }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            unsafe fn finalize(
+                mut self,
+                remaining_input: core::option::Option<&[u8]>,
+            ) -> core::result::Result<(), crate::basic::Utf8Error> {
+                use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+
+                if let Some(mut remaining_input) = remaining_input {
+                    if !remaining_input.is_empty() {
+                        let len = remaining_input.len();
+                        let chunks_lim = len - (len % SIMD_CHUNK_SIZE);
+                        if chunks_lim > 0 {
+                            self.update_from_chunks(&remaining_input[..chunks_lim]);
+                        }
+                        let rem = len - chunks_lim;
+                        if rem > 0 {
+                            remaining_input = &remaining_input[chunks_lim..];
+                            let mut tmpbuf = TempSimdChunk::new();
+                            tmpbuf.0.as_mut_ptr().copy_from_nonoverlapping(
+                                remaining_input.as_ptr(),
+                                remaining_input.len(),
+                            );
+                            let simd_input = SimdInput::new(&tmpbuf.0);
+                            self.algorithm.check_utf8(simd_input);
+                        }
+                    }
+                }
+                self.algorithm.check_incomplete_pending();
+                if self.algorithm.has_error() {
+                    Err(crate::basic::Utf8Error {})
+                } else {
+                    Ok(())
+                }
+            }
+        }
     };
 }
 
