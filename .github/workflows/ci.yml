@@ -35,7 +35,7 @@ jobs:
             profile: minimal
             override: true
       - name: Run tests
-        run: cargo test --no-default-features ${{ matrix.features }} --verbose
+        run: cargo test --no-default-features ${{ matrix.features }} --all-targets --verbose
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
@@ -139,7 +139,7 @@ jobs:
             profile: minimal
             override: true
       - name: Build
-        run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
+        run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --all-targets --verbose
 
   cross-build-i686:
     runs-on: ${{ matrix.os }}
@@ -167,7 +167,7 @@ jobs:
             profile: minimal
             override: true
       - name: Run tests
-        run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
+        run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --all-targets --verbose
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
