@@ -1,6 +1,10 @@
 # Changelog
 ## [Unreleased]
 
+## [0.1.3] - 2021-05-14
+### New features
+* Low-level streaming validation API in `simdutf8::basic::imp` 
+
 ## [0.1.2] - 2021-05-09
 ### New features
 * Aarch64 support (e.g. Apple Silicon, Raspberry Pi 4, ...) with nightly Rust and crate feature `aarch64_neon`
@@ -46,7 +50,8 @@
 ## [0.0.1] - 2021-04-20
 - Initial release.
 
-[Unreleased]: https://github.com/rusticstuff/simdutf8/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/rusticstuff/simdutf8/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/rusticstuff/simdutf8/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/rusticstuff/simdutf8/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/rusticstuff/simdutf8/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/rusticstuff/simdutf8/compare/v0.0.3...v0.1.0

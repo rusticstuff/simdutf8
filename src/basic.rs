@@ -28,7 +28,7 @@ impl std::error::Error for Utf8Error {}
 /// Analogue to [`std::str::from_utf8()`].
 ///
 /// Checks if the passed byte sequence is valid UTF-8 and returns an
-/// [`std::str``] reference to the passed byte slice wrapped in `Ok()` if it is.
+/// [`std::str`] reference to the passed byte slice wrapped in `Ok()` if it is.
 ///
 /// # Errors
 /// Will return the zero-sized Err([`Utf8Error`]) on if the input contains invalid UTF-8.
@@ -43,7 +43,7 @@ pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
 /// Analogue to [`std::str::from_utf8_mut()`].
 ///
 /// Checks if the passed mutable byte sequence is valid UTF-8 and returns a mutable
-/// [`std::str``] reference to the passed byte slice wrapped in `Ok()` if it is.
+/// [`std::str`] reference to the passed byte slice wrapped in `Ok()` if it is.
 ///
 /// # Errors
 /// Will return the zero-sized Err([`Utf8Error`]) on if the input contains invalid UTF-8.
@@ -58,16 +58,18 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 /// Allows direct access to the platform-specific unsafe validation implementations.
 #[cfg(feature = "public_imp")]
 pub mod imp {
+    use crate::basic;
+
     /// A low-level interfacne for streaming validation of UTF-8 data. It is meant to be integrated
     /// in high-performance data processing pipelines.
     ///
     /// Data can be streamed in arbitrarily-sized chunks using the [`Self::update()`] method. There is
     /// no way to find out if the input so far was valid UTF-8 during the validation. Only when
     /// the validation is completed with the [`Self::finalize()`] method the result of the validation is
-    /// returned. Use [`ChunkedUtf8Validator`] is possible for highest performance.
+    /// returned. Use [`ChunkedUtf8Validator`] if possible for highest performance.
     ///
     /// This implementation requires CPU SIMD features specified by the module it resides in.
-    /// It is undefined behavior to call it if the required CPU features are not available which
+    /// It is undefined behavior to use it if the required CPU features are not available which
     /// is why all trait methods are `unsafe`.
     ///
     /// General usage:
@@ -123,13 +125,13 @@ pub mod imp {
         /// Finishes the validation and returns `Ok(())` if the input was valid UTF-8.
         ///
         /// # Errors
-        /// A [`crate::basic::Utf8Error`] is returned if the input was not valid UTF-8. No
+        /// A [`basic::Utf8Error`] is returned if the input was not valid UTF-8. No
         /// further information about the location of the error is provided.
         ///
         /// # Safety
         /// This implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not available.
-        unsafe fn finalize(self) -> core::result::Result<(), crate::basic::Utf8Error>;
+        unsafe fn finalize(self) -> core::result::Result<(), basic::Utf8Error>;
     }
 
     /// Like [`Utf8Validator`] this low-level API is for streaming validation of UTF-8 data.
@@ -146,7 +148,7 @@ pub mod imp {
     /// data passed to it.
     ///
     /// This implementation requires CPU SIMD features specified by the module it resides in.
-    /// It is undefined behavior to call it if the required CPU features are not available which
+    /// It is undefined behavior to use it if the required CPU features are not available which
     /// is why all trait methods are `unsafe`.
     pub trait ChunkedUtf8Validator {
         /// Creates a new validator.
@@ -175,7 +177,7 @@ pub mod imp {
         /// Finishes the validation and returns `Ok(())` if the input was valid UTF-8.
         ///
         /// # Errors
-        /// A [`crate::basic::Utf8Error`] is returned if the input was not valid UTF-8. No
+        /// A [`basic::Utf8Error`] is returned if the input was not valid UTF-8. No
         /// further information about the location of the error is provided.
         ///
         /// # Safety
@@ -184,7 +186,7 @@ pub mod imp {
         unsafe fn finalize(
             self,
             remaining_input: core::option::Option<&[u8]>,
-        ) -> core::result::Result<(), crate::basic::Utf8Error>;
+        ) -> core::result::Result<(), basic::Utf8Error>;
     }
 
     /// Includes the x86/x86-64 SIMD implementations.
@@ -201,7 +203,7 @@ pub mod imp {
         }
         /// Includes the validation implementation for SSE 4.2-compatible CPUs.
         ///
-        /// Using the provided functionality on CPUs which do not support AVX 2 is undefined
+        /// Using the provided functionality on CPUs which do not support SSE 4.2 is undefined
         /// behavior and will very likely cause a crash.
         pub mod sse42 {
             pub use crate::implementation::x86::sse42::validate_utf8_basic as validate_utf8;

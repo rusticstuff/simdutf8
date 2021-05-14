@@ -25,12 +25,12 @@
 //! Add the dependency to your Cargo.toml file:
 //! ```toml
 //! [dependencies]
-//! simdutf8 = { version = "0.1.2" }
+//! simdutf8 = { version = "0.1.3" }
 //! ```
 //! or on ARM64 with Rust Nightly:
 //! ```toml
 //! [dependencies]
-//! simdutf8 = { version = "0.1.2", features = ["aarch64_neon"] }
+//! simdutf8 = { version = "0.1.3", features = ["aarch64_neon"] }
 //! ```
 //!
 //! Use [`basic::from_utf8()`] as a drop-in replacement for `std::str::from_utf8()`.
@@ -87,7 +87,7 @@
 //!
 //! ### Access to low-level functionality
 //! If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
-//! implementations are then accessible via [`basic::imp`] and [`compat::imp`].Traits facilitating streaming validation are available
+//! implementations are then accessible via [`basic::imp`] and [`compat::imp`]. Traits facilitating streaming validation are available
 //! there as well.
 //!
 //! ## Optimisation flags
