@@ -55,11 +55,29 @@ fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool
         validator.update(input);
         assert_eq!(validator.finalize().is_ok(), ok);
     }
+    for i in [64, 128, 256, 1024, 65536, 1, 2, 3, 36, 99].iter() {
+        test_streaming_blocks::<T>(input, *i, ok)
+    }
+}
+
+#[cfg(feature = "public_imp")]
+fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
+    input: &[u8],
+    block_size: usize,
+    ok: bool,
+) {
+    unsafe {
+        let mut validator = T::new();
+        for chunk in input.chunks(block_size) {
+            validator.update(chunk);
+        }
+        assert_eq!(validator.finalize().is_ok(), ok);
+    }
 }
 
 #[cfg(feature = "public_imp")]
 fn test_chunked_streaming<T: simdutf8::basic::imp::ChunkedUtf8Validator>(input: &[u8], ok: bool) {
-    for i in [64, 128, 256, 1024, 65536].into_iter() {
+    for i in [64, 128, 256, 1024, 65536].iter() {
         test_chunked_streaming_with_chunk_size::<T>(input, *i, ok)
     }
 }
