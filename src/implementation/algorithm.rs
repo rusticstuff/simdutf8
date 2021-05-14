@@ -476,21 +476,29 @@ macro_rules! algorithm_simd {
             #[inline]
             unsafe fn finalize(
                 mut self,
-                last_bytes: core::option::Option<&[u8]>,
+                remaining_input: core::option::Option<&[u8]>,
             ) -> core::result::Result<(), crate::basic::Utf8Error> {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
 
-                if let Some(last_bytes) = last_bytes {
-                    if last_bytes.len() > SIMD_CHUNK_SIZE {
-                        panic!("last_bytes > 64")
+                if let Some(mut remaining_input) = remaining_input {
+                    if !remaining_input.is_empty() {
+                        let len = remaining_input.len();
+                        let chunks_lim = len - (len % SIMD_CHUNK_SIZE);
+                        if chunks_lim > 0 {
+                            self.update_from_chunks(&remaining_input[..chunks_lim]);
+                        }
+                        let rem = len - chunks_lim;
+                        if rem > 0 {
+                            remaining_input = &remaining_input[chunks_lim..];
+                            let mut tmpbuf = TempSimdChunk::new();
+                            tmpbuf.0.as_mut_ptr().copy_from_nonoverlapping(
+                                remaining_input.as_ptr(),
+                                remaining_input.len(),
+                            );
+                            let simd_input = SimdInput::new(&tmpbuf.0);
+                            self.algorithm.check_utf8(simd_input);
+                        }
                     }
-                    let mut tmpbuf = TempSimdChunk::new();
-                    tmpbuf
-                        .0
-                        .as_mut_ptr()
-                        .copy_from_nonoverlapping(last_bytes.as_ptr(), last_bytes.len());
-                    let simd_input = SimdInput::new(&tmpbuf.0);
-                    self.algorithm.check_utf8(simd_input);
                 }
                 self.algorithm.check_incomplete_pending();
                 if self.algorithm.has_error() {

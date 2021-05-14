@@ -142,8 +142,8 @@ pub mod imp {
     /// the validation is completed with the [`Self::finalize()`] method the result of the validation is
     /// returned.
     ///
-    /// The `Self::finalize()` method can be fed the rest of the data. It must be less than or equal to
-    /// 64 bytes. Supply `None` or a zero-length slice if there is no data remaining.
+    /// The `Self::finalize()` method can be fed the rest of the data. There is no restriction on the
+    /// data passed to it.
     ///
     /// This implementation requires CPU SIMD features specified by the module it resides in.
     /// It is undefined behavior to call it if the required CPU features are not available which
@@ -169,13 +169,10 @@ pub mod imp {
         /// It is undefined behavior to call it if the required CPU features are not available.
         unsafe fn update_from_chunks(&mut self, input: &[u8]);
 
-        /// Updates the validator with remaining input if any. If data is provided via
-        /// `last_bytes`, the length of the slice must be at most 64.
+        /// Updates the validator with remaining input if any. There is no restriction on the
+        /// data provided.
         ///
         /// Finishes the validation and returns `Ok(())` if the input was valid UTF-8.
-        ///
-        /// # Panics
-        /// If `last_bytes` is `Some(slice)` and `slice.len() > 64`
         ///
         /// # Errors
         /// A [`crate::basic::Utf8Error`] is returned if the input was not valid UTF-8. No
@@ -186,7 +183,7 @@ pub mod imp {
         /// It is undefined behavior to call it if the required CPU features are not available.
         unsafe fn finalize(
             self,
-            last_bytes: core::option::Option<&[u8]>,
+            remaining_input: core::option::Option<&[u8]>,
         ) -> core::result::Result<(), crate::basic::Utf8Error>;
     }
 
