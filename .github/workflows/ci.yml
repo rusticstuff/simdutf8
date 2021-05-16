@@ -20,7 +20,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         toolchain: ["1.38.0", stable, beta, nightly ]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
-        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
+        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.1"]
         exclude:
             - os: macos-latest
               rustflags: "-C target-feature=+avx2"
@@ -69,7 +69,7 @@ jobs:
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|grep -v drop_in_place|diff -u expected-methods-x86-std-avx2.txt -
           cargo clean;cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-fallback.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-avx2.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-sse42.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+sse4.1" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-sse41.txt -
 
   test-inlining-aarch64:
     runs-on: ubuntu-latest
@@ -148,7 +148,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         toolchain: [stable, nightly]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
-        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
+        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.1"]
         target: [i686-unknown-linux-gnu, i686-pc-windows-msvc]
         exclude:
           - os: ubuntu-latest
