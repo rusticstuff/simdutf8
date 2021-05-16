@@ -201,14 +201,25 @@ pub mod imp {
             pub use crate::implementation::x86::avx2::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::x86::avx2::Utf8ValidatorImp;
         }
+        /// Includes the validation implementation for SSE 4.1-compatible CPUs.
+        ///
+        /// Using the provided functionality on CPUs which do not support SSE 4.1 is undefined
+        /// behavior and will very likely cause a crash.
+        pub mod sse41 {
+            pub use crate::implementation::x86::sse41::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::x86::sse41::ChunkedUtf8ValidatorImp;
+            pub use crate::implementation::x86::sse41::Utf8ValidatorImp;
+        }
         /// Includes the validation implementation for SSE 4.2-compatible CPUs.
         ///
-        /// Using the provided functionality on CPUs which do not support SSE 4.2 is undefined
-        /// behavior and will very likely cause a crash.
+        /// This deprecated and provided for backward compatibilit only. It actually redirects to
+        /// the sse41 module. All CPUs supporting SSE 4.2 also support  SSE 4.1 and there is no
+        /// special implementation of the UTF-8 validation for SSE 4.2.
+        #[deprecated(since = "0.1.4", note = "Please use the sse41 module instead")]
         pub mod sse42 {
-            pub use crate::implementation::x86::sse42::validate_utf8_basic as validate_utf8;
-            pub use crate::implementation::x86::sse42::ChunkedUtf8ValidatorImp;
-            pub use crate::implementation::x86::sse42::Utf8ValidatorImp;
+            pub use crate::implementation::x86::sse41::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::x86::sse41::ChunkedUtf8ValidatorImp;
+            pub use crate::implementation::x86::sse41::Utf8ValidatorImp;
         }
     }
 

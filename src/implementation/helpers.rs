@@ -44,7 +44,7 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     mut dest: *mut u8,
     mut len: usize,
 ) {
-    // This gets properly auto-vectorized on AVX 2 and SSE 4.2
+    // This gets properly auto-vectorized on AVX 2 and SSE 4.1
     #[inline]
     unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
         #[allow(clippy::cast_ptr_alignment)]

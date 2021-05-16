@@ -110,9 +110,18 @@ pub mod imp {
         pub mod avx2 {
             pub use crate::implementation::x86::avx2::validate_utf8_compat as validate_utf8;
         }
+        /// Includes the validation implementation for SSE 4.1-compatible CPUs.
+        pub mod sse41 {
+            pub use crate::implementation::x86::sse41::validate_utf8_compat as validate_utf8;
+        }
         /// Includes the validation implementation for SSE 4.2-compatible CPUs.
+        ///
+        /// This deprecated and provided for backward compatibilit only. It actually redirects to
+        /// the sse41 module. All CPUs supporting SSE 4.2 also support  SSE 4.1 and there is no
+        /// special implementation of the UTF-8 validation for SSE 4.2.
+        #[deprecated(since = "0.1.4", note = "Please use the sse41 module instead")]
         pub mod sse42 {
-            pub use crate::implementation::x86::sse42::validate_utf8_compat as validate_utf8;
+            pub use crate::implementation::x86::sse41::validate_utf8_compat as validate_utf8;
         }
     }
 

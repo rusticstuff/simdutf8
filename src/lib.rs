@@ -78,8 +78,8 @@
 //! compile-time and runtime selection is disabled.
 //!
 //! For no-std support (compiled with `--no-default-features`) the implementation is always selected at compile time based on
-//! the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.2"`
-//! for the SSE 4.2 implementation.
+//! the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.1"`
+//! for the SSE 4.1 implementation.
 //!
 //! ### ARM64
 //! For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is

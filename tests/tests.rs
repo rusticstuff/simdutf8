@@ -114,13 +114,13 @@ fn test_valid_public_imp(input: &[u8]) {
             );
         }
 
-        #[cfg(target_feature = "sse4.2")]
+        #[cfg(target_feature = "sse4.1")]
         unsafe {
-            assert!(simdutf8::basic::imp::x86::sse42::validate_utf8(input).is_ok());
-            assert!(simdutf8::compat::imp::x86::sse42::validate_utf8(input).is_ok());
+            assert!(simdutf8::basic::imp::x86::sse41::validate_utf8(input).is_ok());
+            assert!(simdutf8::compat::imp::x86::sse41::validate_utf8(input).is_ok());
 
-            test_streaming::<simdutf8::basic::imp::x86::sse42::Utf8ValidatorImp>(input, true);
-            test_chunked_streaming::<simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp>(
+            test_streaming::<simdutf8::basic::imp::x86::sse41::Utf8ValidatorImp>(input, true);
+            test_chunked_streaming::<simdutf8::basic::imp::x86::sse41::ChunkedUtf8ValidatorImp>(
                 input, true,
             );
         }
@@ -173,15 +173,15 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
                 input, false,
             );
         }
-        #[cfg(target_feature = "sse4.2")]
+        #[cfg(target_feature = "sse4.1")]
         unsafe {
-            assert!(simdutf8::basic::imp::x86::sse42::validate_utf8(input).is_err());
-            let err = simdutf8::compat::imp::x86::sse42::validate_utf8(input).unwrap_err();
+            assert!(simdutf8::basic::imp::x86::sse41::validate_utf8(input).is_err());
+            let err = simdutf8::compat::imp::x86::sse41::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
 
-            test_streaming::<simdutf8::basic::imp::x86::sse42::Utf8ValidatorImp>(input, false);
-            test_chunked_streaming::<simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp>(
+            test_streaming::<simdutf8::basic::imp::x86::sse41::Utf8ValidatorImp>(input, false);
+            test_chunked_streaming::<simdutf8::basic::imp::x86::sse41::ChunkedUtf8ValidatorImp>(
                 input, false,
             );
         }
@@ -424,17 +424,17 @@ fn test_avx2_chunked_panic() {
 
 #[test]
 #[should_panic]
-#[cfg(all(feature = "public_imp", target_feature = "sse4.2"))]
-fn test_sse42_chunked_panic() {
+#[cfg(all(feature = "public_imp", target_feature = "sse4.1"))]
+fn test_sse41_chunked_panic() {
     test_chunked_streaming_with_chunk_size::<
-        simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp,
+        simdutf8::basic::imp::x86::sse41::ChunkedUtf8ValidatorImp,
     >(b"abcd", 1, true);
 }
 
 #[test]
 #[should_panic]
 #[cfg(all(feature = "public_imp", target_arch = "aarch64"))]
-fn test_sse42_chunked_panic() {
+fn test_sse41_chunked_panic() {
     test_chunked_streaming_with_chunk_size::<
         simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp,
     >(b"abcd", 1, true);

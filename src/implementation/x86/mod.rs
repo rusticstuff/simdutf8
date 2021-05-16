@@ -2,7 +2,7 @@
 pub(crate) mod avx2;
 
 #[allow(dead_code)]
-pub(crate) mod sse42;
+pub(crate) mod sse41;
 
 #[allow(unused_imports)]
 use super::helpers::SIMD_CHUNK_SIZE;
@@ -40,8 +40,8 @@ pub(crate) unsafe fn validate_utf8_basic(
 fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
     if std::is_x86_feature_detected!("avx2") {
         avx2::validate_utf8_basic
-    } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_basic
+    } else if std::is_x86_feature_detected!("sse4.1") {
+        sse41::validate_utf8_basic
     } else {
         super::validate_utf8_basic_fallback
     }
@@ -71,7 +71,7 @@ unsafe fn validate_utf8_basic_avx2(
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    target_feature = "sse4.2"
+    target_feature = "sse4.1"
 ))]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
@@ -80,25 +80,25 @@ pub(crate) unsafe fn validate_utf8_basic(
         return super::validate_utf8_basic_fallback(input);
     }
 
-    validate_utf8_basic_sse42(input)
+    validate_utf8_basic_sse41(input)
 }
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    target_feature = "sse4.2"
+    target_feature = "sse4.1"
 ))]
 #[inline(never)]
-unsafe fn validate_utf8_basic_sse42(
+unsafe fn validate_utf8_basic_sse41(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    sse42::validate_utf8_basic(input)
+    sse41::validate_utf8_basic(input)
 }
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    not(target_feature = "sse4.2")
+    not(target_feature = "sse4.1")
 ))]
 pub(crate) use super::validate_utf8_basic_fallback as validate_utf8_basic;
 
@@ -136,8 +136,8 @@ pub(crate) unsafe fn validate_utf8_compat(
 fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn {
     if std::is_x86_feature_detected!("avx2") {
         avx2::validate_utf8_compat
-    } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_compat
+    } else if std::is_x86_feature_detected!("sse4.1") {
+        sse41::validate_utf8_compat
     } else {
         super::validate_utf8_compat_fallback
     }
@@ -167,7 +167,7 @@ unsafe fn validate_utf8_compat_avx2(
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    target_feature = "sse4.2"
+    target_feature = "sse4.1"
 ))]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
@@ -176,24 +176,24 @@ pub(crate) unsafe fn validate_utf8_compat(
         return super::validate_utf8_compat_fallback(input);
     }
 
-    validate_utf8_compat_sse42(input)
+    validate_utf8_compat_sse41(input)
 }
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    target_feature = "sse4.2"
+    target_feature = "sse4.1"
 ))]
 #[inline(never)]
-pub(crate) unsafe fn validate_utf8_compat_sse42(
+pub(crate) unsafe fn validate_utf8_compat_sse41(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    sse42::validate_utf8_compat(input)
+    sse41::validate_utf8_compat(input)
 }
 
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    not(target_feature = "sse4.2")
+    not(target_feature = "sse4.1")
 ))]
 pub(crate) use super::validate_utf8_compat_fallback as validate_utf8_compat;

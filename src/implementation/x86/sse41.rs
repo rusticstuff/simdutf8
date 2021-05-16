@@ -1,4 +1,4 @@
-//! Contains the x86-64/x86 SSE4.2 UTF-8 validation implementation.
+//! Contains the x86-64/x86 SSE4.1 UTF-8 validation implementation.
 
 #![allow(clippy::too_many_arguments)]
 
@@ -17,12 +17,12 @@ use core::arch::x86_64::{
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
 
-// SSE 4.2 SIMD primitives
+// SSE 4.1 SIMD primitives
 
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
 
 impl SimdU8Value {
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn from_32_cut_off_leading(
         _v0: u8,
@@ -65,7 +65,7 @@ impl SimdU8Value {
         ))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn repeat_16(
         v0: u8,
@@ -92,14 +92,14 @@ impl SimdU8Value {
         ))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
         #[allow(clippy::cast_ptr_alignment)]
         Self::from(_mm_loadu_si128(ptr.cast::<__m128i>()))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn lookup_16(
         self,
@@ -129,84 +129,84 @@ impl SimdU8Value {
         ))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn splat(val: u8) -> Self {
         #[allow(clippy::cast_possible_wrap)]
         Self::from(_mm_set1_epi8(val as i8))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn splat0() -> Self {
         Self::from(_mm_setzero_si128())
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn or(self, b: Self) -> Self {
         Self::from(_mm_or_si128(self.0, b.0))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn and(self, b: Self) -> Self {
         Self::from(_mm_and_si128(self.0, b.0))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn xor(self, b: Self) -> Self {
         Self::from(_mm_xor_si128(self.0, b.0))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn saturating_sub(self, b: Self) -> Self {
         Self::from(_mm_subs_epu8(self.0, b.0))
     }
 
     // ugly but shr<N> requires const generics
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn shr4(self) -> Self {
         Self::from(_mm_srli_epi16(self.0, 4)).and(Self::splat(0xFF >> 4))
     }
 
     // ugly but prev<N> requires const generics
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn prev1(self, prev: Self) -> Self {
         Self::from(_mm_alignr_epi8(self.0, prev.0, 16 - 1))
     }
 
     // ugly but prev<N> requires const generics
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn prev2(self, prev: Self) -> Self {
         Self::from(_mm_alignr_epi8(self.0, prev.0, 16 - 2))
     }
 
     // ugly but prev<N> requires const generics
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn prev3(self, prev: Self) -> Self {
         Self::from(_mm_alignr_epi8(self.0, prev.0, 16 - 3))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn signed_gt(self, other: Self) -> Self {
         Self::from(_mm_cmpgt_epi8(self.0, other.0))
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn any_bit_set(self) -> bool {
         _mm_testz_si128(self.0, self.0) != 1
     }
 
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn is_ascii(self) -> bool {
         _mm_movemask_epi8(self.0) == 0
@@ -221,7 +221,7 @@ impl From<__m128i> for SimdU8Value {
 }
 
 impl Utf8CheckAlgorithm<SimdU8Value> {
-    #[target_feature(enable = "sse4.2")]
+    #[target_feature(enable = "sse4.1")]
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
         let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0b1110_0000 - 1));
@@ -233,7 +233,7 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
     }
 }
 
-#[target_feature(enable = "sse4.2")]
+#[target_feature(enable = "sse4.1")]
 #[inline]
 unsafe fn simd_prefetch(ptr: *const u8) {
     _mm_prefetch(ptr.cast::<i8>(), _MM_HINT_T0);
@@ -241,5 +241,5 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 
 const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
-simd_input_128_bit!("sse4.2");
-algorithm_simd!("sse4.2");
+simd_input_128_bit!("sse4.1");
+algorithm_simd!("sse4.1");

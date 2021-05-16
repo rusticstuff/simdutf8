@@ -32,8 +32,8 @@ pub fn test_utf8(data: &[u8]) {
         let compat_simd_res = simdutf8::compat::imp::x86::avx2::validate_utf8(data);
         check_basic_simd_res(std_res, basic_simd_res);
         check_compat_simd_res(std_res, compat_simd_res);
-        let basic_simd_res = simdutf8::basic::imp::x86::sse42::validate_utf8(data);
-        let compat_simd_res = simdutf8::compat::imp::x86::sse42::validate_utf8(data);
+        let basic_simd_res = simdutf8::basic::imp::x86::sse41::validate_utf8(data);
+        let compat_simd_res = simdutf8::compat::imp::x86::sse41::validate_utf8(data);
         check_basic_simd_res(std_res, basic_simd_res);
         check_compat_simd_res(std_res, compat_simd_res);
     }
