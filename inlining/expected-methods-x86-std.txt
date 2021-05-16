@@ -9,8 +9,8 @@ simdutf8::implementation::validate_utf8_basic_fallback
 simdutf8::implementation::validate_utf8_compat_fallback
 simdutf8::implementation::x86::avx2::validate_utf8_basic
 simdutf8::implementation::x86::avx2::validate_utf8_compat
-simdutf8::implementation::x86::sse42::validate_utf8_basic
-simdutf8::implementation::x86::sse42::validate_utf8_compat
+simdutf8::implementation::x86::sse41::validate_utf8_basic
+simdutf8::implementation::x86::sse41::validate_utf8_compat
 simdutf8::implementation::x86::validate_utf8_basic::FN
 simdutf8::implementation::x86::validate_utf8_basic::get_fastest
 simdutf8::implementation::x86::validate_utf8_compat::FN
