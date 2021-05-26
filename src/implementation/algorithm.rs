@@ -209,15 +209,36 @@ macro_rules! algorithm_simd {
             #[inline]
             #[allow(unconditional_panic)] // does not panic because len is checked
             #[allow(const_err)] // the same, but for Rust 1.38.0
-            unsafe fn check_remainder(&mut self, input: *const u8, len: usize) {
-                let mut tmpbuf = TempSimdChunk::new();
-                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                    input,
-                    tmpbuf.0.as_mut_ptr(),
-                    len,
-                );
-                let simd_input = SimdInput::new(&tmpbuf.0);
-                self.check_utf8(simd_input);
+            unsafe fn check_remainder(&mut self, mut input: *const u8, len: usize) {
+                let orig_len = len;
+                let mut len = len;
+                const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
+                while len > SIMD_SIZE {
+                    let simd_val = SimdU8Value::load_from(input);
+                    input = input.add(SIMD_SIZE);
+                    if simd_val.is_ascii() {
+                        if orig_len == len {
+                            // first after last block, check if previous block is incomplete
+                            self.check_incomplete_pending();
+                        }
+                    } else {
+                        self.check_bytes(simd_val);
+                        self.incomplete = Self::is_incomplete(simd_val);
+                    }
+                    len -= SIMD_SIZE;
+                }
+                if len > 0 {
+                    let simd_val = SimdU8Value::load_partial(input, len);
+                    if simd_val.is_ascii() {
+                        if orig_len < SIMD_SIZE {
+                            // first after last block, check if previous block is incomplete
+                            self.check_incomplete_pending();
+                        }
+                    } else {
+                        self.check_bytes(simd_val);
+                        self.incomplete = Self::is_incomplete(simd_val);
+                    }
+                }
             }
         }
 
@@ -241,13 +262,17 @@ macro_rules! algorithm_simd {
             let mut idx: usize = 0;
             let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
-            while idx < iter_lim {
-                let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                idx += SIMD_CHUNK_SIZE;
-                if !simd_input.is_ascii() {
-                    algorithm.check_block(simd_input);
-                    break;
+            'outer: loop {
+                while idx < iter_lim {
+                    let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                    idx += SIMD_CHUNK_SIZE;
+                    if !simd_input.is_ascii() {
+                        algorithm.check_block(simd_input);
+                        break 'outer;
+                    }
                 }
+                // TODO: check remainder ASCII
+                break;
             }
 
             while idx < iter_lim {

@@ -39,6 +39,37 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
 
 #[allow(dead_code)]
 #[allow(clippy::missing_const_for_fn)] // clippy is wrong, it cannot really be const
+pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_16(
+    mut src: *const u8,
+    mut dest: *mut u8,
+    mut len: usize,
+) {
+    #[inline]
+    unsafe fn memcpy_u32(src: &mut *const u8, dest: &mut *mut u8) {
+        #[allow(clippy::cast_ptr_alignment)]
+        dest.cast::<u32>()
+            .write_unaligned(src.cast::<u32>().read_unaligned());
+        *src = src.offset(4);
+        *dest = dest.offset(4);
+    }
+    if len >= 8 {
+        memcpy_u32(&mut src, &mut dest);
+        memcpy_u32(&mut src, &mut dest);
+        len -= 8;
+    }
+    if len >= 4 {
+        memcpy_u32(&mut src, &mut dest);
+        len -= 4;
+    }
+    while len > 0 {
+        *dest = *src;
+        src = src.offset(1);
+        dest = dest.offset(1);
+        len -= 1;
+    }
+}
+#[allow(dead_code)]
+#[allow(clippy::missing_const_for_fn)] // clippy is wrong, it cannot really be const
 pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     mut src: *const u8,
     mut dest: *mut u8,

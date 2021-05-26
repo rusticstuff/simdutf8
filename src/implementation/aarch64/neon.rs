@@ -101,6 +101,17 @@ impl SimdU8Value {
     }
 
     #[inline]
+    unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+        let mut tmpbuf = [0u8; 16];
+        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_16(
+            ptr,
+            tmpbuf.as_mut_ptr(),
+            len,
+        );
+        Self::load_from(tmpbuf.as_ptr())
+    }
+
+    #[inline]
     #[allow(clippy::too_many_arguments)]
     unsafe fn lookup_16(
         self,
@@ -233,6 +244,7 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 }
 
 const PREFETCH: bool = false;
+#[allow(unused_imports)]
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!("not_used");
 algorithm_simd!("not_used");
