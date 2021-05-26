@@ -200,6 +200,21 @@ macro_rules! algorithm_simd {
                     panic!("Unsupported number of chunks");
                 }
             }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            #[allow(unconditional_panic)] // does not panic because len is checked
+            #[allow(const_err)] // the same, but for Rust 1.38.0
+            unsafe fn check_remainder(&mut self, input: *const u8, len: usize) {
+                let mut tmpbuf = TempSimdChunk::new();
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                    input,
+                    tmpbuf.0.as_mut_ptr(),
+                    len,
+                );
+                let simd_input = SimdInput::new(&tmpbuf.0);
+                self.check_utf8(simd_input);
+            }
         }
 
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
@@ -241,14 +256,7 @@ macro_rules! algorithm_simd {
             }
 
             if idx < len {
-                let mut tmpbuf = TempSimdChunk::new();
-                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                    input.as_ptr().add(idx),
-                    tmpbuf.0.as_mut_ptr(),
-                    len - idx,
-                );
-                let simd_input = SimdInput::new(&tmpbuf.0);
-                algorithm.check_utf8(simd_input);
+                algorithm.check_remainder(input.as_ptr().add(idx), len - idx);
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
@@ -331,15 +339,7 @@ macro_rules! algorithm_simd {
                 }
             }
             if idx < len {
-                let mut tmpbuf = TempSimdChunk::new();
-                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                    input.as_ptr().add(idx),
-                    tmpbuf.0.as_mut_ptr(),
-                    len - idx,
-                );
-                let simd_input = SimdInput::new(&tmpbuf.0);
-
-                algorithm.check_utf8(simd_input);
+                algorithm.check_remainder(input.as_ptr().add(idx), len - idx)
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
