@@ -186,18 +186,22 @@ macro_rules! algorithm_simd {
             unsafe fn check_block(&mut self, input: SimdInput) {
                 // WORKAROUND
                 // necessary because the for loop is not unrolled on ARM64
-                if input.vals.len() == 2 {
-                    self.check_bytes(input.vals[0]);
-                    self.check_bytes(input.vals[1]);
-                    self.incomplete = Self::is_incomplete(input.vals[1]);
-                } else if input.vals.len() == 4 {
-                    self.check_bytes(input.vals[0]);
-                    self.check_bytes(input.vals[1]);
-                    self.check_bytes(input.vals[2]);
-                    self.check_bytes(input.vals[3]);
-                    self.incomplete = Self::is_incomplete(input.vals[3]);
-                } else {
-                    panic!("Unsupported number of chunks");
+                match input.vals.len() {
+                    2 => {
+                        self.check_bytes(input.vals[0]);
+                        self.check_bytes(input.vals[1]);
+                        self.incomplete = Self::is_incomplete(input.vals[1]);
+                    }
+                    4 => {
+                        self.check_bytes(input.vals[0]);
+                        self.check_bytes(input.vals[1]);
+                        self.check_bytes(input.vals[2]);
+                        self.check_bytes(input.vals[3]);
+                        self.incomplete = Self::is_incomplete(input.vals[3]);
+                    }
+                    _ => {
+                        panic!("Unsupported number of chunks");
+                    }
                 }
             }
 
