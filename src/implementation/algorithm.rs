@@ -271,8 +271,13 @@ macro_rules! algorithm_simd {
                         break 'outer;
                     }
                 }
-                // TODO: check remainder ASCII
-                break;
+                if idx < len {
+                    let simd_input = SimdInput::new_partial(input.as_ptr().add(idx), len - idx);
+                    if !simd_input.is_ascii() {
+                        break;
+                    }
+                }
+                return Ok(());
             }
 
             while idx < iter_lim {
@@ -286,6 +291,8 @@ macro_rules! algorithm_simd {
 
             if idx < len {
                 algorithm.check_remainder(input.as_ptr().add(idx), len - idx);
+                // let input = SimdInput::new_partial(input.as_ptr().add(idx), len - idx);
+                // algorithm.check_utf8(input);
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
@@ -339,7 +346,13 @@ macro_rules! algorithm_simd {
                         }
                         idx += SIMD_CHUNK_SIZE;
                     }
-                    break;
+                    if idx < len {
+                        let simd_input = SimdInput::new_partial(input.as_ptr().add(idx), len - idx);
+                        if !simd_input.is_ascii() {
+                            break;
+                        }
+                    }
+                    return Ok(());
                 } else {
                     while idx < iter_lim {
                         if PREFETCH {
