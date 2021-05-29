@@ -569,6 +569,49 @@ macro_rules! simd_input_128_bit {
 
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
+            #[allow(clippy::cast_ptr_alignment)]
+            unsafe fn new_partial(ptr: *const u8, len: usize) -> Self {
+                if len < 16 {
+                    Self {
+                        vals: [
+                            SimdU8Value::load_partial(ptr, len),
+                            SimdU8Value::splat0(),
+                            SimdU8Value::splat0(),
+                            SimdU8Value::splat0(),
+                        ],
+                    }
+                } else if len < 32 {
+                    Self {
+                        vals: [
+                            SimdU8Value::load_from(ptr),
+                            SimdU8Value::load_partial(ptr.add(16), len - 16),
+                            SimdU8Value::splat0(),
+                            SimdU8Value::splat0(),
+                        ],
+                    }
+                } else if len < 48 {
+                    Self {
+                        vals: [
+                            SimdU8Value::load_from(ptr),
+                            SimdU8Value::load_from(ptr.add(16)),
+                            SimdU8Value::load_partial(ptr.add(32), len - 32),
+                            SimdU8Value::splat0(),
+                        ],
+                    }
+                } else {
+                    Self {
+                        vals: [
+                            SimdU8Value::load_from(ptr),
+                            SimdU8Value::load_from(ptr.add(16)),
+                            SimdU8Value::load_from(ptr.add(32)),
+                            SimdU8Value::load_partial(ptr.add(48), len - 48),
+                        ],
+                    }
+                }
+            }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 let r1 = self.vals[0].or(self.vals[1]);
                 let r2 = self.vals[2].or(self.vals[3]);
