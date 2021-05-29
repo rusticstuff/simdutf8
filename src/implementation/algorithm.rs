@@ -213,7 +213,7 @@ macro_rules! algorithm_simd {
                 let orig_len = len;
                 let mut len = len;
                 const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
-                while len > SIMD_SIZE {
+                while len >= SIMD_SIZE {
                     let simd_val = SimdU8Value::load_from(input);
                     input = input.add(SIMD_SIZE);
                     if simd_val.is_ascii() {
