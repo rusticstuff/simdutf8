@@ -268,6 +268,7 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 }
 
 const PREFETCH: bool = true;
+#[allow(unused_imports)]
 use crate::implementation::helpers::TempSimdChunkA32 as TempSimdChunk;
 simd_input_256_bit!("avx2");
 algorithm_simd!("avx2");
