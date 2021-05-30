@@ -240,6 +240,30 @@ macro_rules! algorithm_simd {
                     }
                 }
             }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            #[allow(unconditional_panic)] // does not panic because len is checked
+            #[allow(const_err)] // the same, but for Rust 1.38.0
+            unsafe fn check_remainder_ascii(&mut self, mut input: *const u8, mut len: usize) {
+                const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
+                while len >= SIMD_SIZE {
+                    let simd_val = SimdU8Value::load_from(input);
+                    input = input.add(SIMD_SIZE);
+                    if !simd_val.is_ascii() {
+                        self.check_bytes(simd_val);
+                        self.incomplete = Self::is_incomplete(simd_val);
+                    }
+                    len -= SIMD_SIZE;
+                }
+                if len > 0 {
+                    let simd_val = SimdU8Value::load_partial(input, len);
+                    if !simd_val.is_ascii() {
+                        self.check_bytes(simd_val);
+                        self.incomplete = Self::is_incomplete(simd_val);
+                    }
+                }
+            }
         }
 
         /// Validation implementation for CPUs supporting the SIMD extension (see module).
@@ -347,12 +371,14 @@ macro_rules! algorithm_simd {
                         idx += SIMD_CHUNK_SIZE;
                     }
                     if idx < len {
-                        let simd_input = SimdInput::new_partial(input.as_ptr().add(idx), len - idx);
-                        if !simd_input.is_ascii() {
-                            break;
-                        }
+                        algorithm.check_remainder_ascii(input.as_ptr().add(idx), len - idx);
+                        algorithm.check_incomplete_pending();
                     }
-                    return Ok(());
+                    return if algorithm.has_error() {
+                        Err(idx)
+                    } else {
+                        Ok(())
+                    };
                 } else {
                     while idx < iter_lim {
                         if PREFETCH {
