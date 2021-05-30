@@ -101,7 +101,23 @@ impl SimdU8Value {
     }
 
     #[inline]
-    unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+    pub unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+        Self::load_partial_direct_16(ptr, len)
+    }
+
+    #[inline]
+    unsafe fn load_partial_copy(ptr: *const u8, len: usize) -> Self {
+        let mut tmpbuf = [0u8; 16];
+        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_16(
+            ptr,
+            tmpbuf.as_mut_ptr(),
+            len,
+        );
+        Self::load_from(tmpbuf.as_ptr())
+    }
+
+    #[inline]
+    unsafe fn load_partial_direct(ptr: *const u8, len: usize) -> Self {
         let mut res = Self::splat0();
         if len == 0 {
         } else if len < 4 {
@@ -161,6 +177,257 @@ impl SimdU8Value {
             }
             if len > 14 {
                 res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(14), res.0, 14);
+            }
+        }
+        res
+    }
+
+    #[inline]
+    unsafe fn load_partial_direct_16(ptr: *const u8, len: usize) -> Self {
+        let mut res = Self::splat0();
+        if len == 0 {
+        } else if len < 4 {
+            if len == 1 {
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr, res.0, 0);
+            } else {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                if len > 2 {
+                    res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(2), res.0, 2);
+                }
+            }
+        } else if len < 8 {
+            res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                ptr.cast(),
+                core::mem::transmute(res.0),
+                0,
+            ));
+            if len == 5 {
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(4), res.0, 4);
+            } else if len > 5 {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(4).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                if len > 6 {
+                    res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(6), res.0, 6);
+                }
+            }
+        } else if len < 12 {
+            res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                ptr.cast(),
+                core::mem::transmute(res.0),
+                0,
+            ));
+            if len == 9 {
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(8), res.0, 8);
+            } else if len > 9 {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    4,
+                ));
+                if len > 10 {
+                    res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(10), res.0, 10);
+                }
+            }
+        } else {
+            res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                ptr.cast(),
+                core::mem::transmute(res.0),
+                0,
+            ));
+            res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                ptr.add(8).cast(),
+                core::mem::transmute(res.0),
+                2,
+            ));
+            if len == 13 {
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(12), res.0, 12);
+            } else if len > 13 {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(12).cast(),
+                    core::mem::transmute(res.0),
+                    6,
+                ));
+                if len > 14 {
+                    res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(14), res.0, 14);
+                }
+            }
+        }
+        res
+    }
+
+    #[inline]
+    unsafe fn load_partial_direct_match(ptr: *const u8, len: usize) -> Self {
+        let mut res = Self::splat0();
+        match len {
+            0 => {}
+            1 => {
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr, res.0, 0);
+            }
+            2 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+            }
+            3 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(2), res.0, 2);
+            }
+            4 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+            }
+            5 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(4), res.0, 4);
+            }
+            6 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(4).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+            }
+            7 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(4).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(6), res.0, 6);
+            }
+            8 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+            }
+            9 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(8), res.0, 8);
+            }
+            10 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    4,
+                ));
+            }
+            11 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    4,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(10), res.0, 10);
+            }
+            12 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+            }
+            13 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(12), res.0, 12);
+            }
+            14 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(12).cast(),
+                    core::mem::transmute(res.0),
+                    6,
+                ));
+            }
+            15 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(12).cast(),
+                    core::mem::transmute(res.0),
+                    6,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(14), res.0, 14);
+            }
+            _ => {
+                // not allowed
+                debug_assert!(false);
             }
         }
         res
