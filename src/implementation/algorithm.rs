@@ -315,8 +315,6 @@ macro_rules! algorithm_simd {
 
             if idx < len {
                 algorithm.check_remainder(input.as_ptr().add(idx), len - idx);
-                // let input = SimdInput::new_partial(input.as_ptr().add(idx), len - idx);
-                // algorithm.check_utf8(input);
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
