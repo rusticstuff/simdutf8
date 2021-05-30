@@ -105,6 +105,18 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
+    unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+        let mut tmpbuf = [0_u8; 32];
+        crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_32(
+            ptr,
+            tmpbuf.as_mut_ptr(),
+            len,
+        );
+        Self::load_from(tmpbuf.as_ptr())
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
     unsafe fn lookup_16(
         self,
         v0: u8,
