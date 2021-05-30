@@ -101,7 +101,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    pub unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+    unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
         let mut res = Self::splat0();
         match len {
             0 => {}
