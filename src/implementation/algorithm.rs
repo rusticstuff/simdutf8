@@ -210,9 +210,9 @@ macro_rules! algorithm_simd {
             #[allow(unconditional_panic)] // does not panic because len is checked
             #[allow(const_err)] // the same, but for Rust 1.38.0
             unsafe fn check_remainder(&mut self, mut input: *const u8, len: usize) {
+                const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
                 let orig_len = len;
                 let mut len = len;
-                const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
                 while len >= SIMD_SIZE {
                     let simd_val = SimdU8Value::load_from(input);
                     input = input.add(SIMD_SIZE);
