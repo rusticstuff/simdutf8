@@ -4,17 +4,21 @@
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
-    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
-    _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8,
-    _mm256_setr_epi8, _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16,
-    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
+    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_blendv_ps, _mm256_castps_si256,
+    _mm256_castsi256_ps, _mm256_cmpgt_epi8, _mm256_loadu_si256, _mm256_maskload_epi32,
+    _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi32,
+    _mm256_set1_epi8, _mm256_set_epi32, _mm256_setr_epi8, _mm256_setzero_si256,
+    _mm256_shuffle_epi8, _mm256_sllv_epi32, _mm256_srli_epi16, _mm256_subs_epu8,
+    _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
 };
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::{
-    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
-    _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8,
-    _mm256_setr_epi8, _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16,
-    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
+    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_blendv_ps, _mm256_castps_si256,
+    _mm256_castsi256_ps, _mm256_cmpgt_epi8, _mm256_loadu_si256, _mm256_maskload_epi32,
+    _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi32,
+    _mm256_set1_epi8, _mm256_set_epi32, _mm256_setr_epi8, _mm256_setzero_si256,
+    _mm256_shuffle_epi8, _mm256_sllv_epi32, _mm256_srli_epi16, _mm256_subs_epu8,
+    _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
@@ -105,7 +109,51 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
+    unsafe fn vecmask_from_bitmask(mask: u8) -> Self {
+        let vshift_count = _mm256_set_epi32(24, 25, 26, 27, 28, 29, 30, 31);
+        let bcast = _mm256_set1_epi32(i32::from(mask));
+        let shifted = _mm256_sllv_epi32(bcast, vshift_count); // high bit of each element = corresponding bit of the mask
+        Self::from(shifted)
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
     unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+        Self::load_partial_direct(ptr, len)
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn load_partial_direct(mut ptr: *const u8, len: usize) -> Self {
+        if len == 0 {
+            return Self::splat0();
+        }
+        let sel_mask = 1 << (len / 4);
+        let mask = (sel_mask - 1) as u8;
+        let mut res = _mm256_maskload_epi32(ptr.cast(), Self::vecmask_from_bitmask(mask).0);
+        let remainder = len % 4;
+        if remainder != 0 {
+            ptr = ptr.add((len - len % 4) as usize);
+            let remaining_bytes = match remainder {
+                1 => u32::from(*ptr),
+                2 => u32::from(*ptr) | u32::from(*ptr.add(1)) << 8,
+                3 => u32::from(*ptr) | u32::from(*ptr.add(1)) << 8 | u32::from(*ptr.add(2)) << 16,
+                _ => 0,
+            };
+            #[allow(clippy::cast_possible_wrap)]
+            let remaining_vec = _mm256_set1_epi32(remaining_bytes as i32);
+            res = _mm256_castps_si256(_mm256_blendv_ps(
+                _mm256_castsi256_ps(res),
+                _mm256_castsi256_ps(remaining_vec),
+                _mm256_castsi256_ps(Self::vecmask_from_bitmask(sel_mask).0),
+            ));
+        }
+        Self::from(res)
+    }
+
+    #[target_feature(enable = "avx2")]
+    #[inline]
+    unsafe fn load_partial_copy(ptr: *const u8, len: usize) -> Self {
         let mut tmpbuf = [0_u8; 32];
         crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_32(
             ptr,
