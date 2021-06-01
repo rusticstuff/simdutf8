@@ -267,6 +267,31 @@ unsafe fn simd_prefetch(ptr: *const u8) {
     _mm_prefetch(ptr.cast::<i8>(), _MM_HINT_T0);
 }
 
+mod test {
+    #[allow(unused_imports)]
+    use super::*;
+
+    #[test]
+    pub fn masked_load() {
+        let arr = [
+            1_u8, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+            24, 25, 26, 27, 28, 29, 30, 31, 32,
+        ];
+        unsafe {
+            for len in 0..32 {
+                let loaded_arr: [u8; 32] =
+                    core::mem::transmute(SimdU8Value::load_partial(arr.as_ptr(), len));
+                for i in 0..len {
+                    assert_eq!(arr[i], loaded_arr[i]);
+                }
+                for x in &loaded_arr[len..arr.len()] {
+                    assert_eq!(*x, 0);
+                }
+            }
+        }
+    }
+}
+
 const PREFETCH: bool = true;
 #[allow(unused_imports)]
 use crate::implementation::helpers::TempSimdChunkA32 as TempSimdChunk;
