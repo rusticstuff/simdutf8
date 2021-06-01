@@ -296,6 +296,7 @@ impl From<__m256i> for SimdU8Value {
     }
 }
 
+#[cfg(test)]
 impl core::fmt::Display for SimdU8Value {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         unsafe {
@@ -305,6 +306,7 @@ impl core::fmt::Display for SimdU8Value {
     }
 }
 
+#[cfg(test)]
 impl core::fmt::LowerHex for SimdU8Value {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         unsafe {
@@ -333,6 +335,7 @@ unsafe fn simd_prefetch(ptr: *const u8) {
     _mm_prefetch(ptr.cast::<i8>(), _MM_HINT_T0);
 }
 
+#[cfg(test)]
 mod test {
     #[cfg(not(features = "std"))]
     extern crate std;
