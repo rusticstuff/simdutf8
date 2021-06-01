@@ -252,6 +252,7 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 }
 
 const PREFETCH: bool = false;
+const PREVENT_REMAINDER_LOOP_UNROLLING: bool = true;
 #[allow(unused_imports)]
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!("sse4.2");

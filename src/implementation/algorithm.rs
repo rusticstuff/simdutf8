@@ -213,6 +213,12 @@ macro_rules! algorithm_simd {
                 const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
                 let orig_len = len;
                 let mut len = len;
+
+                // necessary, otherwise the compiler needlessly unrolls the loop,
+                // the function becomes to big and is no longer inlined for SSE 4.2
+                if PREVENT_REMAINDER_LOOP_UNROLLING {
+                    assert!(len < crate::implementation::helpers::SIMD_CHUNK_SIZE);
+                }
                 while len >= SIMD_SIZE {
                     let simd_val = SimdU8Value::load_from(input);
                     input = input.add(SIMD_SIZE);
@@ -247,6 +253,11 @@ macro_rules! algorithm_simd {
             #[allow(const_err)] // the same, but for Rust 1.38.0
             unsafe fn check_remainder_ascii(&mut self, mut input: *const u8, mut len: usize) {
                 const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
+
+                // prevent loop unrolling which can cause the function to be too big for inlining
+                if PREVENT_REMAINDER_LOOP_UNROLLING {
+                    assert!(len < crate::implementation::helpers::SIMD_CHUNK_SIZE);
+                }
                 while len >= SIMD_SIZE {
                     let simd_val = SimdU8Value::load_from(input);
                     input = input.add(SIMD_SIZE);
