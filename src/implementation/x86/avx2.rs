@@ -342,7 +342,7 @@ mod test {
 
     #[test]
     pub fn masked_load() {
-        if std::is_x86_feature_detected!("avx2") {
+        if !std::is_x86_feature_detected!("avx2") {
             return;
         }
 
