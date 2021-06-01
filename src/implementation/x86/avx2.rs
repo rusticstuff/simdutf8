@@ -248,6 +248,24 @@ impl From<__m256i> for SimdU8Value {
     }
 }
 
+impl core::fmt::Display for SimdU8Value {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        unsafe {
+            let arr: [u8; 32] = core::mem::transmute(self.0);
+            write!(f, "{:?}", arr)
+        }
+    }
+}
+
+impl core::fmt::LowerHex for SimdU8Value {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        unsafe {
+            let arr: [u8; 32] = core::mem::transmute(self.0);
+            write!(f, "{:x?}", arr)
+        }
+    }
+}
+
 impl Utf8CheckAlgorithm<SimdU8Value> {
     #[target_feature(enable = "avx2")]
     #[inline]
