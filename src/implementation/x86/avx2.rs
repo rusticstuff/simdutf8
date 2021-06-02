@@ -140,6 +140,7 @@ impl SimdU8Value {
                 3 => u32::from(*ptr) | u32::from(*ptr.add(1)) << 8 | u32::from(*ptr.add(2)) << 16,
                 _ => 0,
             };
+            // blend vec with 4-byte chunks and last incomplete chunk together
             #[allow(clippy::cast_possible_wrap)]
             let remaining_vec = _mm256_set1_epi32(remaining_bytes as i32);
             res = _mm256_castps_si256(_mm256_blendv_ps(
