@@ -9,6 +9,8 @@ use super::helpers::SIMD_CHUNK_SIZE;
 
 // validate_utf8_basic() std: implementation auto-selection
 
+const DELEGATE_TO_STD_FOR_SMALL_INPUTS: bool = false;
+
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
 pub(crate) unsafe fn validate_utf8_basic(
@@ -27,7 +29,7 @@ pub(crate) unsafe fn validate_utf8_basic(
         (fun)(input)
     }
 
-    if input.len() < SIMD_CHUNK_SIZE {
+    if DELEGATE_TO_STD_FOR_SMALL_INPUTS && input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -53,7 +55,7 @@ fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if input.len() < SIMD_CHUNK_SIZE {
+    if DELEGATE_SMALL_TO_STD && input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -76,7 +78,7 @@ unsafe fn validate_utf8_basic_avx2(
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if input.len() < SIMD_CHUNK_SIZE {
+    if DELEGATE_SMALL_TO_STD && input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -123,7 +125,7 @@ pub(crate) unsafe fn validate_utf8_compat(
         (fun)(input)
     }
 
-    if input.len() < SIMD_CHUNK_SIZE {
+    if DELEGATE_TO_STD_FOR_SMALL_INPUTS && input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_compat_fallback(input);
     }
 
@@ -149,7 +151,7 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if input.len() < SIMD_CHUNK_SIZE {
+    if DELEGATE_SMALL_TO_STD && input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_compat_fallback(input);
     }
 
@@ -172,7 +174,7 @@ unsafe fn validate_utf8_compat_avx2(
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if input.len() < SIMD_CHUNK_SIZE {
+    if DELEGATE_SMALL_TO_STD && input.len() < SIMD_CHUNK_SIZE {
         return super::validate_utf8_compat_fallback(input);
     }
 
