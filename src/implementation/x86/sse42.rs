@@ -4,15 +4,17 @@
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
-    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
-    _mm_or_si128, _mm_prefetch, _mm_set1_epi8, _mm_setr_epi8, _mm_setzero_si128, _mm_shuffle_epi8,
-    _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128, _MM_HINT_T0,
+    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_bsrli_si128, _mm_cmpgt_epi8, _mm_insert_epi16,
+    _mm_insert_epi8, _mm_loadu_si128, _mm_loadu_si64, _mm_movemask_epi8, _mm_or_si128,
+    _mm_prefetch, _mm_set1_epi8, _mm_setr_epi16, _mm_setr_epi32, _mm_setr_epi8, _mm_setzero_si128,
+    _mm_shuffle_epi8, _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128, _MM_HINT_T0,
 };
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::{
-    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
-    _mm_or_si128, _mm_prefetch, _mm_set1_epi8, _mm_setr_epi8, _mm_setzero_si128, _mm_shuffle_epi8,
-    _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128, _MM_HINT_T0,
+    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_bsrli_si128, _mm_cmpgt_epi8, _mm_insert_epi16,
+    _mm_insert_epi8, _mm_loadu_si128, _mm_loadu_si64, _mm_movemask_epi8, _mm_or_si128,
+    _mm_prefetch, _mm_set1_epi8, _mm_setr_epi16, _mm_setr_epi32, _mm_setr_epi8, _mm_setzero_si128,
+    _mm_shuffle_epi8, _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128, _MM_HINT_T0,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
@@ -101,7 +103,149 @@ impl SimdU8Value {
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
+    #[allow(clippy::too_many_lines)]
+    #[allow(clippy::cast_ptr_alignment)]
     unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+        Self::from(match len {
+            1 => _mm_setr_epi8(
+                ptr.cast::<i8>().read_unaligned(),
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ),
+            2 => _mm_setr_epi16(ptr.cast::<i16>().read_unaligned(), 0, 0, 0, 0, 0, 0, 0),
+            3 => _mm_setr_epi8(
+                ptr.cast::<i8>().read_unaligned(),
+                ptr.add(1).cast::<i8>().read_unaligned(),
+                ptr.add(2).cast::<i8>().read_unaligned(),
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ),
+            4 => _mm_setr_epi32(ptr.cast::<i32>().read_unaligned(), 0, 0, 0), // assembly???
+            5 => {
+                let val = _mm_setr_epi32(ptr.cast::<i32>().read_unaligned(), 0, 0, 0);
+                _mm_insert_epi8(val, i32::from(ptr.add(4).cast::<i8>().read_unaligned()), 4)
+            }
+            6 => _mm_setr_epi16(
+                ptr.cast::<i16>().read_unaligned(),
+                ptr.add(2).cast::<i16>().read_unaligned(),
+                ptr.add(4).cast::<i16>().read_unaligned(),
+                0,
+                0,
+                0,
+                0,
+                0,
+            ),
+            7 => {
+                let val = _mm_setr_epi16(
+                    ptr.cast::<i16>().read_unaligned(),
+                    ptr.add(2).cast::<i16>().read_unaligned(),
+                    ptr.add(4).cast::<i16>().read_unaligned(),
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                );
+                _mm_insert_epi8(val, i32::from(ptr.add(6).cast::<i8>().read_unaligned()), 6)
+            }
+            8 => _mm_bsrli_si128(_mm_loadu_si64(ptr), 8),
+            9 => {
+                let val = _mm_bsrli_si128(_mm_loadu_si64(ptr), 8);
+                _mm_insert_epi8(val, i32::from(ptr.add(8).cast::<i8>().read_unaligned()), 8)
+            }
+            10 => {
+                let val = _mm_bsrli_si128(_mm_loadu_si64(ptr), 8);
+                _mm_insert_epi16(val, i32::from(ptr.add(8).cast::<i16>().read_unaligned()), 4)
+            }
+            11 => {
+                let mut val = _mm_bsrli_si128(_mm_loadu_si64(ptr), 8);
+                val =
+                    _mm_insert_epi16(val, i32::from(ptr.add(8).cast::<i16>().read_unaligned()), 4);
+                _mm_insert_epi8(
+                    val,
+                    i32::from(ptr.add(10).cast::<i8>().read_unaligned()),
+                    10,
+                )
+            }
+            12 => _mm_setr_epi32(
+                ptr.cast::<i32>().read_unaligned(),
+                ptr.add(4).cast::<i32>().read_unaligned(),
+                ptr.add(8).cast::<i32>().read_unaligned(),
+                0,
+            ),
+            13 => {
+                let val = _mm_setr_epi32(
+                    ptr.cast::<i32>().read_unaligned(),
+                    ptr.add(4).cast::<i32>().read_unaligned(),
+                    ptr.add(8).cast::<i32>().read_unaligned(),
+                    0,
+                );
+                _mm_insert_epi8(
+                    val,
+                    i32::from(ptr.add(12).cast::<i8>().read_unaligned()),
+                    12,
+                )
+            }
+            14 => {
+                let val = _mm_setr_epi32(
+                    ptr.cast::<i32>().read_unaligned(),
+                    ptr.add(4).cast::<i32>().read_unaligned(),
+                    ptr.add(8).cast::<i32>().read_unaligned(),
+                    0,
+                );
+                _mm_insert_epi16(
+                    val,
+                    i32::from(ptr.add(12).cast::<i16>().read_unaligned()),
+                    6,
+                )
+            }
+            15 => {
+                let mut val = _mm_setr_epi32(
+                    ptr.cast::<i32>().read_unaligned(),
+                    ptr.add(4).cast::<i32>().read_unaligned(),
+                    ptr.add(8).cast::<i32>().read_unaligned(),
+                    0,
+                );
+                val = _mm_insert_epi16(
+                    val,
+                    i32::from(ptr.add(12).cast::<i16>().read_unaligned()),
+                    6,
+                );
+                _mm_insert_epi8(
+                    val,
+                    i32::from(ptr.add(14).cast::<i8>().read_unaligned()),
+                    14,
+                )
+            }
+            _ => Self::splat0().0, // _ => res = Self::load_partial_copy(ptr, len),
+        })
+    }
+
+    unsafe fn load_partial_copy(ptr: *const u8, len: usize) -> Self {
         let mut tmpbuf = [0_u8; 16];
         crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_16(
             ptr,
@@ -249,6 +393,37 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
 #[inline]
 unsafe fn simd_prefetch(ptr: *const u8) {
     _mm_prefetch(ptr.cast::<i8>(), _MM_HINT_T0);
+}
+
+#[cfg(test)]
+mod test {
+    #[cfg(not(features = "std"))]
+    extern crate std;
+
+    #[allow(unused_imports)]
+    use super::*;
+
+    #[test]
+    pub fn masked_load() {
+        if !std::is_x86_feature_detected!("sse4.2") {
+            return;
+        }
+
+        let arr = [1_u8, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+        unsafe {
+            for len in 0..16 {
+                let loaded_arr: [u8; 16] =
+                    core::mem::transmute(SimdU8Value::load_partial(arr.as_ptr(), len));
+                println!("{:?}", loaded_arr);
+                for i in 0..len {
+                    assert_eq!(arr[i], loaded_arr[i]);
+                }
+                for x in &loaded_arr[len..arr.len()] {
+                    assert_eq!(*x, 0);
+                }
+            }
+        }
+    }
 }
 
 const PREFETCH: bool = false;
