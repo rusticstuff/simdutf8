@@ -180,3 +180,37 @@ impl TempSimdChunkA32 {
 pub(crate) struct SimdU8Value<T>(pub(crate) T)
 where
     T: Copy;
+
+#[cfg(test)]
+impl<T: Copy> core::fmt::Display for SimdU8Value<T> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        unsafe {
+            if core::mem::size_of::<T>() == 16 {
+                let arr: [u8; 16] = core::mem::transmute_copy(&self.0);
+                write!(f, "{:?}", arr)
+            } else if core::mem::size_of::<T>() == 32 {
+                let arr: [u8; 32] = core::mem::transmute_copy(&self.0);
+                write!(f, "{:?}", arr)
+            } else {
+                Err(core::fmt::Error)
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+impl<T: Copy> core::fmt::LowerHex for SimdU8Value<T> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        unsafe {
+            if core::mem::size_of::<T>() == 16 {
+                let arr: [u8; 16] = core::mem::transmute_copy(&self.0);
+                write!(f, "{:x?}", arr)
+            } else if core::mem::size_of::<T>() == 32 {
+                let arr: [u8; 32] = core::mem::transmute_copy(&self.0);
+                write!(f, "{:x?}", arr)
+            } else {
+                Err(core::fmt::Error)
+            }
+        }
+    }
+}
