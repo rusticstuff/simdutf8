@@ -241,7 +241,7 @@ impl SimdU8Value {
                     14,
                 )
             }
-            _ => Self::splat0().0, // _ => res = Self::load_partial_copy(ptr, len),
+            _ => Self::splat0().0,
         })
     }
 
