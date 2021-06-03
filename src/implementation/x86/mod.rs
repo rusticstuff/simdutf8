@@ -6,6 +6,7 @@ pub(crate) mod sse42;
 
 // validate_utf8_basic() std: implementation auto-selection
 
+const ENABLE_AVX2: bool = true;
 const DELEGATE_TO_STD_FOR_SMALL_INPUTS: bool = true;
 const SMALL_STRING_LIMIT: usize = 9;
 
@@ -38,7 +39,7 @@ pub(crate) unsafe fn validate_utf8_basic(
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
 fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
-    if std::is_x86_feature_detected!("avx2") {
+    if ENABLE_AVX2 && std::is_x86_feature_detected!("avx2") {
         avx2::validate_utf8_basic
     } else if std::is_x86_feature_detected!("sse4.2") {
         sse42::validate_utf8_basic
@@ -134,7 +135,7 @@ pub(crate) unsafe fn validate_utf8_compat(
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
 fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn {
-    if std::is_x86_feature_detected!("avx2") {
+    if ENABLE_AVX2 && std::is_x86_feature_detected!("avx2") {
         avx2::validate_utf8_compat
     } else if std::is_x86_feature_detected!("sse4.2") {
         sse42::validate_utf8_compat
