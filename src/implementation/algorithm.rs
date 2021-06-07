@@ -209,19 +209,19 @@ macro_rules! algorithm_simd {
             #[inline]
             #[allow(unconditional_panic)] // does not panic because len is checked
             #[allow(const_err)] // the same, but for Rust 1.38.0
-            unsafe fn check_remainder(&mut self, mut input: *const u8, len: usize) {
+            unsafe fn check_remainder(&mut self, input: &[u8]) {
                 const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
-                let orig_len = len;
-                let mut len = len;
+                let orig_len = input.len();
+                let mut len = orig_len;
 
                 // necessary, otherwise the compiler excessively unrolls the loop,
                 // the function becomes to big and is no longer inlined for SSE 4.2
                 if PREVENT_REMAINDER_LOOP_UNROLLING {
-                    assert!(len < crate::implementation::helpers::SIMD_CHUNK_SIZE);
+                    assert!(input.len() < crate::implementation::helpers::SIMD_CHUNK_SIZE);
                 }
-                while len >= SIMD_SIZE {
-                    let simd_val = SimdU8Value::load_from(input);
-                    input = input.add(SIMD_SIZE);
+                let mut chunks = input.chunks_exact(SIMD_SIZE);
+                for chunk in &mut chunks {
+                    let simd_val = SimdU8Value::load_from(chunk.as_ptr());
                     if simd_val.is_ascii() {
                         if orig_len == len {
                             // first after last block, check if previous block is incomplete
@@ -233,8 +233,9 @@ macro_rules! algorithm_simd {
                     }
                     len -= SIMD_SIZE;
                 }
-                if len > 0 {
-                    let simd_val = SimdU8Value::load_partial(input, len);
+                let remainder = chunks.remainder();
+                if !remainder.is_empty() {
+                    let simd_val = SimdU8Value::load_partial(remainder.as_ptr(), remainder.len());
                     if simd_val.is_ascii() {
                         if orig_len < SIMD_SIZE {
                             // first after last block, check if previous block is incomplete
@@ -294,20 +295,19 @@ macro_rules! algorithm_simd {
             use crate::implementation::helpers::SIMD_CHUNK_SIZE;
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
-            let mut idx: usize = 0;
-            let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
+            let mut chunks = input.chunks_exact(SIMD_CHUNK_SIZE);
+            let remainder = chunks.remainder();
             'outer: loop {
-                while idx < iter_lim {
-                    let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
-                    idx += SIMD_CHUNK_SIZE;
+                for chunk in &mut chunks {
+                    let simd_input = SimdInput::new(chunk);
                     if !simd_input.is_ascii() {
                         algorithm.check_block(simd_input);
                         break 'outer;
                     }
                 }
-                if idx < len {
-                    let simd_input = SimdInput::new_partial(input.as_ptr().add(idx), len - idx);
+                if remainder.len() > 0 {
+                    let simd_input = SimdInput::new_partial_from_slice(remainder);
                     if !simd_input.is_ascii() {
                         break;
                     }
@@ -315,17 +315,16 @@ macro_rules! algorithm_simd {
                 return Ok(());
             }
 
-            while idx < iter_lim {
+            for chunk in &mut chunks {
                 if PREFETCH {
-                    simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
+                    simd_prefetch(chunk.as_ptr().add(SIMD_CHUNK_SIZE * 2));
                 }
-                let input = SimdInput::new(input.get_unchecked(idx as usize..));
+                let input = SimdInput::new(chunk);
                 algorithm.check_utf8(input);
-                idx += SIMD_CHUNK_SIZE;
             }
 
-            if idx < len {
-                algorithm.check_remainder(input.as_ptr().add(idx), len - idx);
+            if remainder.len() > 0 {
+                algorithm.check_remainder(remainder);
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
@@ -416,7 +415,7 @@ macro_rules! algorithm_simd {
                 }
             }
             if idx < len {
-                algorithm.check_remainder(input.as_ptr().add(idx), len - idx)
+                algorithm.check_remainder(&input[idx..])
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
@@ -618,6 +617,13 @@ macro_rules! simd_input_128_bit {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(clippy::cast_ptr_alignment)]
+            unsafe fn new_partial_from_slice(data: &[u8]) -> Self {
+                Self::new_partial(data.as_ptr(), data.len())
+            }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new_partial(ptr: *const u8, len: usize) -> Self {
                 Self::new_partial_ordered(ptr, len)
             }
@@ -739,6 +745,13 @@ macro_rules! simd_input_256_bit {
                         SimdU8Value::load_from(ptr.as_ptr().add(32)),
                     ],
                 }
+            }
+
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
+            #[inline]
+            #[allow(clippy::cast_ptr_alignment)]
+            unsafe fn new_partial_from_slice(data: &[u8]) -> Self {
+                Self::new_partial(data.as_ptr(), data.len())
             }
 
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
