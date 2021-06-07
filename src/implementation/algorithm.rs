@@ -293,7 +293,6 @@ macro_rules! algorithm_simd {
             input: &[u8],
         ) -> core::result::Result<(), basic::Utf8Error> {
             use crate::implementation::helpers::SIMD_CHUNK_SIZE;
-            let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
 
             let mut chunks = input.chunks_exact(SIMD_CHUNK_SIZE);
