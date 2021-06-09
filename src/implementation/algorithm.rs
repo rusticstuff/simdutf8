@@ -205,6 +205,14 @@ macro_rules! algorithm_simd {
                 }
             }
 
+            /// Necessary because inline(always) does not work with target_feature(enable = ...)
+            /// and the chunks_exact() impl. somehow takes it over the inlining threshold despite
+            /// being smaller
+            #[inline(always)]
+            unsafe fn check_remainder_ia(&mut self, input: &[u8]) {
+                self.check_remainder(input);
+            }
+
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(unconditional_panic)] // does not panic because len is checked
@@ -323,7 +331,7 @@ macro_rules! algorithm_simd {
             }
 
             if remainder.len() > 0 {
-                algorithm.check_remainder(remainder);
+                algorithm.check_remainder_ia(remainder);
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
@@ -409,7 +417,7 @@ macro_rules! algorithm_simd {
                 }
             }
             if !remainder.is_empty() {
-                algorithm.check_remainder(remainder);
+                algorithm.check_remainder_ia(remainder);
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
