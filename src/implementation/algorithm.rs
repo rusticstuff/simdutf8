@@ -252,24 +252,24 @@ macro_rules! algorithm_simd {
             #[inline]
             #[allow(unconditional_panic)] // does not panic because len is checked
             #[allow(const_err)] // the same, but for Rust 1.38.0
-            unsafe fn check_remainder_ascii(&mut self, mut input: *const u8, mut len: usize) {
+            unsafe fn check_remainder_ascii(&mut self, input: &[u8]) {
                 const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
 
                 // prevent excessive loop unrolling which can cause the function to be too big for inlining
                 if PREVENT_REMAINDER_LOOP_UNROLLING {
-                    assert!(len < crate::implementation::helpers::SIMD_CHUNK_SIZE);
+                    assert!(input.len() < crate::implementation::helpers::SIMD_CHUNK_SIZE);
                 }
-                while len >= SIMD_SIZE {
-                    let simd_val = SimdU8Value::load_from(input);
-                    input = input.add(SIMD_SIZE);
+                let mut chunks = input.chunks_exact(SIMD_SIZE);
+                for chunk in &mut chunks {
+                    let simd_val = SimdU8Value::load_from(chunk.as_ptr());
                     if !simd_val.is_ascii() {
                         self.check_bytes(simd_val);
                         self.incomplete = Self::is_incomplete(simd_val);
                     }
-                    len -= SIMD_SIZE;
                 }
-                if len > 0 {
-                    let simd_val = SimdU8Value::load_partial(input, len);
+                let remainder = chunks.remainder();
+                if !remainder.is_empty() {
+                    let simd_val = SimdU8Value::load_partial(remainder.as_ptr(), remainder.len());
                     if !simd_val.is_ascii() {
                         self.check_bytes(simd_val);
                         self.incomplete = Self::is_incomplete(simd_val);
@@ -357,68 +357,65 @@ macro_rules! algorithm_simd {
             use crate::implementation::helpers::SIMD_CHUNK_SIZE;
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
-            let mut idx: usize = 0;
             let mut only_ascii = true;
             let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
+            let mut chunks = input.chunks_exact(SIMD_CHUNK_SIZE);
+            let remainder = chunks.remainder();
             'outer: loop {
                 if only_ascii {
-                    while idx < iter_lim {
-                        let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                    for chunk in &mut chunks {
+                        let simd_input = SimdInput::new(chunk);
                         if !simd_input.is_ascii() {
                             algorithm.check_block(simd_input);
                             if algorithm.has_error() {
-                                return Err(idx);
+                                return Err(chunk.as_ptr() as usize - input.as_ptr() as usize);
                             } else {
                                 only_ascii = false;
-                                idx += SIMD_CHUNK_SIZE;
                                 continue 'outer;
                             }
                         }
-                        idx += SIMD_CHUNK_SIZE;
                     }
-                    if idx < len {
-                        algorithm.check_remainder_ascii(input.as_ptr().add(idx), len - idx);
+                    if !remainder.is_empty() {
+                        algorithm.check_remainder_ascii(remainder.as_ptr(), remainder.len());
                         algorithm.check_incomplete_pending();
                     }
                     return if algorithm.has_error() {
-                        Err(idx)
+                        Err(remainder.as_ptr() as usize - input.as_ptr() as usize)
                     } else {
                         Ok(())
                     };
                 } else {
-                    while idx < iter_lim {
+                    for chunk in &mut chunks {
                         if PREFETCH {
-                            simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
+                            simd_prefetch(chunk.as_ptr().add(SIMD_CHUNK_SIZE * 2));
                         }
-                        let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                        let simd_input = SimdInput::new(chunk);
                         if simd_input.is_ascii() {
                             algorithm.check_incomplete_pending();
                             if algorithm.has_error() {
-                                return Err(idx);
+                                return Err(chunk.as_ptr() as usize - input.as_ptr() as usize);
                             } else {
                                 // we are in pure ASCII territory again
                                 only_ascii = true;
-                                idx += SIMD_CHUNK_SIZE;
                                 continue 'outer;
                             }
                         } else {
                             algorithm.check_block(simd_input);
                             if algorithm.has_error() {
-                                return Err(idx);
+                                return Err(chunk.as_ptr() as usize - input.as_ptr() as usize);
                             }
                         }
-                        idx += SIMD_CHUNK_SIZE;
                     }
                     break;
                 }
             }
-            if idx < len {
-                algorithm.check_remainder(&input[idx..])
+            if !remainder.is_empty() {
+                algorithm.check_remainder(remainder);
             }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
-                Err(idx)
+                Err(remainder.as_ptr() as usize - input.as_ptr() as usize)
             } else {
                 Ok(())
             }
