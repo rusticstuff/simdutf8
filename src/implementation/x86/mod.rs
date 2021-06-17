@@ -9,7 +9,10 @@ pub(crate) mod sse42;
 #[allow(dead_code)]
 const ENABLE_AVX2: bool = true;
 
+#[allow(dead_code)]
 const DELEGATE_TO_STD_FOR_SMALL_INPUTS: bool = true;
+
+#[allow(dead_code)]
 const SMALL_STRING_LIMIT: usize = 9;
 
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
