@@ -6,7 +6,9 @@ pub(crate) mod sse42;
 
 // validate_utf8_basic() std: implementation auto-selection
 
+#[allow(dead_code)]
 const ENABLE_AVX2: bool = true;
+
 const DELEGATE_TO_STD_FOR_SMALL_INPUTS: bool = true;
 const SMALL_STRING_LIMIT: usize = 9;
 
