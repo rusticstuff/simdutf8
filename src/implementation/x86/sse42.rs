@@ -436,7 +436,6 @@ mod test {
             for len in 0..16 {
                 let loaded_arr: [u8; 16] =
                     core::mem::transmute(SimdU8Value::load_partial(arr.as_ptr(), len));
-                println!("{:?}", loaded_arr);
                 for i in 0..len {
                     assert_eq!(arr[i], loaded_arr[i]);
                 }
