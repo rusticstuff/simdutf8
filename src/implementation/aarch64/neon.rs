@@ -10,129 +10,130 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 // aarch64 SIMD primitives
 
 #[inline(never)]
+#[allow(unused_assignments)]
+#[allow(improper_ctypes_definitions)]
 /// C ABI spec is necessary so that the loaded value is returned in a register
 unsafe extern "C" fn load_partial_assembly_opt_call(
     mut ptr: *const u8,
     len: usize,
 ) -> core::arch::aarch64::uint8x16_t {
     let res: core::arch::aarch64::uint8x16_t;
-    unsafe {
-        asm!(
-        "movi.2d v0, #0000000000000000",
-        "cmp {len}, 15",
-        "b.hi 99f",
-        "adr {scratch}, #12",
-        "adds {scratch}, {scratch}, {len}, lsl #4",
-        "br {scratch}",
+    asm!(
+    "movi.2d v0, #0000000000000000",
+    "cmp {len}, 15",
+    "b.hi 99f",
+    "adr {scratch}, #12",
+    "adds {scratch}, {scratch}, {len}, lsl #4",
+    "br {scratch}",
 
-        // 0
-        "ret",
-        "nop",
-        "nop",
-        "nop",
+    // 0
+    "ret",
+    "nop",
+    "nop",
+    "nop",
 
-        // 1
-        "ld1.b  {{ v0 }}[0], [{ptr}]",
-        "ret",
-        "nop",
-        "nop",
+    // 1
+    "ld1.b  {{ v0 }}[0], [{ptr}]",
+    "ret",
+    "nop",
+    "nop",
 
-        // 2
-        "ld1.h  {{ v0 }}[0], [{ptr}]",
-        "ret",
-        "nop",
-        "nop",
+    // 2
+    "ld1.h  {{ v0 }}[0], [{ptr}]",
+    "ret",
+    "nop",
+    "nop",
 
-        // 3
-        "ld1.h  {{ v0 }}[0], [{ptr}], #2",
-        "ld1.b  {{ v0 }}[2], [{ptr}]",
-        "ret",
-        "nop",
+    // 3
+    "ld1.h  {{ v0 }}[0], [{ptr}], #2",
+    "ld1.b  {{ v0 }}[2], [{ptr}]",
+    "ret",
+    "nop",
 
-        // 4
-        "ld1.s  {{ v0 }}[0], [{ptr}]",
-        "ret",
-        "nop",
-        "nop",
+    // 4
+    "ld1.s  {{ v0 }}[0], [{ptr}]",
+    "ret",
+    "nop",
+    "nop",
 
-        // 5
-        "ld1.s  {{ v0 }}[0], [{ptr}], #4",
-        "ld1.b  {{ v0 }}[4], [{ptr}]",
-        "ret",
-        "nop",
+    // 5
+    "ld1.s  {{ v0 }}[0], [{ptr}], #4",
+    "ld1.b  {{ v0 }}[4], [{ptr}]",
+    "ret",
+    "nop",
 
-        // 6
-        "ld1.s  {{ v0 }}[0], [{ptr}], #4",
-        "ld1.h  {{ v0 }}[2], [{ptr}]",
-        "ret",
-        "nop",
+    // 6
+    "ld1.s  {{ v0 }}[0], [{ptr}], #4",
+    "ld1.h  {{ v0 }}[2], [{ptr}]",
+    "ret",
+    "nop",
 
-        // 7
-        "ld1.s  {{ v0 }}[0], [{ptr}], #4",
-        "ld1.h  {{ v0 }}[2], [{ptr}], #2",
-        "ld1.b  {{ v0 }}[6], [{ptr}]",
-        "ret",
+    // 7
+    "ld1.s  {{ v0 }}[0], [{ptr}], #4",
+    "ld1.h  {{ v0 }}[2], [{ptr}], #2",
+    "ld1.b  {{ v0 }}[6], [{ptr}]",
+    "ret",
 
-        // 8
-        "ld1.d  {{ v0 }}[0], [{ptr}]",
-        "ret",
-        "nop",
-        "nop",
+    // 8
+    "ld1.d  {{ v0 }}[0], [{ptr}]",
+    "ret",
+    "nop",
+    "nop",
 
-        // 9
-        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
-        "ld1.b  {{ v0 }}[8], [{ptr}]",
-        "ret",
-        "nop",
+    // 9
+    "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+    "ld1.b  {{ v0 }}[8], [{ptr}]",
+    "ret",
+    "nop",
 
-        // 10
-        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
-        "ld1.h  {{ v0 }}[4], [{ptr}]",
-        "ret",
-        "nop",
+    // 10
+    "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+    "ld1.h  {{ v0 }}[4], [{ptr}]",
+    "ret",
+    "nop",
 
-        // 11
-        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
-        "ld1.h  {{ v0 }}[4], [{ptr}], #2",
-        "ld1.b  {{ v0 }}[10], [{ptr}]",
-        "ret",
+    // 11
+    "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+    "ld1.h  {{ v0 }}[4], [{ptr}], #2",
+    "ld1.b  {{ v0 }}[10], [{ptr}]",
+    "ret",
 
-        // 12
-        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
-        "ld1.s  {{ v0 }}[2], [{ptr}]",
-        "ret",
-        "nop",
+    // 12
+    "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+    "ld1.s  {{ v0 }}[2], [{ptr}]",
+    "ret",
+    "nop",
 
-        // 13
-        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
-        "ld1.s  {{ v0 }}[2], [{ptr}], #4",
-        "ld1.b  {{ v0 }}[12], [{ptr}]",
-        "ret",
+    // 13
+    "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+    "ld1.s  {{ v0 }}[2], [{ptr}], #4",
+    "ld1.b  {{ v0 }}[12], [{ptr}]",
+    "ret",
 
-        // 14
-        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
-        "ld1.s  {{ v0 }}[2], [{ptr}], #4",
-        "ld1.h  {{ v0 }}[6], [{ptr}]",
-        "ret",
+    // 14
+    "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+    "ld1.s  {{ v0 }}[2], [{ptr}], #4",
+    "ld1.h  {{ v0 }}[6], [{ptr}]",
+    "ret",
 
-        // 15
-        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
-        "ld1.s  {{ v0 }}[2], [{ptr}], #4",
-        "ld1.h  {{ v0 }}[6], [{ptr}], #2",
-        "ld1.b  {{ v0 }}[14], [{ptr}]",
+    // 15
+    "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+    "ld1.s  {{ v0 }}[2], [{ptr}], #4",
+    "ld1.h  {{ v0 }}[6], [{ptr}], #2",
+    "ld1.b  {{ v0 }}[14], [{ptr}]",
 
-        "99:",
-            ptr = inout(reg) ptr,
-            len = in(reg) len,
-            scratch = out(reg) _,
-            lateout("v0") res,
-            options(pure, readonly, nostack)
-        );
-    };
+    "99:",
+        ptr = inout(reg) ptr,
+        len = in(reg) len,
+        scratch = out(reg) _,
+        lateout("v0") res,
+        options(pure, readonly, nostack)
+    );
     res
 }
 
 #[inline(always)]
+#[allow(unused_assignments)]
 fn load_partial_assembly(mut ptr: *const u8, len: usize) -> core::arch::aarch64::uint8x16_t {
     assert!(len < 16);
     let res: core::arch::aarch64::uint8x16_t;
