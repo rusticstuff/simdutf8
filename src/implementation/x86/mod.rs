@@ -6,8 +6,13 @@ pub(crate) mod sse42;
 
 // validate_utf8_basic() std: implementation auto-selection
 
+#[allow(dead_code)]
 const ENABLE_AVX2: bool = true;
+
+#[allow(dead_code)]
 const DELEGATE_TO_STD_FOR_SMALL_INPUTS: bool = true;
+
+#[allow(dead_code)]
 const SMALL_STRING_LIMIT: usize = 9;
 
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
@@ -54,7 +59,7 @@ fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if DELEGATE_SMALL_TO_STD && input.len() < SMALL_STRING_LIMIT {
+    if DELEGATE_TO_STD_FOR_SMALL_INPUTS && input.len() < SMALL_STRING_LIMIT {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -77,7 +82,7 @@ unsafe fn validate_utf8_basic_avx2(
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if DELEGATE_SMALL_TO_STD && input.len() < SMALL_STRING_LIMIT {
+    if DELEGATE_TO_STD_FOR_SMALL_INPUTS && input.len() < SMALL_STRING_LIMIT {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -150,7 +155,7 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if DELEGATE_SMALL_TO_STD && input.len() < SMALL_STRING_LIMIT {
+    if DELEGATE_TO_STD_FOR_SMALL_INPUTS && input.len() < SMALL_STRING_LIMIT {
         return super::validate_utf8_compat_fallback(input);
     }
 
@@ -173,7 +178,7 @@ unsafe fn validate_utf8_compat_avx2(
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if DELEGATE_SMALL_TO_STD && input.len() < SMALL_STRING_LIMIT {
+    if DELEGATE_TO_STD_FOR_SMALL_INPUTS && input.len() < SMALL_STRING_LIMIT {
         return super::validate_utf8_compat_fallback(input);
     }
 

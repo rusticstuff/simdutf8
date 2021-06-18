@@ -626,10 +626,11 @@ macro_rules! simd_input_128_bit {
             #[inline]
             #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new_partial_ordered(ptr: *const u8, len: usize) -> Self {
+                let partial_len = len % 16;
                 if len < 16 {
                     Self {
                         vals: [
-                            SimdU8Value::load_partial(ptr, len),
+                            SimdU8Value::load_partial(ptr, partial_len),
                             SimdU8Value::splat0(),
                             SimdU8Value::splat0(),
                             SimdU8Value::splat0(),
@@ -639,7 +640,7 @@ macro_rules! simd_input_128_bit {
                     Self {
                         vals: [
                             SimdU8Value::load_from(ptr),
-                            SimdU8Value::load_partial(ptr.add(16), len - 16),
+                            SimdU8Value::load_partial(ptr.add(16), partial_len),
                             SimdU8Value::splat0(),
                             SimdU8Value::splat0(),
                         ],
@@ -649,7 +650,7 @@ macro_rules! simd_input_128_bit {
                         vals: [
                             SimdU8Value::load_from(ptr),
                             SimdU8Value::load_from(ptr.add(16)),
-                            SimdU8Value::load_partial(ptr.add(32), len - 32),
+                            SimdU8Value::load_partial(ptr.add(32), partial_len),
                             SimdU8Value::splat0(),
                         ],
                     }
@@ -659,7 +660,7 @@ macro_rules! simd_input_128_bit {
                             SimdU8Value::load_from(ptr),
                             SimdU8Value::load_from(ptr.add(16)),
                             SimdU8Value::load_from(ptr.add(32)),
-                            SimdU8Value::load_partial(ptr.add(48), len - 48),
+                            SimdU8Value::load_partial(ptr.add(48), partial_len),
                         ],
                     }
                 }
