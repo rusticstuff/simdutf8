@@ -17,6 +17,7 @@ core_affinity = "0.5"
 criterion = "0.3"
 simdutf8 = { version = "*", path = "..", features = ["aarch64_neon"] }
 simdjson-utf8 = { version = "*", path = "simdjson-utf8", optional = true }
+rand = "0.8"
 
 [[bench]]
 name = "throughput_basic"
@@ -38,3 +39,11 @@ harness = false
 name = "throughput_simdjson"
 harness = false
 required-features = ["simdjson"]
+
+[[bench]]
+name = "small_compat"
+harness = false
+
+[[bench]]
+name = "small_std"
+harness = false
