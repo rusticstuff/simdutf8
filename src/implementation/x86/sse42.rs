@@ -23,6 +23,8 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
 
+// _mm_loadu_si64
+
 impl SimdU8Value {
     #[target_feature(enable = "sse4.2")]
     #[inline]
@@ -172,17 +174,17 @@ impl SimdU8Value {
                 );
                 _mm_insert_epi8(val, i32::from(ptr.add(6).cast::<i8>().read_unaligned()), 6)
             }
-            8 => _mm_bsrli_si128(_mm_loadu_si64(ptr), 8),
+            8 => _mm_loadu_si64(ptr),
             9 => {
-                let val = _mm_bsrli_si128(_mm_loadu_si64(ptr), 8);
+                let val = _mm_loadu_si64(ptr);
                 _mm_insert_epi8(val, i32::from(ptr.add(8).cast::<i8>().read_unaligned()), 8)
             }
             10 => {
-                let val = _mm_bsrli_si128(_mm_loadu_si64(ptr), 8);
+                let val = _mm_loadu_si64(ptr);
                 _mm_insert_epi16(val, i32::from(ptr.add(8).cast::<i16>().read_unaligned()), 4)
             }
             11 => {
-                let mut val = _mm_bsrli_si128(_mm_loadu_si64(ptr), 8);
+                let mut val = _mm_loadu_si64(ptr);
                 val =
                     _mm_insert_epi16(val, i32::from(ptr.add(8).cast::<i16>().read_unaligned()), 4);
                 _mm_insert_epi8(
