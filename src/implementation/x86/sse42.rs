@@ -23,8 +23,6 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
 
-// _mm_loadu_si64
-
 impl SimdU8Value {
     #[target_feature(enable = "sse4.2")]
     #[inline]
