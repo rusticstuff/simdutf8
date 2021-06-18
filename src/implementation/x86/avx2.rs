@@ -350,7 +350,6 @@ mod test {
 }
 
 const PREFETCH: bool = true;
-const PREVENT_REMAINDER_LOOP_UNROLLING: bool = false;
 #[allow(unused_imports)]
 use crate::implementation::helpers::TempSimdChunkA32 as TempSimdChunk;
 simd_input_256_bit!("avx2");
