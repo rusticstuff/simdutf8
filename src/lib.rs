@@ -17,6 +17,10 @@
     all(feature = "aarch64_neon", target_arch = "aarch64"),
     feature(stdsimd)
 )]
+#![cfg_attr(
+    all(feature = "aarch64_neon", target_arch = "aarch64"),
+    feature(asm)
+)]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
 //! [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs), but now heavily improved.

@@ -9,6 +9,247 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 
 // aarch64 SIMD primitives
 
+#[inline(never)]
+/// C ABI spec is necessary so that the loaded value is returned in a register
+unsafe extern "C" fn load_partial_assembly_opt_call(
+    mut ptr: *const u8,
+    len: usize,
+) -> core::arch::aarch64::uint8x16_t {
+    let res: core::arch::aarch64::uint8x16_t;
+    unsafe {
+        asm!(
+        "movi.2d v0, #0000000000000000",
+        "cmp {len}, 15",
+        "b.hi 99f",
+        "adr {scratch}, #12",
+        "adds {scratch}, {scratch}, {len}, lsl #4",
+        "br {scratch}",
+
+        // 0
+        "ret",
+        "nop",
+        "nop",
+        "nop",
+
+        // 1
+        "ld1.b  {{ v0 }}[0], [{ptr}]",
+        "ret",
+        "nop",
+        "nop",
+
+        // 2
+        "ld1.h  {{ v0 }}[0], [{ptr}]",
+        "ret",
+        "nop",
+        "nop",
+
+        // 3
+        "ld1.h  {{ v0 }}[0], [{ptr}], #2",
+        "ld1.b  {{ v0 }}[2], [{ptr}]",
+        "ret",
+        "nop",
+
+        // 4
+        "ld1.s  {{ v0 }}[0], [{ptr}]",
+        "ret",
+        "nop",
+        "nop",
+
+        // 5
+        "ld1.s  {{ v0 }}[0], [{ptr}], #4",
+        "ld1.b  {{ v0 }}[4], [{ptr}]",
+        "ret",
+        "nop",
+
+        // 6
+        "ld1.s  {{ v0 }}[0], [{ptr}], #4",
+        "ld1.h  {{ v0 }}[2], [{ptr}]",
+        "ret",
+        "nop",
+
+        // 7
+        "ld1.s  {{ v0 }}[0], [{ptr}], #4",
+        "ld1.h  {{ v0 }}[2], [{ptr}], #2",
+        "ld1.b  {{ v0 }}[6], [{ptr}]",
+        "ret",
+
+        // 8
+        "ld1.d  {{ v0 }}[0], [{ptr}]",
+        "ret",
+        "nop",
+        "nop",
+
+        // 9
+        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+        "ld1.b  {{ v0 }}[8], [{ptr}]",
+        "ret",
+        "nop",
+
+        // 10
+        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+        "ld1.h  {{ v0 }}[4], [{ptr}]",
+        "ret",
+        "nop",
+
+        // 11
+        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+        "ld1.h  {{ v0 }}[4], [{ptr}], #2",
+        "ld1.b  {{ v0 }}[10], [{ptr}]",
+        "ret",
+
+        // 12
+        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+        "ld1.s  {{ v0 }}[2], [{ptr}]",
+        "ret",
+        "nop",
+
+        // 13
+        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+        "ld1.s  {{ v0 }}[2], [{ptr}], #4",
+        "ld1.b  {{ v0 }}[12], [{ptr}]",
+        "ret",
+
+        // 14
+        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+        "ld1.s  {{ v0 }}[2], [{ptr}], #4",
+        "ld1.h  {{ v0 }}[6], [{ptr}]",
+        "ret",
+
+        // 15
+        "ld1.d  {{ v0 }}[0], [{ptr}], #8",
+        "ld1.s  {{ v0 }}[2], [{ptr}], #4",
+        "ld1.h  {{ v0 }}[6], [{ptr}], #2",
+        "ld1.b  {{ v0 }}[14], [{ptr}]",
+
+        "99:",
+            ptr = inout(reg) ptr,
+            len = in(reg) len,
+            scratch = out(reg) _,
+            lateout("v0") res,
+            options(pure, readonly, nostack)
+        );
+    };
+    res
+}
+
+#[inline(always)]
+fn load_partial_assembly(mut ptr: *const u8, len: usize) -> core::arch::aarch64::uint8x16_t {
+    assert!(len < 16);
+    let res: core::arch::aarch64::uint8x16_t;
+    unsafe {
+        asm!(
+        "movi.2d {res:v}, #0000000000000000",
+        "adr {scratch}, #12",
+        "adds {scratch}, {scratch}, {len}, lsl #4",
+        "br {scratch}",
+
+        // 0
+        "b 99f",
+        "nop",
+        "nop",
+        "nop",
+
+        // 1
+        "ld1.b  {{ {res:v} }}[0], [{ptr}]",
+        "b 99f",
+        "nop",
+        "nop",
+
+        // 2
+        "ld1.h  {{ {res:v} }}[0], [{ptr}]",
+        "b 99f",
+        "nop",
+        "nop",
+
+        // 3
+        "ld1.h  {{ {res:v} }}[0], [{ptr}], #2",
+        "ld1.b  {{ {res:v} }}[2], [{ptr}]",
+        "b 99f",
+        "nop",
+
+        // 4
+        "ld1.s  {{ {res:v} }}[0], [{ptr}]",
+        "b 99f",
+        "nop",
+        "nop",
+
+        // 5
+        "ld1.s  {{ {res:v} }}[0], [{ptr}], #4",
+        "ld1.b  {{ {res:v} }}[4], [{ptr}]",
+        "b 99f",
+        "nop",
+
+        // 6
+        "ld1.s  {{ {res:v} }}[0], [{ptr}], #4",
+        "ld1.h  {{ {res:v} }}[2], [{ptr}]",
+        "b 99f",
+        "nop",
+
+        // 7
+        "ld1.s  {{ {res:v} }}[0], [{ptr}], #4",
+        "ld1.h  {{ {res:v} }}[2], [{ptr}], #2",
+        "ld1.b  {{ {res:v} }}[6], [{ptr}]",
+        "b 99f",
+
+        // 8
+        "ld1.d  {{ {res:v} }}[0], [{ptr}]",
+        "b 99f",
+        "nop",
+        "nop",
+
+        // 9
+        "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+        "ld1.b  {{ {res:v} }}[8], [{ptr}]",
+        "b 99f",
+        "nop",
+
+        // 10
+        "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+        "ld1.h  {{ {res:v} }}[4], [{ptr}]",
+        "b 99f",
+        "nop",
+
+        // 11
+        "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+        "ld1.h  {{ {res:v} }}[4], [{ptr}], #2",
+        "ld1.b  {{ {res:v} }}[10], [{ptr}]",
+        "b 99f",
+
+        // 12
+        "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+        "ld1.s  {{ {res:v} }}[2], [{ptr}]",
+        "b 99f",
+        "nop",
+
+        // 13
+        "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+        "ld1.s  {{ {res:v} }}[2], [{ptr}], #4",
+        "ld1.b  {{ {res:v} }}[12], [{ptr}]",
+        "b 99f",
+
+        // 14
+        "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+        "ld1.s  {{ {res:v} }}[2], [{ptr}], #4",
+        "ld1.h  {{ {res:v} }}[6], [{ptr}]",
+        "b 99f",
+
+        // 15
+        "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+        "ld1.s  {{ {res:v} }}[2], [{ptr}], #4",
+        "ld1.h  {{ {res:v} }}[6], [{ptr}], #2",
+        "ld1.b  {{ {res:v} }}[14], [{ptr}]",
+
+        "99:",
+            ptr = inout(reg) ptr,
+            len = in(reg) len,
+            scratch = out(reg) _,
+            res = lateout(vreg) res,
+            options(pure, readonly, nostack)
+        );
+    };
+    res
+}
+
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<uint8x16_t>;
 
 impl SimdU8Value {
@@ -102,6 +343,13 @@ impl SimdU8Value {
 
     #[inline]
     unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+        SimdU8Value::from(load_partial_assembly(ptr, len))
+        // SimdU8Value::from(load_partial_assembly_opt_call(ptr, len))
+        // SimdU8Value::from(Self::load_partial_imp(ptr, len))
+    }
+
+    #[inline(always)]
+    unsafe fn load_partial_imp(ptr: *const u8, len: usize) -> uint8x16_t {
         let mut res = Self::splat0();
         match len {
             0 => {}
@@ -268,7 +516,7 @@ impl SimdU8Value {
                 debug_assert!(false);
             }
         }
-        res
+        res.0
     }
 
     #[inline]
