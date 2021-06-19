@@ -41,6 +41,10 @@ harness = false
 required-features = ["simdjson"]
 
 [[bench]]
+name = "small_basic"
+harness = false
+
+[[bench]]
 name = "small_compat"
 harness = false
 
