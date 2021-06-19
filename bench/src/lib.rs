@@ -145,24 +145,7 @@ fn get_valid_slice_of_len_or_more_aligned(
 
 fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_fn: BenchFn) {
     let mut group = c.benchmark_group(name);
-    let mut sizes = HashSet::new();
-    for i in 1..129 {
-        let alignment = Alignment {
-            boundary: 64,
-            offset: 8, // 8 is the default alignment on 64-bit, so this is what can be expected worst-case
-        };
-        let (vec, offset) = get_valid_slice_of_len_or_more_aligned(bytes, i, alignment);
-        let slice = &vec[offset..];
-        assert_eq!(
-            (slice.as_ptr() as usize) % alignment.boundary,
-            alignment.offset
-        );
-        if !sizes.contains(&slice.len()) {
-            bench_input(&mut group, slice, true, true, bench_fn);
-            sizes.insert(slice.len());
-        }
-    }
-    for i in [512, 4096, 65536, 131072].iter() {
+    for i in [1, 8, 64, 512, 4096, 65536, 131072].iter() {
         let alignment = Alignment {
             boundary: 64,
             offset: 8, // 8 is the default alignment on 64-bit, so this is what can be expected worst-case
