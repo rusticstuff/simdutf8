@@ -131,12 +131,12 @@ jobs:
         env:
           RUSTDOCFLAGS: --cfg docsrs
 
-  cross-build-arm:
+  cross-build-arm32:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         toolchain: ["1.38.0", stable, beta, nightly ]
-        target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
+        target: [arm-unknown-linux-gnueabi]
         features: ["--features std", ""]
         include:
           - toolchain: nightly
@@ -204,7 +204,10 @@ jobs:
         run: cargo fmt -- --check
 
   clippy_check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ARM64]
     steps:
       - uses: actions/checkout@v1
       - name: Update rustup
