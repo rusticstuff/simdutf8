@@ -39,8 +39,7 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
-jobs:
-  test:
+  test-arm64:
     runs-on: ARM64
     strategy:
       matrix:
