@@ -43,7 +43,7 @@ jobs:
     runs-on: ARM64
     strategy:
       matrix:
-        features: ["", "--features std" "--features aarch64_neon,std", "--features aarch64_neon,std,publi_imp", "--features aarch64_neon,std,public_imp"]
+        features: ["", "--features std", "--features aarch64_neon,std", "--features aarch64_neon,std,publi_imp", "--features aarch64_neon,std,public_imp"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
