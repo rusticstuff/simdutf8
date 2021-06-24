@@ -39,6 +39,24 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
+jobs:
+  test:
+    runs-on: ARM64
+    strategy:
+      matrix:
+        features: ["", "--features std" "--features aarch64_neon,std", "--features aarch64_neon,std,publi_imp", "--features aarch64_neon,std,public_imp"]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            profile: minimal
+            override: true
+      - name: Run tests
+        run: cargo test --no-default-features ${{ matrix.features }} --all-targets --verbose
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
+
   test-inlining-x86:
     runs-on: ubuntu-latest
     strategy:
