@@ -10,6 +10,7 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 // aarch64 SIMD primitives
 
 #[inline(never)]
+#[allow(clippy::too_many_lines)]
 #[allow(unused_assignments)]
 #[allow(improper_ctypes_definitions)]
 /// C ABI spec is necessary so that the loaded value is returned in a register
@@ -133,6 +134,8 @@ unsafe extern "C" fn load_partial_assembly_opt_call(
 }
 
 #[inline(always)]
+#[allow(clippy::too_many_lines)]
+#[allow(clippy::inline_always)]
 #[allow(unused_assignments)]
 fn load_partial_assembly(mut ptr: *const u8, len: usize) -> core::arch::aarch64::uint8x16_t {
     assert!(len < 16);
@@ -344,12 +347,14 @@ impl SimdU8Value {
 
     #[inline]
     unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
-        SimdU8Value::from(load_partial_assembly(ptr, len))
-        // SimdU8Value::from(load_partial_assembly_opt_call(ptr, len))
-        // SimdU8Value::from(Self::load_partial_imp(ptr, len))
+        Self::from(load_partial_assembly(ptr, len))
+        // Self::from(load_partial_assembly_opt_call(ptr, len))
+        // Self::from(Self::load_partial_imp(ptr, len))
     }
 
     #[inline(always)]
+    #[allow(clippy::inline_always)]
+    #[allow(clippy::too_many_lines)]
     unsafe fn load_partial_imp(ptr: *const u8, len: usize) -> uint8x16_t {
         let mut res = Self::splat0();
         match len {
