@@ -192,7 +192,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        os: [ubuntu-latest, ARM64]
+        runner: [ubuntu-latest, ARM64]
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
