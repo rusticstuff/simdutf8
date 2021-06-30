@@ -349,13 +349,13 @@ impl SimdU8Value {
     unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
         Self::from(load_partial_assembly(ptr, len))
         // Self::from(load_partial_assembly_opt_call(ptr, len))
-        // Self::from(Self::load_partial_imp(ptr, len))
+        // Self::from(Self::load_partial_intrinsics(ptr, len))
     }
 
     #[inline(always)]
     #[allow(clippy::inline_always)]
     #[allow(clippy::too_many_lines)]
-    unsafe fn load_partial_imp(ptr: *const u8, len: usize) -> uint8x16_t {
+    unsafe fn load_partial_intrinsics(ptr: *const u8, len: usize) -> uint8x16_t {
         let mut res = Self::splat0();
         match len {
             0 => {}
