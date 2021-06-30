@@ -2,7 +2,6 @@ use criterion::{measurement::Measurement, BenchmarkGroup, BenchmarkId, Criterion
 use simdutf8::basic::from_utf8 as basic_from_utf8;
 use simdutf8::compat::from_utf8 as compat_from_utf8;
 
-use std::collections::HashSet;
 use std::str::from_utf8 as std_from_utf8;
 
 #[cfg(feature = "simdjson")]
@@ -166,8 +165,8 @@ fn bench_small<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], b
     bench_range(&mut group, bytes, 0, 16, bench_fn);
     bench_range(&mut group, bytes, 16, 32, bench_fn);
     bench_range(&mut group, bytes, 32, 64, bench_fn);
-    bench_range(&mut group, bytes, 65, 127, bench_fn);
-    bench_range(&mut group, bytes, 129, 255, bench_fn);
+    bench_range(&mut group, bytes, 64, 128, bench_fn);
+    bench_range(&mut group, bytes, 128, 256, bench_fn);
     group.finish();
 }
 
@@ -189,29 +188,31 @@ fn bench_range<T: Measurement>(
     upper_limit: usize,
     bench_fn: BenchFn,
 ) {
+    let bench_id = format!("rand_{:03}-{:03}", lower_limit, upper_limit);
+    let gen_fn = || gen_valid_in_range(bytes, lower_limit, upper_limit);
     match bench_fn {
         BenchFn::Basic => {
-            group.bench_function(format!("rand_{}-{}", lower_limit, upper_limit), |b| {
+            group.bench_function(bench_id, |b| {
                 b.iter_batched(
-                    || gen_valid_in_range(bytes, lower_limit, upper_limit),
+                    gen_fn,
                     |x| assert!(basic_from_utf8(&bytes[0..x]).is_ok()),
                     criterion::BatchSize::SmallInput,
                 )
             });
         }
         BenchFn::Compat => {
-            group.bench_function(format!("rand_{}-{}", lower_limit, upper_limit), |b| {
+            group.bench_function(bench_id, |b| {
                 b.iter_batched(
-                    || gen_valid_in_range(bytes, lower_limit, upper_limit),
+                    gen_fn,
                     |x| assert!(compat_from_utf8(&bytes[0..x]).is_ok()),
                     criterion::BatchSize::SmallInput,
                 )
             });
         }
         BenchFn::Std => {
-            group.bench_function(format!("rand_{}-{}", lower_limit, upper_limit), |b| {
+            group.bench_function(bench_id, |b| {
                 b.iter_batched(
-                    || gen_valid_in_range(bytes, lower_limit, upper_limit),
+                    gen_fn,
                     |x| assert!(std_from_utf8(&bytes[0..x]).is_ok()),
                     criterion::BatchSize::SmallInput,
                 )
