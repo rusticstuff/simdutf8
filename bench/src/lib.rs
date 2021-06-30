@@ -167,6 +167,7 @@ fn bench_small<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], b
     bench_range(&mut group, bytes, 16, 32, bench_fn);
     bench_range(&mut group, bytes, 32, 64, bench_fn);
     bench_range(&mut group, bytes, 65, 127, bench_fn);
+    bench_range(&mut group, bytes, 129, 255, bench_fn);
     group.finish();
 }
 
