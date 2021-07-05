@@ -71,7 +71,7 @@ impl std::error::Error for Utf8Error {}
 /// Analogue to [`std::str::from_utf8_mut()`].
 ///
 /// Checks if the passed byte sequence is valid UTF-8 and returns an
-/// [`std::str``] reference to the passed byte slice wrapped in `Ok()` if it is.
+/// [`std::str`] reference to the passed byte slice wrapped in `Ok()` if it is.
 ///
 /// # Errors
 /// Will return Err([`Utf8Error`]) on if the input contains invalid UTF-8 with
@@ -87,7 +87,7 @@ pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
 /// Analogue to [`std::str::from_utf8_mut()`].
 ///
 /// Checks if the passed mutable byte sequence is valid UTF-8 and returns a mutable
-/// [`std::str``] reference to the passed byte slice wrapped in `Ok()` if it is.
+/// [`std::str`] reference to the passed byte slice wrapped in `Ok()` if it is.
 ///
 /// # Errors
 /// Will return Err([`Utf8Error`]) on if the input contains invalid UTF-8 with
