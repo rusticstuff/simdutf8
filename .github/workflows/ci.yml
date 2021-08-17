@@ -21,7 +21,7 @@ jobs:
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
         exclude:
-            - os: macos-latest
+            - os: macos-11
               rustflags: "-C target-feature=+avx2"
     steps:
       - uses: actions/checkout@v2
