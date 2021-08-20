@@ -15,7 +15,8 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(
     all(feature = "aarch64_neon", target_arch = "aarch64"),
-    feature(stdsimd)
+    feature(stdsimd),
+    feature(asm)
 )]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from

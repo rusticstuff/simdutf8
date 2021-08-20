@@ -101,6 +101,306 @@ impl SimdU8Value {
     }
 
     #[inline]
+    unsafe fn load_partial(ptr: *const u8, len: usize) -> Self {
+        Self::from(Self::load_partial_assembly(ptr, len))
+        // Self::from(Self::load_partial_intrinsics(ptr, len))
+    }
+
+    #[inline(always)]
+    #[allow(clippy::inline_always)]
+    #[allow(clippy::too_many_lines)]
+    unsafe fn load_partial_intrinsics(ptr: *const u8, len: usize) -> uint8x16_t {
+        let mut res = Self::splat0();
+        match len {
+            0 => {}
+            1 => {
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr, res.0, 0);
+            }
+            2 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+            }
+            3 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(2), res.0, 2);
+            }
+            4 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+            }
+            5 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(4), res.0, 4);
+            }
+            6 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(4).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+            }
+            7 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(4).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(6), res.0, 6);
+            }
+            8 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+            }
+            9 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(8), res.0, 8);
+            }
+            10 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    4,
+                ));
+            }
+            11 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    4,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(10), res.0, 10);
+            }
+            12 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+            }
+            13 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(12), res.0, 12);
+            }
+            14 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(12).cast(),
+                    core::mem::transmute(res.0),
+                    6,
+                ));
+            }
+            15 => {
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u64(
+                    ptr.cast(),
+                    core::mem::transmute(res.0),
+                    0,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u32(
+                    ptr.add(8).cast(),
+                    core::mem::transmute(res.0),
+                    2,
+                ));
+                res.0 = core::mem::transmute(core::arch::aarch64::vld1q_lane_u16(
+                    ptr.add(12).cast(),
+                    core::mem::transmute(res.0),
+                    6,
+                ));
+                res.0 = core::arch::aarch64::vld1q_lane_u8(ptr.add(14), res.0, 14);
+            }
+            _ => {
+                // not allowed
+                debug_assert!(false);
+            }
+        }
+        res.0
+    }
+
+    #[inline(always)]
+    #[allow(clippy::too_many_lines)]
+    #[allow(clippy::inline_always)]
+    #[allow(unused_assignments)]
+    fn load_partial_assembly(mut ptr: *const u8, len: usize) -> core::arch::aarch64::uint8x16_t {
+        assert!(len < 16);
+        let res: core::arch::aarch64::uint8x16_t;
+        unsafe {
+            asm!(
+            "movi.2d {res:v}, #0000000000000000",
+            "adr {scratch}, #12",
+            "adds {scratch}, {scratch}, {len}, lsl #4",
+            "br {scratch}",
+
+            // 0
+            "b 99f",
+            "nop",
+            "nop",
+            "nop",
+
+            // 1
+            "ld1.b  {{ {res:v} }}[0], [{ptr}]",
+            "b 99f",
+            "nop",
+            "nop",
+
+            // 2
+            "ld1.h  {{ {res:v} }}[0], [{ptr}]",
+            "b 99f",
+            "nop",
+            "nop",
+
+            // 3
+            "ld1.h  {{ {res:v} }}[0], [{ptr}], #2",
+            "ld1.b  {{ {res:v} }}[2], [{ptr}]",
+            "b 99f",
+            "nop",
+
+            // 4
+            "ld1.s  {{ {res:v} }}[0], [{ptr}]",
+            "b 99f",
+            "nop",
+            "nop",
+
+            // 5
+            "ld1.s  {{ {res:v} }}[0], [{ptr}], #4",
+            "ld1.b  {{ {res:v} }}[4], [{ptr}]",
+            "b 99f",
+            "nop",
+
+            // 6
+            "ld1.s  {{ {res:v} }}[0], [{ptr}], #4",
+            "ld1.h  {{ {res:v} }}[2], [{ptr}]",
+            "b 99f",
+            "nop",
+
+            // 7
+            "ld1.s  {{ {res:v} }}[0], [{ptr}], #4",
+            "ld1.h  {{ {res:v} }}[2], [{ptr}], #2",
+            "ld1.b  {{ {res:v} }}[6], [{ptr}]",
+            "b 99f",
+
+            // 8
+            "ld1.d  {{ {res:v} }}[0], [{ptr}]",
+            "b 99f",
+            "nop",
+            "nop",
+
+            // 9
+            "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+            "ld1.b  {{ {res:v} }}[8], [{ptr}]",
+            "b 99f",
+            "nop",
+
+            // 10
+            "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+            "ld1.h  {{ {res:v} }}[4], [{ptr}]",
+            "b 99f",
+            "nop",
+
+            // 11
+            "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+            "ld1.h  {{ {res:v} }}[4], [{ptr}], #2",
+            "ld1.b  {{ {res:v} }}[10], [{ptr}]",
+            "b 99f",
+
+            // 12
+            "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+            "ld1.s  {{ {res:v} }}[2], [{ptr}]",
+            "b 99f",
+            "nop",
+
+            // 13
+            "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+            "ld1.s  {{ {res:v} }}[2], [{ptr}], #4",
+            "ld1.b  {{ {res:v} }}[12], [{ptr}]",
+            "b 99f",
+
+            // 14
+            "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+            "ld1.s  {{ {res:v} }}[2], [{ptr}], #4",
+            "ld1.h  {{ {res:v} }}[6], [{ptr}]",
+            "b 99f",
+
+            // 15
+            "ld1.d  {{ {res:v} }}[0], [{ptr}], #8",
+            "ld1.s  {{ {res:v} }}[2], [{ptr}], #4",
+            "ld1.h  {{ {res:v} }}[6], [{ptr}], #2",
+            "ld1.b  {{ {res:v} }}[14], [{ptr}]",
+
+            "99:",
+                ptr = inout(reg) ptr,
+                len = in(reg) len,
+                scratch = out(reg) _,
+                res = lateout(vreg) res,
+                options(pure, readonly, nostack)
+            );
+        };
+        res
+    }
+
+    #[inline]
     #[allow(clippy::too_many_arguments)]
     unsafe fn lookup_16(
         self,
@@ -233,6 +533,7 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 }
 
 const PREFETCH: bool = false;
+#[allow(unused_imports)]
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!("not_used");
 algorithm_simd!("not_used");

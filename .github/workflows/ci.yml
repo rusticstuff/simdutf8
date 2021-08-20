@@ -35,6 +35,23 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
+  test-arm64:
+    runs-on: ARM64
+    strategy:
+      matrix:
+        features: ["", "--features std", "--features aarch64_neon,std", "--features aarch64_neon,std,public_imp", "--features aarch64_neon,std,public_imp"]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            profile: minimal
+            override: true
+      - name: Run tests
+        run: cargo test --no-default-features ${{ matrix.features }} --all-targets --verbose
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
+
   test-inlining-x86:
     runs-on: ubuntu-latest
     strategy:
@@ -106,12 +123,12 @@ jobs:
         env:
           RUSTDOCFLAGS: --cfg docsrs
 
-  cross-build-arm:
+  cross-build-arm32:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         toolchain: ["1.38.0", stable, beta, nightly ]
-        target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
+        target: [arm-unknown-linux-gnueabi]
         features: ["--features std", ""]
         include:
           - toolchain: nightly
@@ -172,7 +189,10 @@ jobs:
         run: cargo fmt -- --check
 
   clippy_check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ARM64]
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1

@@ -37,6 +37,76 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
     validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
+#[inline]
+unsafe fn memcpy_u32(src: &mut *const u8, dest: &mut *mut u8) {
+    #[allow(clippy::cast_ptr_alignment)]
+    dest.cast::<u32>()
+        .write_unaligned(src.cast::<u32>().read_unaligned());
+    *src = src.offset(4);
+    *dest = dest.offset(4);
+}
+
+#[inline]
+unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
+    #[allow(clippy::cast_ptr_alignment)]
+    dest.cast::<u64>()
+        .write_unaligned(src.cast::<u64>().read_unaligned());
+    *src = src.offset(8);
+    *dest = dest.offset(8);
+}
+
+#[allow(dead_code)]
+#[allow(clippy::missing_const_for_fn)] // clippy is wrong, it cannot really be const
+pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_16(
+    mut src: *const u8,
+    mut dest: *mut u8,
+    mut len: usize,
+) {
+    if len >= 8 {
+        memcpy_u32(&mut src, &mut dest);
+        memcpy_u32(&mut src, &mut dest);
+        len -= 8;
+    }
+    if len >= 4 {
+        memcpy_u32(&mut src, &mut dest);
+        len -= 4;
+    }
+    while len > 0 {
+        *dest = *src;
+        src = src.offset(1);
+        dest = dest.offset(1);
+        len -= 1;
+    }
+}
+
+#[allow(dead_code)]
+#[allow(clippy::missing_const_for_fn)] // clippy is wrong, it cannot really be const
+pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_32(
+    mut src: *const u8,
+    mut dest: *mut u8,
+    mut len: usize,
+) {
+    if len >= 16 {
+        memcpy_u64(&mut src, &mut dest);
+        memcpy_u64(&mut src, &mut dest);
+        len -= 16;
+    }
+    if len >= 8 {
+        memcpy_u64(&mut src, &mut dest);
+        len -= 8;
+    }
+    if len >= 4 {
+        memcpy_u32(&mut src, &mut dest);
+        len -= 4;
+    }
+    while len > 0 {
+        *dest = *src;
+        src = src.offset(1);
+        dest = dest.offset(1);
+        len -= 1;
+    }
+}
+
 #[allow(dead_code)]
 #[allow(clippy::missing_const_for_fn)] // clippy is wrong, it cannot really be const
 pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
@@ -44,15 +114,6 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     mut dest: *mut u8,
     mut len: usize,
 ) {
-    // This gets properly auto-vectorized on AVX 2 and SSE 4.2
-    #[inline]
-    unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
-        #[allow(clippy::cast_ptr_alignment)]
-        dest.cast::<u64>()
-            .write_unaligned(src.cast::<u64>().read_unaligned());
-        *src = src.offset(8);
-        *dest = dest.offset(8);
-    }
     if len >= 32 {
         memcpy_u64(&mut src, &mut dest);
         memcpy_u64(&mut src, &mut dest);
@@ -68,6 +129,10 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     if len >= 8 {
         memcpy_u64(&mut src, &mut dest);
         len -= 8;
+    }
+    if len >= 4 {
+        memcpy_u32(&mut src, &mut dest);
+        len -= 4;
     }
     while len > 0 {
         *dest = *src;
@@ -115,3 +180,37 @@ impl TempSimdChunkA32 {
 pub(crate) struct SimdU8Value<T>(pub(crate) T)
 where
     T: Copy;
+
+#[cfg(test)]
+impl<T: Copy> core::fmt::Display for SimdU8Value<T> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        unsafe {
+            if core::mem::size_of::<T>() == 16 {
+                let arr: [u8; 16] = core::mem::transmute_copy(&self.0);
+                write!(f, "{:?}", arr)
+            } else if core::mem::size_of::<T>() == 32 {
+                let arr: [u8; 32] = core::mem::transmute_copy(&self.0);
+                write!(f, "{:?}", arr)
+            } else {
+                Err(core::fmt::Error)
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+impl<T: Copy> core::fmt::LowerHex for SimdU8Value<T> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        unsafe {
+            if core::mem::size_of::<T>() == 16 {
+                let arr: [u8; 16] = core::mem::transmute_copy(&self.0);
+                write!(f, "{:x?}", arr)
+            } else if core::mem::size_of::<T>() == 32 {
+                let arr: [u8; 32] = core::mem::transmute_copy(&self.0);
+                write!(f, "{:x?}", arr)
+            } else {
+                Err(core::fmt::Error)
+            }
+        }
+    }
+}
