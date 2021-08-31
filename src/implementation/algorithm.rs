@@ -1,7 +1,7 @@
 /// Macros requires newtypes in scope:
 /// `SimdU8Value` - implementation of SIMD primitives
 /// `SimdInput` - which  holds 64 bytes of SIMD input
-/// `TempSimdChunk` - correctly aligned TempSimdChunk, either TempSimdChunkA16 or TempSimdChunkA32
+/// `TempSimdChunk` - correctly aligned `TempSimdChunk`, either `TempSimdChunkA16` or `TempSimdChunkA32`
 
 macro_rules! algorithm_simd {
     ($feat:expr) => {
