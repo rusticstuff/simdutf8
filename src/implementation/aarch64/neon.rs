@@ -1,5 +1,8 @@
 //! Contains the aarch64 UTF-8 validation implementation.
 
+// False positive, see https://github.com/rust-lang/rust-clippy/issues/7768
+#![allow(clippy::semicolon_if_nothing_returned)]
+
 use core::arch::aarch64::{
     _prefetch, uint8x16_t, vandq_u8, vcgtq_u8, vdupq_n_u8, veorq_u8, vextq_u8, vld1q_u8, vmaxvq_u8,
     vmovq_n_u8, vorrq_u8, vqsubq_u8, vqtbl1q_u8, vshrq_n_u8, _PREFETCH_LOCALITY3, _PREFETCH_READ,
