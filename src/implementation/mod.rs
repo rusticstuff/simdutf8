@@ -49,12 +49,33 @@ pub(super) use aarch64::validate_utf8_basic;
 #[cfg(target_arch = "aarch64")]
 pub(super) use aarch64::validate_utf8_compat;
 
+// arm implementation
+
+#[cfg(target_arch = "arm")]
+pub(crate) mod arm;
+
+#[cfg(target_arch = "arm")]
+pub(super) use arm::validate_utf8_basic;
+
+#[cfg(target_arch = "arm")]
+pub(super) use arm::validate_utf8_compat;
+
 // fallback for unsupported architectures
 
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
+#[cfg(not(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "aarch64",
+    target_arch = "arm"
+)))]
 pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
 
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
+#[cfg(not(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "aarch64",
+    target_arch = "arm"
+)))]
 pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;
 
 // fallback method implementations
