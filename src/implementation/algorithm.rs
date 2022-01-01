@@ -21,7 +21,7 @@ macro_rules! algorithm_simd {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn check_incomplete_pending(&mut self) {
-                self.error = self.error.or(self.incomplete)
+                self.error = self.error.or(self.incomplete);
             }
 
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
@@ -166,7 +166,7 @@ macro_rules! algorithm_simd {
                 self.error = self
                     .error
                     .or(Self::check_multibyte_lengths(input, self.prev, sc));
-                self.prev = input
+                self.prev = input;
             }
 
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
@@ -302,7 +302,6 @@ macro_rules! algorithm_simd {
                         }
                         idx += SIMD_CHUNK_SIZE;
                     }
-                    break;
                 } else {
                     while idx < iter_lim {
                         if PREFETCH {
@@ -327,8 +326,8 @@ macro_rules! algorithm_simd {
                         }
                         idx += SIMD_CHUNK_SIZE;
                     }
-                    break;
                 }
+                break;
             }
             if idx < len {
                 let mut tmpbuf = TempSimdChunk::new();
@@ -389,7 +388,7 @@ macro_rules! algorithm_simd {
             #[inline]
             unsafe fn update(&mut self, mut input: &[u8]) {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
-                if input.len() == 0 {
+                if input.is_empty() {
                     return;
                 }
                 if self.incomplete_len != 0 {
@@ -429,7 +428,7 @@ macro_rules! algorithm_simd {
             unsafe fn finalize(mut self) -> core::result::Result<(), basic::Utf8Error> {
                 if self.incomplete_len != 0 {
                     for i in &mut self.incomplete_data[self.incomplete_len..] {
-                        *i = 0
+                        *i = 0;
                     }
                     self.update_from_incomplete_data();
                 }
@@ -468,9 +467,10 @@ macro_rules! algorithm_simd {
             unsafe fn update_from_chunks(&mut self, input: &[u8]) {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
 
-                if input.len() % SIMD_CHUNK_SIZE != 0 {
-                    panic!("Input size must be a multiple of 64.")
-                }
+                assert!(
+                    input.len() % SIMD_CHUNK_SIZE == 0,
+                    "Input size must be a multiple of 64."
+                );
                 for chunk in input.chunks_exact(SIMD_CHUNK_SIZE) {
                     let input = SimdInput::new(chunk);
                     self.algorithm.check_utf8(input);
