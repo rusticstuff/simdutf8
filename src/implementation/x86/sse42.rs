@@ -216,7 +216,7 @@ impl SimdU8Value {
 impl From<__m128i> for SimdU8Value {
     #[inline]
     fn from(val: __m128i) -> Self {
-        Self { 0: val }
+        Self(val)
     }
 }
 

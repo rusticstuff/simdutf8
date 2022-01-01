@@ -232,7 +232,7 @@ impl SimdU8Value {
 impl From<__m256i> for SimdU8Value {
     #[inline]
     fn from(val: __m256i) -> Self {
-        Self { 0: val }
+        Self(val)
     }
 }
 
