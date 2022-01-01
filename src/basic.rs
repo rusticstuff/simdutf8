@@ -225,4 +225,18 @@ pub mod imp {
             pub use crate::implementation::aarch64::neon::Utf8ValidatorImp;
         }
     }
+
+    /// Includes the wasm32 SIMD implementations.
+    #[cfg(all(feature = "wasm32_simd128", target_arch = "wasm32"))]
+    pub mod wasm32 {
+        /// Includes the simd128-based validation implementation for WASM runtimes.
+        ///
+        /// Using the provided functionality on WASM runtimes that do not support SIMD
+        /// instructions will likely cause a crash.
+        pub mod simd128 {
+            pub use crate::implementation::wasm32::simd128::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::wasm32::simd128::ChunkedUtf8ValidatorImp;
+            pub use crate::implementation::wasm32::simd128::Utf8ValidatorImp;
+        }
+    }
 }

@@ -15,6 +15,7 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
 * 🆕 ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
+* 🆕 WASM (wasm32) SIMD is supported (use feature `wasm32_sim128`)
 * x86-64: Up to 23 times faster than the std library on valid non-ASCII, up to four times faster on ASCII
 * aarch64: Up to eleven times faster than the std library on valid non-ASCII, up to four times faster on ASCII (Apple Silicon)
 * Faster than the original simdjson implementation
@@ -34,6 +35,12 @@ or on ARM64 with Rust Nightly:
 ```toml
 [dependencies]
 simdutf8 = { version = "0.1.3", features = ["aarch64_neon"] }
+```
+
+or for WASM:
+```toml
+[dependencies]
+simdutf8 = { version = "0.1.3", features = ["wasm32_simd128"] }
 ```
 
 Use `simdutf8::basic::from_utf8()` as a drop-in replacement for `std::str::from_utf8()`.
@@ -86,6 +93,54 @@ for the SSE 4.2 implementation.
 ### ARM64
 For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
 not turned on the non-SIMD std library implementation is used.
+
+### WASM32
+For wasm32 support, the crate feature `wasm32_simd128` needs to be enabled.  CAVE: If this feature is not turned on, then
+the non-SIMD std library implementation is used.
+
+#### Building/Targeting WASM
+To build/target WASM outside a `wasm-pack` context, you can do the following:
+
+* Install toolchain with `wasm32-wasi` or `wasm32-unknown-unknown` (e.g. `rustup target add wasm32-wasi`).
+* Install a WASM runtime (e.g. [Wasmer]/[Wasmtime]/[WAVM]).
+* Install `wasm-runner` a simple runner wrapper to run WASM targeted code with a WASM runtime:
+
+```
+$ cargo install wasm-runner
+```
+
+* Add a Cargo configuration file to target `wasm` and allow the unit tests to be run with a WASM VM *by default*:
+
+```
+[build]
+target = "wasm32-wasi"
+rustflags = "-C target-feature=+simd128"
+
+[target.'cfg(target_arch="wasm32")']
+runner = ["wasm-runner", "wasmer"]
+```
+
+* Run the build/tests with the WASM `wasm32_simd128` feature or all features:
+
+```
+$ cargo test --features wasm32_simd128
+$ cargo test --all-features
+```
+
+You can do this without configuration as well:
+
+```
+$ RUSTFLAGS="-C target-feature=+simd128" \
+    CARGO_TARGET_WASM32_WASI_RUNNER="wasm-runner wasmer" \
+    cargo test --target wasm32-wasi --features wasm32_simd128
+$ RUSTFLAGS="-C target-feature=+simd128" \
+    CARGO_TARGET_WASM32_WASI_RUNNER="wasm-runner wasmer" \
+    cargo test --target wasm32-wasi --all-features
+```
+
+[wasmer]: https://wasmer.io/
+[wasmtime]: https://wasmtime.dev/
+[wavm]: https://wavm.github.io/
 
 ### Access to low-level functionality
 
