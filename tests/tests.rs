@@ -147,6 +147,20 @@ fn test_valid_public_imp(input: &[u8]) {
             input, true,
         );
     }
+    #[cfg(all(
+        feature = "wasm32_simd128",
+        target_arch = "wasm32",
+        target_feature = "simd128"
+    ))]
+    unsafe {
+        assert!(simdutf8::basic::imp::wasm32::simd128::validate_utf8(input).is_ok());
+        assert!(simdutf8::compat::imp::wasm32::simd128::validate_utf8(input).is_ok());
+
+        test_streaming::<simdutf8::basic::imp::wasm32::simd128::Utf8ValidatorImp>(input, true);
+        test_chunked_streaming::<simdutf8::basic::imp::wasm32::simd128::ChunkedUtf8ValidatorImp>(
+            input, true,
+        );
+    }
 }
 
 fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
@@ -207,6 +221,22 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
 
         test_streaming::<simdutf8::basic::imp::aarch64::neon::Utf8ValidatorImp>(input, false);
         test_chunked_streaming::<simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp>(
+            input, false,
+        );
+    }
+    #[cfg(all(
+        feature = "wasm32_simd128",
+        target_arch = "wasm32",
+        target_feature = "simd128"
+    ))]
+    unsafe {
+        assert!(simdutf8::basic::imp::wasm32::simd128::validate_utf8(input).is_err());
+        let err = simdutf8::compat::imp::wasm32::simd128::validate_utf8(input).unwrap_err();
+        assert_eq!(err.valid_up_to(), valid_up_to);
+        assert_eq!(err.error_len(), error_len);
+
+        test_streaming::<simdutf8::basic::imp::wasm32::simd128::Utf8ValidatorImp>(input, false);
+        test_chunked_streaming::<simdutf8::basic::imp::wasm32::simd128::ChunkedUtf8ValidatorImp>(
             input, false,
         );
     }
@@ -449,5 +479,16 @@ fn test_sse42_chunked_panic() {
 fn test_neon_chunked_panic() {
     test_chunked_streaming_with_chunk_size::<
         simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp,
+    >(b"abcd", 1, true);
+}
+
+// the test runner will ignore this test probably due to limitations of panic handling/threading
+// of that target--keeping this here so that when it can be tested properly, it will
+#[test]
+#[should_panic]
+#[cfg(all(feature = "public_imp", target_arch = "wasm32"))]
+fn test_simd128_chunked_panic() {
+    test_chunked_streaming_with_chunk_size::<
+        simdutf8::basic::imp::wasm32::simd128::ChunkedUtf8ValidatorImp,
     >(b"abcd", 1, true);
 }
