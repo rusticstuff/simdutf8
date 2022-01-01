@@ -213,7 +213,7 @@ impl SimdU8Value {
 impl From<uint8x16_t> for SimdU8Value {
     #[inline]
     fn from(val: uint8x16_t) -> Self {
-        Self { 0: val }
+        Self(val)
     }
 }
 
