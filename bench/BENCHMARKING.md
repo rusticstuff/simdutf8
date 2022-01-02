@@ -13,9 +13,16 @@ To benchmark just an individual implementation use:
   `cargo bench --bench=throughput_std`
 * simdjson library (C++)
   `cargo bench --features=simdjson --bench=throughput_simdjson`
+* WASM (via [`wasmer`](https://wasmer.io/))
+  `cargo bench --features=simdutf8_wasm --bench="throughput_wasm_*"`
 
 Adding `-- --save-baseline some_name` to the bench commandline and then using [critcmp](https://github.com/BurntSushi/critcmp) to compare benchmarks is handy as well.
 
+## WASM Requirements
+WASM benchmarking requires the installation of the `wasm32-unknown-unknown` target to your toolchain.
+```
+$ rustup target add wasm32-unknown-unknown
+```
 
 ## Various hints and observations
 

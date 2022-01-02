@@ -10,6 +10,16 @@ use simdjson_utf8::validate as simdjson_validate;
 #[macro_use]
 mod macros;
 
+#[cfg(feature = "simdutf8_wasm")]
+mod wasm;
+
+#[derive(Clone, Copy)]
+pub enum WasmFn {
+    Basic,
+    Compat,
+    Std,
+}
+
 #[derive(Clone, Copy)]
 pub enum BenchFn {
     Basic,
@@ -19,6 +29,9 @@ pub enum BenchFn {
 
     #[cfg(feature = "simdjson")]
     Simdjson,
+
+    #[cfg(feature = "simdutf8_wasm")]
+    Wasm(WasmFn),
 }
 
 #[derive(Clone, Copy)]
@@ -190,6 +203,39 @@ fn bench_input<M: Measurement>(
                     b.iter(|| assert_eq!(simdjson_validate(slice), expected_ok));
                 },
             );
+        }
+        #[cfg(feature = "simdutf8_wasm")]
+        BenchFn::Wasm(wasm_fn) => {
+            let validator = wasm::Validator::new(input);
+            match wasm_fn {
+                WasmFn::Basic => {
+                    group.bench_with_input(
+                        BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                        &input,
+                        |b, &_slice| {
+                            b.iter(|| assert_eq!(validator.basic_from_utf8(), expected_ok));
+                        },
+                    );
+                }
+                WasmFn::Compat => {
+                    group.bench_with_input(
+                        BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                        &input,
+                        |b, &_slice| {
+                            b.iter(|| assert_eq!(validator.compat_from_utf8(), expected_ok));
+                        },
+                    );
+                }
+                WasmFn::Std => {
+                    group.bench_with_input(
+                        BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                        &input,
+                        |b, &_slice| {
+                            b.iter(|| assert_eq!(validator.std_from_utf8(), expected_ok));
+                        },
+                    );
+                }
+            }
         }
     }
 }

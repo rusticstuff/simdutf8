@@ -1,0 +1,4 @@
+# Make sure to build wasm32 by default
+[build]
+target = "wasm32-unknown-unknown"
+rustflags = "-C target-feature=+simd128"
