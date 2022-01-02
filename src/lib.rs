@@ -86,6 +86,10 @@
 //! For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
 //! not turned on the non-SIMD std library implementation is used.
 //!
+//! ### WASM32
+//! For wasm32 support, the crate feature `wasm32_simd128` needs to be enabled.  CAVE: If this feature is not turned on, then
+//! the non-SIMD std library implementation is used.
+//!
 //! ### Access to low-level functionality
 //! If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation
 //! implementations are then accessible via [`basic::imp`] and [`compat::imp`]. Traits facilitating streaming validation are available
