@@ -1,0 +1,16 @@
+[package]
+name = "simdutf8-wasm-shim"
+version = "0.0.1"
+authors = ["Almann Goo <almann.goo@gmail.com>"]
+edition = "2018"
+description = "simdutf8 wasm shim for benchmarking"
+documentation = "https://docs.rs/simdutf8/"
+homepage = "https://github.com/rusticstuff/simdutf8"
+repository = "https://github.com/rusticstuff/simdutf8"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+simdutf8 = { version = "*", path = "../..", features = ["wasm32_simd128"] }
+
+[lib]
+crate-type = ["cdylib"]
