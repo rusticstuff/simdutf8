@@ -263,8 +263,6 @@ impl From<v128> for SimdU8Value {
     }
 }
 
-// TODO clean this up relative to the Utf8CheckAlgorithm<SimdU8Value> in neon--this duplicative
-
 impl Utf8CheckAlgorithm<SimdU8Value> {
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
@@ -282,5 +280,5 @@ const fn simd_prefetch(_ptr: *const u8) {
 
 const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
-simd_input_128_bit!("not_used");
-algorithm_simd!("not_used");
+simd_input_128_bit!("simd128");
+algorithm_simd!("simd128");

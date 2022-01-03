@@ -87,8 +87,13 @@
 //! not turned on the non-SIMD std library implementation is used.
 //!
 //! ### WASM32
-//! For wasm32 support, the crate feature `wasm32_simd128` needs to be enabled.  CAVE: If this feature is not turned on, then
-//! the non-SIMD std library implementation is used.
+//! For wasm32 support, the implementation is always selected at compile time based on the targeted feature for the wasm32
+//! target.  Use `RUSTFLAGS="-C target-feature=+simd128"` to enable the WASM SIMD implementation.  WASM, at
+//! the time of this writing, doesn't have a way to detect SIMD through WASM itself.  Although this capability
+//! is available in various WASM host environments (e.g., [wasm-feature-detect] in the web browser), there is no portable
+//! way from within the library to detect this.
+//!
+//! [wasm-feature-detect]: https://github.com/GoogleChromeLabs/wasm-feature-detect
 //!
 //! ### Access to low-level functionality
 //! If you want to be able to call a SIMD implementation directly, use the `public_imp` feature flag. The validation

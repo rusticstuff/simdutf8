@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn main() {
-    if let Ok(_) = env::var("CARGO_FEATURE_SIMDUTF8_WASM") {
+    if env::var("CARGO_FEATURE_SIMDUTF8_WASM").is_ok() {
         // for WASM benchmarking we need to cross-compile the shim crate to a WASM
         // module we can link in on the host platform
         let shim_dir = Path::new("wasm-shim")

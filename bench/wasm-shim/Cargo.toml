@@ -10,7 +10,7 @@ repository = "https://github.com/rusticstuff/simdutf8"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-simdutf8 = { version = "*", path = "../..", features = ["wasm32_simd128"] }
+simdutf8 = { version = "*", path = "../.." }
 
 [lib]
 crate-type = ["cdylib"]
