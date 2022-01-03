@@ -34,9 +34,6 @@ public_imp = []
 # aarch64 NEON SIMD implementation - requires nightly
 aarch64_neon = []
 
-# wasm32 128-bit SIMD implementation
-wasm32_simd128 = []
-
 # deprecated - does not do anything
 hints = []
 

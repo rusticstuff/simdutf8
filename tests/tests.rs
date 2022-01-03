@@ -147,11 +147,7 @@ fn test_valid_public_imp(input: &[u8]) {
             input, true,
         );
     }
-    #[cfg(all(
-        feature = "wasm32_simd128",
-        target_arch = "wasm32",
-        target_feature = "simd128"
-    ))]
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
     unsafe {
         assert!(simdutf8::basic::imp::wasm32::simd128::validate_utf8(input).is_ok());
         assert!(simdutf8::compat::imp::wasm32::simd128::validate_utf8(input).is_ok());
@@ -224,11 +220,7 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
             input, false,
         );
     }
-    #[cfg(all(
-        feature = "wasm32_simd128",
-        target_arch = "wasm32",
-        target_feature = "simd128"
-    ))]
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
     unsafe {
         assert!(simdutf8::basic::imp::wasm32::simd128::validate_utf8(input).is_err());
         let err = simdutf8::compat::imp::wasm32::simd128::validate_utf8(input).unwrap_err();

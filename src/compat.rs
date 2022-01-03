@@ -126,7 +126,7 @@ pub mod imp {
     }
 
     /// Includes the wasm32 SIMD implementations.
-    #[cfg(all(feature = "wasm32_simd128", target_arch = "wasm32"))]
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
     pub mod wasm32 {
         /// Includes the validation implementation for WASM simd128.
         pub mod simd128 {

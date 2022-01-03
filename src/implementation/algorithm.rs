@@ -8,7 +8,7 @@ macro_rules! algorithm_simd {
         use crate::{basic, compat};
 
         impl Utf8CheckAlgorithm<SimdU8Value> {
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn default() -> Self {
                 Self {
@@ -18,13 +18,13 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn check_incomplete_pending(&mut self) {
                 self.error = self.error.or(self.incomplete);
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn is_incomplete(input: SimdU8Value) -> SimdU8Value {
                 input.saturating_sub(SimdU8Value::from_32_cut_off_leading(
@@ -63,7 +63,7 @@ macro_rules! algorithm_simd {
                 ))
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(clippy::too_many_lines)]
             unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
@@ -138,7 +138,7 @@ macro_rules! algorithm_simd {
                 byte_1_high.and(byte_1_low).and(byte_2_high)
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn check_multibyte_lengths(
                 input: SimdU8Value,
@@ -152,13 +152,13 @@ macro_rules! algorithm_simd {
                 must23_80.xor(special_cases)
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn has_error(&self) -> bool {
                 self.error.any_bit_set()
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn check_bytes(&mut self, input: SimdU8Value) {
                 let prev1 = input.prev1(self.prev);
@@ -169,7 +169,7 @@ macro_rules! algorithm_simd {
                 self.prev = input;
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn check_utf8(&mut self, input: SimdInput) {
                 if input.is_ascii() {
@@ -179,7 +179,7 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(unconditional_panic)] // does not panic because len is checked
             #[allow(const_err)] // the same, but for Rust 1.38.0
@@ -211,7 +211,7 @@ macro_rules! algorithm_simd {
         /// This function is inherently unsafe because it is compiled with SIMD extensions
         /// enabled. Make sure that the CPU supports it before calling.
         ///
-        #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+        #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
         #[inline]
         pub unsafe fn validate_utf8_basic(
             input: &[u8],
@@ -267,7 +267,7 @@ macro_rules! algorithm_simd {
         /// This function is inherently unsafe because it is compiled with SIMD extensions
         /// enabled. Make sure that the CPU supports it before calling.
         ///
-        #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+        #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
         #[inline]
         pub unsafe fn validate_utf8_compat(
             input: &[u8],
@@ -276,7 +276,7 @@ macro_rules! algorithm_simd {
                 .map_err(|idx| crate::implementation::helpers::get_compat_error(input, idx))
         }
 
-        #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+        #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
         #[inline]
         unsafe fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
             use crate::implementation::helpers::SIMD_CHUNK_SIZE;
@@ -362,7 +362,7 @@ macro_rules! algorithm_simd {
 
         #[cfg(feature = "public_imp")]
         impl Utf8ValidatorImp {
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn update_from_incomplete_data(&mut self) {
                 let simd_input = SimdInput::new(&self.incomplete_data);
@@ -373,7 +373,7 @@ macro_rules! algorithm_simd {
 
         #[cfg(feature = "public_imp")]
         impl basic::imp::Utf8Validator for Utf8ValidatorImp {
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[must_use]
             unsafe fn new() -> Self {
@@ -384,7 +384,7 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn update(&mut self, mut input: &[u8]) {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
@@ -423,7 +423,7 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn finalize(mut self) -> core::result::Result<(), basic::Utf8Error> {
                 if self.incomplete_len != 0 {
@@ -453,7 +453,7 @@ macro_rules! algorithm_simd {
 
         #[cfg(feature = "public_imp")]
         impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[must_use]
             unsafe fn new() -> Self {
@@ -462,7 +462,7 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn update_from_chunks(&mut self, input: &[u8]) {
                 use crate::implementation::helpers::SIMD_CHUNK_SIZE;
@@ -477,7 +477,7 @@ macro_rules! algorithm_simd {
                 }
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn finalize(
                 mut self,
@@ -524,7 +524,7 @@ macro_rules! simd_input_128_bit {
         }
 
         impl SimdInput {
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
@@ -538,7 +538,7 @@ macro_rules! simd_input_128_bit {
                 }
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 let r1 = self.vals[0].or(self.vals[1]);
@@ -558,7 +558,7 @@ macro_rules! simd_input_256_bit {
         }
 
         impl SimdInput {
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
@@ -570,7 +570,7 @@ macro_rules! simd_input_256_bit {
                 }
             }
 
-            #[cfg_attr(not(any(target_arch="aarch64", target_arch="wasm32")), target_feature(enable = $feat))]
+            #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 self.vals[0].or(self.vals[1]).is_ascii()
