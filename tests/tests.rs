@@ -472,6 +472,7 @@ fn test_sse42_chunked_panic() {
 
 // the test runner will ignore this test probably due to limitations of panic handling/threading
 // of that target--keeping this here so that when it can be tested properly, it will
+// FIXME: remove this comment once this works properly.
 #[test]
 #[should_panic]
 #[cfg(all(feature = "public_imp", target_arch = "wasm32"))]

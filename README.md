@@ -14,8 +14,8 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
-* 🆕 ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
-* 🆕 WASM (wasm32) SIMD is supported (use feature `wasm32_sim128`)
+* ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
+* 🆕 WASM (wasm32) SIMD is supported (use feature `wasm32_simd128`)
 * x86-64: Up to 23 times faster than the std library on valid non-ASCII, up to four times faster on ASCII
 * aarch64: Up to eleven times faster than the std library on valid non-ASCII, up to four times faster on ASCII (Apple Silicon)
 * Faster than the original simdjson implementation
