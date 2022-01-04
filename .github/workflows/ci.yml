@@ -35,6 +35,35 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
+  test-wasm32-wasi:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        # this excludes 1.38.0 because wasm-runner cannot currently be built with that version
+        # however, we will at least cross build it in wasm32-unknown-unknown against 1.38.0
+        toolchain: [stable, beta, nightly]
+        features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
+        rustflags: ["", "-C target-feature=+simd128"]
+        target: [wasm32-wasi]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.toolchain }}
+            target: ${{ matrix.target }}
+            profile: minimal
+            override: true
+      - name: Setup Wasmer
+        uses: wasmerio/setup-wasmer@v1
+      - name: Install WASM Runner
+        run: cargo install wasm-runner
+      - name: Run tests
+        run: cargo test --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --all-targets --verbose
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
+          CARGO_TARGET_WASM32_WASI_RUNNER: wasm-runner wasmer
+
   test-inlining-x86:
     runs-on: ubuntu-latest
     strategy:
@@ -91,6 +120,31 @@ jobs:
           cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
           cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-aarch64-fallback.txt -
           cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-aarch64-fallback.txt -
+
+  test-inlining-wasm32:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [wasm32-wasi, wasm32-unknown-unknown]
+    defaults:
+      run:
+        working-directory: inlining
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            profile: minimal
+            target: ${{ matrix.target }}
+            override: true
+      - name: Install cargo-asm
+        run: cargo install cargo-asm
+      - name: Check if the expected fns are inlined
+        run: |
+          cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-wasm32-simd128.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-wasm32-simd128.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-wasm32-fallback.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-wasm32-fallback.txt -
 
   test-doc:
     runs-on: ubuntu-latest
@@ -154,6 +208,27 @@ jobs:
             profile: minimal
             override: true
       - name: Run tests
+        run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
+
+  cross-build-wasm32-unknown:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain: ["1.38.0", stable, beta, nightly]
+        features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
+        rustflags: ["", "-C target-feature=+simd128"]
+        target: [wasm32-unknown-unknown]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: ${{ matrix.toolchain }}
+            target: ${{ matrix.target }}
+            profile: minimal
+            override: true
+      - name: Run build
         run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}

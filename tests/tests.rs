@@ -479,7 +479,11 @@ fn test_neon_chunked_panic() {
 // FIXME: remove this comment once this works properly.
 #[test]
 #[should_panic]
-#[cfg(all(feature = "public_imp", target_arch = "wasm32"))]
+#[cfg(all(
+    feature = "public_imp",
+    target_arch = "wasm32",
+    target_feature = "simd128"
+))]
 fn test_simd128_chunked_panic() {
     test_chunked_streaming_with_chunk_size::<
         simdutf8::basic::imp::wasm32::simd128::ChunkedUtf8ValidatorImp,
