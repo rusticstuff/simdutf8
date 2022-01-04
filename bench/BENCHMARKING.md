@@ -13,16 +13,29 @@ To benchmark just an individual implementation use:
   `cargo bench --bench=throughput_std`
 * simdjson library (C++)
   `cargo bench --features=simdjson --bench=throughput_simdjson`
-* WASM (via [`wasmer`](https://wasmer.io/))
-  `cargo bench --features=simdutf8_wasm --bench="throughput_wasm_*"`
+* WASM (via [Wasmer](https://wasmer.io/))
+  * basic API
+    `cargo bench --features=simdutf8_wasm_cranelift --bench=throughput_wasm_basic`
+  * compat API
+    `cargo bench --features=simdutf8_wasm_cranelift --bench=throughput_wasm_compat`
+  * std library
+    `cargo bench --features=simdutf8_wasm_cranelift --bench=throughput_wasm_std`
 
 Adding `-- --save-baseline some_name` to the bench commandline and then using [critcmp](https://github.com/BurntSushi/critcmp) to compare benchmarks is handy as well.
 
-## WASM Requirements
+### WASM Specific Instructions
 WASM benchmarking requires the installation of the `wasm32-unknown-unknown` target to your toolchain.
 ```
 $ rustup target add wasm32-unknown-unknown
 ```
+
+Furthermore, you can benchmark using one of Wasmer's Cranelift/LLVM backends by using one of the following features:
+* Cranelift `cargo bench --features=simdutf8_wasm_cranelift --bench=throughput_wasm_basic`
+* LLVM `cargo bench --features=simdutf8_wasm_llvm --bench=throughput_wasm_basic`
+
+Note that for the LLVM back-end, the [`llvm-sys`](https://crates.io/crates/llvm-sys) crate requires an
+installation of LLVM and depending on your setup you will need to set the `LLVM_SYS_<ver>_PREFIX` environment
+variable to your installation for it to be found (e.g., `LLVM_SYS_120_PREFIX` at the time of this writing)
 
 ## Various hints and observations
 
