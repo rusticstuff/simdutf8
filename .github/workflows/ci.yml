@@ -40,9 +40,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # this excludes 1.38.0 because wasm-runner cannot currently be built with that version
-        # however, we will at least cross build it in wasm32-unknown-unknown against 1.38.0
-        toolchain: [stable, beta, nightly]
+        toolchain: ["1.38.0", stable, beta, nightly]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+simd128"]
         target: [wasm32-wasi]
@@ -63,6 +61,7 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
           CARGO_TARGET_WASM32_WASI_RUNNER: wasm-runner wasmer
+          WASM_RUNNER_VERBOSE: 1
 
   test-inlining-x86:
     runs-on: ubuntu-latest
