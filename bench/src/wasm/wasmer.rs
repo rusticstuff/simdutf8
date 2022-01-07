@@ -1,13 +1,13 @@
-//! Provides basic benchmark integration with WASM runtimes (currently Wasmer).
-
-include!(concat!(env!("OUT_DIR"), "/wasm_shim.rs"));
+//! Runtime support for embedding WASM simdutf8 shim into [Wasmer](https://wasmer.io/).
 
 use std::convert::TryInto;
 use wasmer::{imports, Instance, Module, NativeFunc, Store};
 
+use super::{WasmValidator, PAGE_SIZE, WASM_SHIM_CODE};
+
 type ValidatorFunc = NativeFunc<(i32, i32), i32>;
 
-pub struct Validator {
+pub struct WasmerValidator {
     /// The guest function for std implementation.
     std_func: ValidatorFunc,
     /// The guest function for compat implementation.
@@ -20,9 +20,11 @@ pub struct Validator {
     len: i32,
 }
 
-impl Validator {
-    pub fn new(input: &[u8]) -> Self {
+impl WasmValidator for WasmerValidator {
+    fn new(input: &[u8]) -> Self {
         // TODO consider cleaning this up to do better result handling
+
+        // The code here is similar to its wasmtime counterpart but the APIs are subtly different
 
         // we could be smarter and do the compilation once, but as long as we don't benchmark
         // the compilation it doesn't really matter
@@ -49,7 +51,7 @@ impl Validator {
             .try_into()
             .expect("Slice length too big for WASM");
         memory
-            .grow(((input.len() as u32) / 0x10000) + 1)
+            .grow(((input.len() as u32) / PAGE_SIZE as u32) + 1)
             .expect("Unable to grow memory for WASM shim");
 
         // copy input into linear memory
@@ -80,7 +82,7 @@ impl Validator {
     }
 
     #[inline]
-    pub fn std_from_utf8(&self) -> bool {
+    fn std_from_utf8(&mut self) -> bool {
         let len = self
             .std_func
             .call(self.start, self.len)
@@ -89,7 +91,7 @@ impl Validator {
     }
 
     #[inline]
-    pub fn compat_from_utf8(&self) -> bool {
+    fn compat_from_utf8(&mut self) -> bool {
         let len = self
             .compat_func
             .call(self.start, self.len)
@@ -98,7 +100,7 @@ impl Validator {
     }
 
     #[inline]
-    pub fn basic_from_utf8(&self) -> bool {
+    fn basic_from_utf8(&mut self) -> bool {
         let res = self
             .basic_func
             .call(self.start, self.len)

@@ -5,7 +5,9 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn main() {
-    if env::var("CARGO_FEATURE_SIMDUTF8_WASM").is_ok() {
+    if env::var("CARGO_FEATURE_SIMDUTF8_WASMER").is_ok()
+        || env::var("CARGO_FEATURE_SIMDUTF8_WASMTIME").is_ok()
+    {
         // for WASM benchmarking we need to cross-compile the shim crate to a WASM
         // module we can link in on the host platform
         let shim_dir = Path::new("wasm-shim")
@@ -47,7 +49,7 @@ fn main() {
             .expect("Could not create WASM shim Rust file");
         writeln!(
             &mut out_file,
-            "const WASM_SHIM_CODE: &[u8] = include_bytes!({:?});",
+            "pub(crate) const WASM_SHIM_CODE: &[u8] = include_bytes!({:?});",
             module_path
         )
         .expect("Could not write to WASM shim module");
