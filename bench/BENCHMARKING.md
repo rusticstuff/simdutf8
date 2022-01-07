@@ -13,13 +13,16 @@ To benchmark just an individual implementation use:
   `cargo bench --bench=throughput_std`
 * simdjson library (C++)
   `cargo bench --features=simdjson --bench=throughput_simdjson`
-* WASM (via [Wasmer](https://wasmer.io/))
+* WASM (via [Wasmer](https://wasmer.io/) or [Wasmtime](https://wasmtime.dev/))
   * basic API
-    `cargo bench --features=simdutf8_wasm_cranelift --bench=throughput_wasm_basic`
+    `cargo bench --features=simdutf8_wasmer_cranelift --bench=throughput_wasmer_basic` (Wasmer) or
+    `cargo bench --features=simdutf8_wasmtime --bench=throughput_wasmtime_basic` (Wasmtime)
   * compat API
-    `cargo bench --features=simdutf8_wasm_cranelift --bench=throughput_wasm_compat`
+    `cargo bench --features=simdutf8_wasmer_cranelift --bench=throughput_wasmer_compat` (Wasmer) or
+    `cargo bench --features=simdutf8_wasmtime --bench=throughput_wasmtime_compat` (Wasmtime)
   * std library
-    `cargo bench --features=simdutf8_wasm_cranelift --bench=throughput_wasm_std`
+    `cargo bench --features=simdutf8_wasmer_cranelift --bench=throughput_wasmer_std` (Wasmer) or
+    `cargo bench --features=simdutf8_wasmtime --bench=throughput_wasmtime_std` (Wasmtime)
 
 Adding `-- --save-baseline some_name` to the bench commandline and then using [critcmp](https://github.com/BurntSushi/critcmp) to compare benchmarks is handy as well.
 
@@ -30,8 +33,8 @@ $ rustup target add wasm32-unknown-unknown
 ```
 
 Furthermore, you can benchmark using one of Wasmer's Cranelift/LLVM backends by using one of the following features:
-* Cranelift `cargo bench --features=simdutf8_wasm_cranelift --bench=throughput_wasm_basic`
-* LLVM `cargo bench --features=simdutf8_wasm_llvm --bench=throughput_wasm_basic`
+* Cranelift `cargo bench --features=simdutf8_wasmer_cranelift --bench=throughput_wasmer_basic`
+* LLVM `cargo bench --features=simdutf8_wasmer_llvm --bench=throughput_wasmer_basic`
 
 Note that for the LLVM back-end, the [`llvm-sys`](https://crates.io/crates/llvm-sys) crate requires an
 installation of LLVM and depending on your setup you will need to set the `LLVM_SYS_<ver>_PREFIX` environment

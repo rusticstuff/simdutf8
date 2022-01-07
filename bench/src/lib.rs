@@ -10,9 +10,13 @@ use simdjson_utf8::validate as simdjson_validate;
 #[macro_use]
 mod macros;
 
-#[cfg(feature = "simdutf8_wasm")]
+#[cfg(any(feature = "simdutf8_wasmer", feature = "simdutf8_wasmtime"))]
 mod wasm;
 
+#[cfg(any(feature = "simdutf8_wasmer", feature = "simdutf8_wasmtime"))]
+use wasm::WasmValidator;
+
+#[cfg(any(feature = "simdutf8_wasmer", feature = "simdutf8_wasmtime"))]
 #[derive(Clone, Copy)]
 pub enum WasmFn {
     Basic,
@@ -30,8 +34,11 @@ pub enum BenchFn {
     #[cfg(feature = "simdjson")]
     Simdjson,
 
-    #[cfg(feature = "simdutf8_wasm")]
-    Wasm(WasmFn),
+    #[cfg(feature = "simdutf8_wasmer")]
+    Wasmer(WasmFn),
+
+    #[cfg(feature = "simdutf8_wasmtime")]
+    Wasmtime(WasmFn),
 }
 
 #[derive(Clone, Copy)]
@@ -204,38 +211,52 @@ fn bench_input<M: Measurement>(
                 },
             );
         }
-        #[cfg(feature = "simdutf8_wasm")]
-        BenchFn::Wasm(wasm_fn) => {
-            let validator = wasm::Validator::new(input);
-            match wasm_fn {
-                WasmFn::Basic => {
-                    group.bench_with_input(
-                        BenchmarkId::from_parameter(format!("{:06}", input.len())),
-                        &input,
-                        |b, &_slice| {
-                            b.iter(|| assert_eq!(validator.basic_from_utf8(), expected_ok));
-                        },
-                    );
-                }
-                WasmFn::Compat => {
-                    group.bench_with_input(
-                        BenchmarkId::from_parameter(format!("{:06}", input.len())),
-                        &input,
-                        |b, &_slice| {
-                            b.iter(|| assert_eq!(validator.compat_from_utf8(), expected_ok));
-                        },
-                    );
-                }
-                WasmFn::Std => {
-                    group.bench_with_input(
-                        BenchmarkId::from_parameter(format!("{:06}", input.len())),
-                        &input,
-                        |b, &_slice| {
-                            b.iter(|| assert_eq!(validator.std_from_utf8(), expected_ok));
-                        },
-                    );
-                }
-            }
+        #[cfg(feature = "simdutf8_wasmer")]
+        BenchFn::Wasmer(wasm_fn) => {
+            bench_wasm::<wasm::wasmer::WasmerValidator, M>(group, wasm_fn, input, expected_ok);
+        }
+        #[cfg(feature = "simdutf8_wasmtime")]
+        BenchFn::Wasmtime(wasm_fn) => {
+            bench_wasm::<wasm::wasmtime::WasmtimeValidator, M>(group, wasm_fn, input, expected_ok);
+        }
+    }
+}
+
+#[cfg(any(feature = "simdutf8_wasmer", feature = "simdutf8_wasmtime"))]
+fn bench_wasm<V: WasmValidator, M: Measurement>(
+    group: &mut BenchmarkGroup<M>,
+    wasm_fn: WasmFn,
+    input: &[u8],
+    expected_ok: bool,
+) {
+    let mut validator = V::new(input);
+    match wasm_fn {
+        WasmFn::Basic => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                &input,
+                |b, &_slice| {
+                    b.iter(|| assert_eq!(validator.basic_from_utf8(), expected_ok));
+                },
+            );
+        }
+        WasmFn::Compat => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                &input,
+                |b, &_slice| {
+                    b.iter(|| assert_eq!(validator.compat_from_utf8(), expected_ok));
+                },
+            );
+        }
+        WasmFn::Std => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                &input,
+                |b, &_slice| {
+                    b.iter(|| assert_eq!(validator.std_from_utf8(), expected_ok));
+                },
+            );
         }
     }
 }
