@@ -48,7 +48,7 @@ fn test_valid(input: &[u8]) {
     test_valid_public_imp(input);
 }
 
-// unused for cases where public_imp is set but no SSE functions generated...
+// unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
 #[allow(dead_code)]
 fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool) {
@@ -62,7 +62,7 @@ fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool
     }
 }
 
-// unused for cases where public_imp is set but no SSE functions generated...
+// unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
 #[allow(dead_code)]
 fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
@@ -79,7 +79,7 @@ fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
     }
 }
 
-// unused for cases where public_imp is set but no SSE functions generated...
+// unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
 #[allow(dead_code)]
 fn test_chunked_streaming<T: simdutf8::basic::imp::ChunkedUtf8Validator>(input: &[u8], ok: bool) {
@@ -88,7 +88,7 @@ fn test_chunked_streaming<T: simdutf8::basic::imp::ChunkedUtf8Validator>(input: 
     }
 }
 
-// unused for cases where public_imp is set but no SSE functions generated...
+// unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
 #[allow(dead_code)]
 fn test_chunked_streaming_with_chunk_size<T: simdutf8::basic::imp::ChunkedUtf8Validator>(
