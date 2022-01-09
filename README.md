@@ -37,12 +37,6 @@ or on ARM64 with Rust Nightly:
 simdutf8 = { version = "0.1.3", features = ["aarch64_neon"] }
 ```
 
-or for WASM:
-```toml
-[dependencies]
-simdutf8 = { version = "0.1.3" }
-```
-
 Use `simdutf8::basic::from_utf8()` as a drop-in replacement for `std::str::from_utf8()`.
 
 ```rust
@@ -95,7 +89,7 @@ For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` ne
 not turned on the non-SIMD std library implementation is used.
 
 ### WASM32
-For wasm32 support, the implementation is always selected at compile time based on the targeted feature for the wasm32
+For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.```
 target.  Use `RUSTFLAGS="-C target-feature=+simd128"` to enable the WASM SIMD implementation.  WASM, at
 the time of this writing, doesn't have a way to detect SIMD through WASM itself.  Although this capability
 is available in various WASM host environments (e.g., [wasm-feature-detect] in the web browser), there is no portable
