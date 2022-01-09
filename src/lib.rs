@@ -87,7 +87,6 @@
 //! not turned on the non-SIMD std library implementation is used.
 //!
 //! ### WASM32
-`
 //! For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.
 //! Use `RUSTFLAGS="-C target-feature=+simd128"` to enable the WASM SIMD implementation.  WASM, at
 //! the time of this writing, doesn't have a way to detect SIMD through WASM itself.  Although this capability
