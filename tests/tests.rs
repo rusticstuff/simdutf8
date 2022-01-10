@@ -48,7 +48,9 @@ fn test_valid(input: &[u8]) {
     test_valid_public_imp(input);
 }
 
+// unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
+#[allow(dead_code)]
 fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool) {
     unsafe {
         let mut validator = T::new();
@@ -60,7 +62,9 @@ fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool
     }
 }
 
+// unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
+#[allow(dead_code)]
 fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
     input: &[u8],
     block_size: usize,
@@ -75,14 +79,18 @@ fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
     }
 }
 
+// unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
+#[allow(dead_code)]
 fn test_chunked_streaming<T: simdutf8::basic::imp::ChunkedUtf8Validator>(input: &[u8], ok: bool) {
     for i in [64, 128, 256, 1024, 65536].iter() {
         test_chunked_streaming_with_chunk_size::<T>(input, *i, ok)
     }
 }
 
+// unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
+#[allow(dead_code)]
 fn test_chunked_streaming_with_chunk_size<T: simdutf8::basic::imp::ChunkedUtf8Validator>(
     input: &[u8],
     chunk_size: usize,
@@ -433,8 +441,12 @@ fn test_sse42_chunked_panic() {
 
 #[test]
 #[should_panic]
-#[cfg(all(feature = "public_imp", target_arch = "aarch64"))]
-fn test_sse42_chunked_panic() {
+#[cfg(all(
+    feature = "public_imp",
+    target_arch = "aarch64",
+    feature = "aarch64_neon"
+))]
+fn test_neon_chunked_panic() {
     test_chunked_streaming_with_chunk_size::<
         simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp,
     >(b"abcd", 1, true);
