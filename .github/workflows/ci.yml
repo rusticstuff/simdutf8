@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        toolchain: ["1.38.0", stable, beta, nightly]
+        toolchain: [stable, beta, nightly]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
         rustflags: ["", "-C target-feature=+simd128"]
         target: [wasm32-wasi]
