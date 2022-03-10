@@ -77,6 +77,7 @@ pub mod imp {
     /// use simdutf8::basic::imp::Utf8Validator;
     /// use std::io::{stdin, Read, Result};
     ///
+    /// # #[cfg(target_arch = "x86_64")]
     /// fn main() -> Result<()> {
     ///     unsafe {
     ///         if !std::is_x86_feature_detected!("avx2") {
@@ -102,6 +103,9 @@ pub mod imp {
     ///
     ///     Ok(())
     /// }
+    ///
+    /// # #[cfg(not(target_arch = "x86_64"))]
+    /// # fn main() { }
     /// ```
     ///
     pub trait Utf8Validator {
