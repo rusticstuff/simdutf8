@@ -31,7 +31,7 @@ std = []
 # expose SIMD implementations in basic::imp::* and compat::imp::*
 public_imp = []
 
-# aarch64 NEON SIMD implementation - requires nightly
+# aarch64 NEON SIMD implementation - requires Rust 1.59.0 or later
 aarch64_neon = []
 
 # enable aarch64 prefetching for minor speedup - requires nightly
