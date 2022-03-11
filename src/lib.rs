@@ -24,7 +24,7 @@
 //! [dependencies]
 //! simdutf8 = { version = "0.1.3" }
 //! ```
-//! or on ARM64 with Rust Nightly:
+//! For ARM64 SIMD support on Rust 1.59:
 //! ```toml
 //! [dependencies]
 //! simdutf8 = { version = "0.1.3", features = ["aarch64_neon"] }
@@ -79,8 +79,11 @@
 //! for the SSE 4.2 implementation.
 //!
 //! ### ARM64
-//! For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
-//! not turned on the non-SIMD std library implementation is used.
+//! To get the SIMD implementation with Rust 1.59 on ARM64 the crate feature `aarch64_neon` needs to be enabled. For Rust Nightly
+//! this is no longer required (but does not hurt either). Once [Rust PR #90621](https://github.com/rust-lang/rust/pull/90621)
+//! lands in a stable version, this is no longer required.
+//!
+//! CAVE: If this features is not turned on with Rust 1.59 the non-SIMD std library implementation is used.
 //!
 //! ### WASM32
 //! For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.

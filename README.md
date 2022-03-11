@@ -14,7 +14,7 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
-* ARM64 (Aarch64) SIMD is supported with Rust nightly (use feature `aarch64_neon`)
+* 🆕 ARM64 (aarch64) SIMD is supported with Rust 1.59 (use feature `aarch64_neon`) and Nightly (no extra feature needed)
 * 🆕 WASM (wasm32) SIMD is supported
 * x86-64: Up to 23 times faster than the std library on valid non-ASCII, up to four times faster on ASCII
 * aarch64: Up to eleven times faster than the std library on valid non-ASCII, up to four times faster on ASCII (Apple Silicon)
@@ -31,7 +31,7 @@ Add the dependency to your Cargo.toml file:
 [dependencies]
 simdutf8 = { version = "0.1.3" }
 ```
-or on ARM64 with Rust Nightly:
+For ARM64 SIMD support on Rust 1.59:
 ```toml
 [dependencies]
 simdutf8 = { version = "0.1.3", features = ["aarch64_neon"] }
@@ -85,8 +85,11 @@ the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implem
 for the SSE 4.2 implementation.
 
 ### ARM64
-For ARM64 support Nightly Rust is needed and the crate feature `aarch64_neon` needs to be enabled. CAVE: If this features is
-not turned on the non-SIMD std library implementation is used.
+To get the SIMD implementation with Rust 1.59 on ARM64 the crate feature `aarch64_neon` needs to be enabled. For Rust Nightly
+this is no longer required (but does not hurt either). Once[Rust PR #90621](https://github.com/rust-lang/rust/pull/90621)
+lands in a stable version, this is no longer required.
+
+CAVE: If this features is not turned on with Rust 1.59 the non-SIMD std library implementation is used.
 
 ### WASM32
 For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.
