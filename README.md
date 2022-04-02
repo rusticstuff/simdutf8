@@ -85,11 +85,11 @@ the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implem
 for the SSE 4.2 implementation.
 
 ### ARM64
-To get the SIMD implementation with Rust 1.59 on ARM64 the crate feature `aarch64_neon` needs to be enabled. For Rust Nightly
-this is no longer required (but does not hurt either). Once[Rust PR #90621](https://github.com/rust-lang/rust/pull/90621)
-lands in a stable version, this is no longer required.
-
-CAVE: If this features is not turned on with Rust 1.59 the non-SIMD std library implementation is used.
+The SIMD implementation is only available on Rust Nightly and Rust 1.59 or later. On Rust Nightly it is now turned on
+automatically.
+To get the SIMD implementation with Rust 1.59 (and likely 1.60) the crate feature `aarch64_neon` needs to be enabled.
+For Rust Nightly this will no longer be required (but does not hurt either). It is expected that the SIMD implementation
+will be enabled automatically starting with Rust 1.61.
 
 ### WASM32
 For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.
