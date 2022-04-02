@@ -3,7 +3,7 @@
 
 ## [0.1.3] - 2021-05-14
 ### New features
-* Low-level streaming validation API in `simdutf8::basic::imp` 
+* Low-level streaming validation API in `simdutf8::basic::imp`
 
 ## [0.1.2] - 2021-05-09
 ### New features
