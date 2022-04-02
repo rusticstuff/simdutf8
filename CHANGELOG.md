@@ -9,7 +9,7 @@
 * For Rust Nightly the aarch64 SIMD implementation is enabled out of the box.
 * Starting with Rust 1.61 the aarch64 SIMD implementation is expected to be enabled out of the box as well.
 
-### Other
+### Performance
 * Prefetch was disabled for aarch64 since the requisite intrinsics have not been stabilized.
 
 ## [0.1.3] - 2021-05-14
