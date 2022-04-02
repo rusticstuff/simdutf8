@@ -1,6 +1,17 @@
 # Changelog
 ## [Unreleased]
 
+### New features
+* WASM (wasm32) support
+
+### Improvements
+* Make aarch64 SIMD implementation work on Rust 1.59/1.60 with create feature `aarch64_neon`
+* For Rust Nightly the aarch64 SIMD implementation is enabled out of the box.
+* Starting with Rust 1.61 the aarch64 SIMD implementation is expected to be enabled out of the box as well.
+
+### Other
+* Prefetch was disabled for aarch64 since the requisite intrinsics have not been stabilized.
+
 ## [0.1.3] - 2021-05-14
 ### New features
 * Low-level streaming validation API in `simdutf8::basic::imp`
