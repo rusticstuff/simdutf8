@@ -22,12 +22,12 @@
 //! Add the dependency to your Cargo.toml file:
 //! ```toml
 //! [dependencies]
-//! simdutf8 = "0.1.3"
+//! simdutf8 = "0.1.4"
 //! ```
 //! For ARM64 SIMD support on Rust 1.59:
 //! ```toml
 //! [dependencies]
-//! simdutf8 = { version = "0.1.3", features = ["aarch64_neon"] }
+//! simdutf8 = { version = "0.1.4", features = ["aarch64_neon"] }
 //! ```
 //!
 //! Use [`basic::from_utf8()`] as a drop-in replacement for `std::str::from_utf8()`.
