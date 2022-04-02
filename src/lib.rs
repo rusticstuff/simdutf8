@@ -22,7 +22,7 @@
 //! Add the dependency to your Cargo.toml file:
 //! ```toml
 //! [dependencies]
-//! simdutf8 = { version = "0.1.3" }
+//! simdutf8 = "0.1.3"
 //! ```
 //! For ARM64 SIMD support on Rust 1.59:
 //! ```toml
