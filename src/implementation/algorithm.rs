@@ -1,7 +1,8 @@
 /// Macros requires newtypes in scope:
 /// `SimdU8Value` - implementation of SIMD primitives
 /// `SimdInput` - which  holds 64 bytes of SIMD input
-/// `TempSimdChunk` - correctly aligned `TempSimdChunk`, either `TempSimdChunkA16` or `TempSimdChunkA32`
+/// `TempSimdChunk` - correctly aligned `TempSimdChunk`, either
+/// `TempSimdChunkA16` or `TempSimdChunkA32`
 
 macro_rules! algorithm_simd {
     ($feat:expr) => {
@@ -202,15 +203,15 @@ macro_rules! algorithm_simd {
             }
         }
 
-        /// Validation implementation for CPUs supporting the SIMD extension (see module).
+        /// Validation implementation for CPUs supporting the SIMD extension (see
+        /// module).
         ///
         /// # Errors
         /// Returns the zero-sized [`basic::Utf8Error`] on failure.
         ///
         /// # Safety
-        /// This function is inherently unsafe because it is compiled with SIMD extensions
-        /// enabled. Make sure that the CPU supports it before calling.
-        ///
+        /// This function is inherently unsafe because it is compiled with SIMD
+        /// extensions enabled. Make sure that the CPU supports it before calling.
         #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
         #[inline]
         pub unsafe fn validate_utf8_basic(
@@ -258,15 +259,15 @@ macro_rules! algorithm_simd {
             }
         }
 
-        /// Validation implementation for CPUs supporting the SIMD extension (see module).
+        /// Validation implementation for CPUs supporting the SIMD extension (see
+        /// module).
         ///
         /// # Errors
         /// Returns [`compat::Utf8Error`] with detailed error information on failure.
         ///
         /// # Safety
-        /// This function is inherently unsafe because it is compiled with SIMD extensions
-        /// enabled. Make sure that the CPU supports it before calling.
-        ///
+        /// This function is inherently unsafe because it is compiled with SIMD
+        /// extensions enabled. Make sure that the CPU supports it before calling.
         #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
         #[inline]
         pub unsafe fn validate_utf8_compat(
@@ -350,9 +351,9 @@ macro_rules! algorithm_simd {
 
         /// Low-level implementation of the [`basic::imp::Utf8Validator`] trait.
         ///
-        /// This is implementation requires CPU SIMD features specified by the module it resides in.
-        /// It is undefined behavior to call it if the required CPU features are not
-        /// available.
+        /// This is implementation requires CPU SIMD features specified by the module it
+        /// resides in. It is undefined behavior to call it if the required CPU features
+        /// are not available.
         #[cfg(feature = "public_imp")]
         pub struct Utf8ValidatorImp {
             algorithm: Utf8CheckAlgorithm<SimdU8Value>,
@@ -443,9 +444,9 @@ macro_rules! algorithm_simd {
 
         /// Low-level implementation of the [`basic::imp::ChunkedUtf8Validator`] trait.
         ///
-        /// This is implementation requires CPU SIMD features specified by the module it resides in.
-        /// It is undefined behavior to call it if the required CPU features are not
-        /// available.
+        /// This is implementation requires CPU SIMD features specified by the module it
+        /// resides in. It is undefined behavior to call it if the required CPU features
+        /// are not available.
         #[cfg(feature = "public_imp")]
         pub struct ChunkedUtf8ValidatorImp {
             algorithm: Utf8CheckAlgorithm<SimdU8Value>,

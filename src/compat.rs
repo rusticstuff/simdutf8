@@ -1,13 +1,18 @@
-//! The `compat` API flavor provides full compatibility with [`std::str::from_utf8()`] and detailed validation errors.
+//! The `compat` API flavor provides full compatibility with
+//! [`std::str::from_utf8()`] and detailed validation errors.
 //!
 //! In particular, [`from_utf8()`]
-//! returns an [`Utf8Error`], which has the [`valid_up_to()`](Utf8Error#method.valid_up_to) and
-//! [`error_len()`](Utf8Error#method.error_len) methods. The first is useful for verification of streamed data. The
-//! second is useful e.g. for replacing invalid byte sequences with a replacement character.
+//! returns an [`Utf8Error`], which has the
+//! [`valid_up_to()`](Utf8Error#method.valid_up_to) and
+//! [`error_len()`](Utf8Error#method.error_len) methods. The first is useful for
+//! verification of streamed data. The second is useful e.g. for replacing
+//! invalid byte sequences with a replacement character.
 //!
-//! The functions in this module also fail early: errors are checked on-the-fly as the string is processed and once
-//! an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
-//! This comes at a slight performance penality compared to the [`crate::basic`] module if the input is valid UTF-8.
+//! The functions in this module also fail early: errors are checked on-the-fly
+//! as the string is processed and once an invalid UTF-8 sequence is
+//! encountered, it returns without processing the rest of the data. This comes
+//! at a slight performance penality compared to the [`crate::basic`] module if
+//! the input is valid UTF-8.
 
 use core::fmt::Display;
 use core::fmt::Formatter;
@@ -18,8 +23,8 @@ use crate::implementation::validate_utf8_compat;
 
 /// UTF-8 error information compatible with [`std::str::Utf8Error`].
 ///
-/// Contains information on the location of the encountered validation error and the length of the
-/// invalid UTF-8 sequence.
+/// Contains information on the location of the encountered validation error and
+/// the length of the invalid UTF-8 sequence.
 #[derive(Copy, Eq, PartialEq, Clone, Debug)]
 pub struct Utf8Error {
     pub(crate) valid_up_to: usize,
@@ -27,7 +32,9 @@ pub struct Utf8Error {
 }
 
 impl Utf8Error {
-    /// Analogue to [`std::str::Utf8Error::valid_up_to()`](std::str::Utf8Error#method.valid_up_to).
+    /// Analogue to
+    /// [`std::str::Utf8Error::valid_up_to()`](std::str::Utf8Error#method.
+    /// valid_up_to).
     ///
     /// ...
     #[inline]
@@ -37,7 +44,9 @@ impl Utf8Error {
         self.valid_up_to
     }
 
-    /// Analogue to [`std::str::Utf8Error::error_len()`](std::str::Utf8Error#method.error_len).
+    /// Analogue to
+    /// [`std::str::Utf8Error::error_len()`](std::str::Utf8Error#method.
+    /// error_len).
     ///
     /// ...
     #[inline]
@@ -86,8 +95,9 @@ pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
 
 /// Analogue to [`std::str::from_utf8_mut()`].
 ///
-/// Checks if the passed mutable byte sequence is valid UTF-8 and returns a mutable
-/// [`std::str`] reference to the passed byte slice wrapped in `Ok()` if it is.
+/// Checks if the passed mutable byte sequence is valid UTF-8 and returns a
+/// mutable [`std::str`] reference to the passed byte slice wrapped in `Ok()` if
+/// it is.
 ///
 /// # Errors
 /// Will return Err([`Utf8Error`]) on if the input contains invalid UTF-8 with
@@ -100,7 +110,8 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
     }
 }
 
-/// Allows direct access to the platform-specific unsafe validation implementations.
+/// Allows direct access to the platform-specific unsafe validation
+/// implementations.
 #[cfg(feature = "public_imp")]
 pub mod imp {
     /// Includes the x86/x86-64 SIMD implementations.
