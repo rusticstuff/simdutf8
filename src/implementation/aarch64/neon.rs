@@ -236,6 +236,7 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 
 #[inline]
 #[cfg(not(feature = "aarch64_neon_prefetch"))]
+#[allow(clippy::missing_const_for_fn)]
 unsafe fn simd_prefetch(_ptr: *const u8) {}
 
 const PREFETCH: bool = false;
