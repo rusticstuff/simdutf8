@@ -17,6 +17,7 @@ pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(),
 
 #[cold]
 #[allow(dead_code)]
+#[allow(clippy::unwrap_used)]
 pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     let offset = if failing_block_pos == 0 {
         // Error must be in this block since it is the first.
