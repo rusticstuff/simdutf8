@@ -30,7 +30,6 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
         // UTF-8 codepoint, is thus complete and valid UTF-8. We start the check with the
         // current block in that case.
         (1..=3)
-            .into_iter()
             .find(|i| input[failing_block_pos - i] >> 6 != 0b10)
             .map_or(failing_block_pos, |i| failing_block_pos - i)
     };
