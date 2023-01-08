@@ -19,10 +19,10 @@ jobs:
         os: [ubuntu-latest, macos-11, windows-latest]
         toolchain: ["1.38.0", stable, beta, nightly ]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
-        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
+        rustflags: ["-D warnings", "-D warnings -C target-feature=+avx2", "-D warnings -C target-feature=+sse4.2"]
         exclude:
             - os: macos-11
-              rustflags: "-C target-feature=+avx2"
+              rustflags: "-D warnings -C target-feature=+avx2"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -176,7 +176,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         toolchain: [stable, nightly]
         features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
-        rustflags: ["", "-C target-feature=+avx2", "-C target-feature=+sse4.2"]
+        rustflags: ["-D warnings", "-D warnings -C target-feature=+avx2", "-D warnings -C target-feature=+sse4.2"]
         target: [i686-unknown-linux-gnu, i686-pc-windows-msvc]
         exclude:
           - os: ubuntu-latest
