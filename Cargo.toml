@@ -34,9 +34,6 @@ public_imp = []
 # aarch64 NEON SIMD implementation - requires Rust 1.59.0 or later
 aarch64_neon = []
 
-# enable aarch64 prefetching for minor speedup - requires nightly
-aarch64_neon_prefetch = []
-
 # deprecated - does not do anything
 hints = []
 
