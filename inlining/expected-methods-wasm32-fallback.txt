@@ -1,5 +1,0 @@
-<&T as core::fmt::Debug>::fmt
-<simdutf8::basic::Utf8Error as core::fmt::Debug>::fmt
-<simdutf8::basic::Utf8Error as core::fmt::Display>::fmt
-<simdutf8::compat::Utf8Error as core::fmt::Debug>::fmt
-<simdutf8::compat::Utf8Error as core::fmt::Display>::fmt

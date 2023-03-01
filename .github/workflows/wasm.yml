@@ -10,6 +10,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  INLINE_IGNORE_PATTERN: "drop_in_place|::fmt::"
 
 jobs:
   test-wasm32-wasi:
@@ -60,10 +61,10 @@ jobs:
         run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-wasm32-simd128.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-wasm32-simd128.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-wasm32-fallback.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-wasm32-fallback.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-wasm32-simd128.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-wasm32-simd128.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
 
   cross-build-wasm32-unknown:
     runs-on: ubuntu-latest
