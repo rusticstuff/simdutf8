@@ -62,8 +62,8 @@ jobs:
         run: |
           cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-wasm32-simd128.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-wasm32-simd128.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-wasm32-fallback.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-wasm32-fallback.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u empty.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u empty.txt -
 
   cross-build-wasm32-unknown:
     runs-on: ubuntu-latest

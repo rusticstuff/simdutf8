@@ -64,7 +64,7 @@ jobs:
         run: |
           cargo clean;cargo asm|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-std.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-std-avx2.txt -
-          cargo clean;cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-fallback.txt -
+          cargo clean;cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-avx2.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-sse42.txt -
 
@@ -91,8 +91,8 @@ jobs:
         run: |
           cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
           cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-fallback.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-fallback.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
 
   test-inlining-aarch64-enabled-by-default:
     runs-on: ubuntu-latest
