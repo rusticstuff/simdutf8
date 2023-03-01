@@ -10,6 +10,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  INLINE_IGNORE_PATTERN: "drop_in_place|::fmt::"
 
 jobs:
   test:
@@ -61,11 +62,11 @@ jobs:
         run: rustup default ${{ matrix.toolchain }}
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;cargo asm|grep -v drop_in_place|diff -u expected-methods-x86-std.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|grep -v drop_in_place|diff -u expected-methods-x86-std-avx2.txt -
-          cargo clean;cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-fallback.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-avx2.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|grep -v drop_in_place|diff -u expected-methods-x86-nostd-sse42.txt -
+          cargo clean;cargo asm|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-std.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-std-avx2.txt -
+          cargo clean;cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-fallback.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-avx2.txt -
+          cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-sse42.txt -
 
   test-inlining-aarch64:
     runs-on: ubuntu-latest
@@ -88,10 +89,10 @@ jobs:
         run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-aarch64-fallback.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-aarch64-fallback.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-fallback.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-fallback.txt -
 
   test-inlining-aarch64-enabled-by-default:
     runs-on: ubuntu-latest
@@ -114,10 +115,10 @@ jobs:
         run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }}|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|grep -v drop_in_place|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|eegrep -v e '$INLINE_IGNORE_PATTERN'|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
 
   test-doc:
     runs-on: ubuntu-latest

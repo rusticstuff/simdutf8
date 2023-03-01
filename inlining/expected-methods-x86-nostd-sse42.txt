@@ -1,9 +1,3 @@
-<&T as core::fmt::Debug>::fmt
-<() as core::fmt::Debug>::fmt
-<simdutf8::basic::Utf8Error as core::fmt::Debug>::fmt
-<simdutf8::basic::Utf8Error as core::fmt::Display>::fmt
-<simdutf8::compat::Utf8Error as core::fmt::Debug>::fmt
-<simdutf8::compat::Utf8Error as core::fmt::Display>::fmt
 simdutf8::implementation::helpers::get_compat_error
 simdutf8::implementation::x86::validate_utf8_basic
 simdutf8::implementation::x86::validate_utf8_basic_sse42
