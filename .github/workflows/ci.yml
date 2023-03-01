@@ -115,7 +115,7 @@ jobs:
         run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|egrep -v e '$INLINE_IGNORE_PATTERN'|diff -u expected-methods-aarch64-neon.txt -
+          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
           cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
           cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
           cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
