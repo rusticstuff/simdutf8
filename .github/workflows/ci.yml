@@ -68,32 +68,6 @@ jobs:
           cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-avx2.txt -
           cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-sse42.txt -
 
-  test-inlining-aarch64:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        toolchain: [1.59.0, 1.60.0]
-        target: [aarch64-unknown-linux-gnu, aarch64-apple-darwin]
-    defaults:
-      run:
-        working-directory: inlining
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: ${{ matrix.toolchain }}
-            profile: minimal
-            target: ${{ matrix.target }}
-            override: true
-      - name: Install cargo-asm
-        run: cargo install cargo-asm
-      - name: Check if the expected fns are inlined
-        run: |
-          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
-
   test-inlining-aarch64-enabled-by-default:
     runs-on: ubuntu-latest
     strategy:
