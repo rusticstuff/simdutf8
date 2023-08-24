@@ -60,7 +60,7 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 pub mod imp {
     use crate::basic;
 
-    /// A low-level interfacne for streaming validation of UTF-8 data. It is meant to be integrated
+    /// A low-level interface for streaming validation of UTF-8 data. It is meant to be integrated
     /// in high-performance data processing pipelines.
     ///
     /// Data can be streamed in arbitrarily-sized chunks using the [`Self::update()`] method. There is
