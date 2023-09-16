@@ -83,6 +83,42 @@ pub fn from_utf8(input: &[u8]) -> Result<&str, Utf8Error> {
     }
 }
 
+/// for validating owned bytes sequences of UTF-8
+pub mod string {
+    pub use super::*;
+
+
+    /// Simple UTF-8 error containing the invalid utf8 bytes.
+    ///
+    /// Contains information on the location of the encountered validation error and the length of the
+    /// invalid UTF-8 sequence.
+    #[derive(Debug, PartialEq, Eq)]
+    pub struct FromUtf8Error {
+        bytes: Vec<u8>,
+        error: Utf8Error,
+    }
+
+    /// Analogue to [`String::from_utf8()`].
+    ///
+    /// Checks if the passed byte sequence is valid UTF-8 and returns a
+    /// [`String`] with taking ownership of the the passed byte slice wrapped in `Ok()` if it is.
+    ///
+    /// # Errors
+    /// Will return an Err([`FromUtf8Error`])
+    /// containing the original bytes passed in along with a [`Utf8Error`]
+    /// on if the input contains invalid UTF-8 with detailed error information.
+    /// if the input contains invalid UTF-8.
+    #[inline]
+    pub fn from_utf8(input: Vec<u8>) -> Result<String, FromUtf8Error> {
+        unsafe {
+            match validate_utf8_compat(&input) {
+                Ok(()) => Ok(String::from_utf8_unchecked(input)),
+                Err(err) => Err(FromUtf8Error {bytes:input, error: err})
+            }
+        }
+    }
+}
+
 /// Analogue to [`std::str::from_utf8_mut()`].
 ///
 /// Checks if the passed mutable byte sequence is valid UTF-8 and returns a mutable
