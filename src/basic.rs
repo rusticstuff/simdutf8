@@ -50,7 +50,7 @@ pub mod string {
     /// byte sequence is.
     #[derive(Debug, PartialEq, Eq)]
     pub struct FromUtf8Error {
-        bytes: Vec<u8>,
+        pub bytes: Vec<u8>,
         error: Utf8Error,
     }
 
