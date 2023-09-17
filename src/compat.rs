@@ -94,7 +94,7 @@ pub mod string {
     /// invalid UTF-8 sequence.
     #[derive(Debug, PartialEq, Eq)]
     pub struct FromUtf8Error {
-        bytes: Vec<u8>,
+        pub bytes: Vec<u8>,
         error: Utf8Error,
     }
 
