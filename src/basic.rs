@@ -48,9 +48,10 @@ pub mod string {
     ///
     /// No information is provided where the error occurred or how long the invalid byte
     /// byte sequence is.
+    #[allow(missing_docs)]
     #[derive(Debug, PartialEq, Eq)]
     pub struct FromUtf8Error {
-        bytes: Vec<u8>,
+        pub bytes: Vec<u8>,
         error: Utf8Error,
     }
 
