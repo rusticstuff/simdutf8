@@ -92,6 +92,7 @@ pub mod string {
     ///
     /// Contains information on the location of the encountered validation error and the length of the
     /// invalid UTF-8 sequence.
+    #[allow(missing_docs)]
     #[derive(Debug, PartialEq, Eq)]
     pub struct FromUtf8Error {
         pub bytes: Vec<u8>,
