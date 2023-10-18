@@ -132,6 +132,16 @@ fn test_valid_public_imp(input: &[u8]) {
             );
         }
     }
+    #[cfg(feature = "portable")]
+    unsafe {
+        assert!(dbg!(simdutf8::basic::imp::portable::validate_utf8(input)).is_ok());
+        assert!(simdutf8::compat::imp::portable::validate_utf8(input).is_ok());
+
+        test_streaming::<simdutf8::basic::imp::portable::Utf8ValidatorImp>(input, true);
+        test_chunked_streaming::<simdutf8::basic::imp::portable::ChunkedUtf8ValidatorImp>(
+            input, true,
+        );
+    }
     #[cfg(all(
         feature = "aarch64_neon",
         target_arch = "aarch64",
@@ -352,21 +362,21 @@ fn simple_invalid() {
 #[test]
 fn incomplete_on_32nd_byte() {
     let mut invalid = b"a".repeat_x(31);
-    invalid.push(b'\xF0');
+    invalid.push(0xf0);
     test_invalid(&invalid, 31, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte() {
     let mut invalid = b"a".repeat_x(63);
-    invalid.push(b'\xF0');
+    invalid.push(0xf0);
     test_invalid(&invalid, 63, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte_65_bytes_total() {
     let mut invalid = b"a".repeat_x(63);
-    invalid.push(b'\xF0');
+    invalid.push(0xf0);
     invalid.push(b'a');
     test_invalid(&invalid, 63, Some(1))
 }
