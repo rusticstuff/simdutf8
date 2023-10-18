@@ -17,6 +17,11 @@ type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorBasic>;
 #[allow(dead_code)]
 type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompat>;
 
+// Rust Portable SIMD implementation
+
+#[cfg(feature = "portable")]
+pub(crate) mod portable;
+
 // x86 implementation
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
