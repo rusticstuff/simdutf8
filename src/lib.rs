@@ -105,6 +105,7 @@
 //!
 //! See Validating UTF-8 In Less Than One Instruction Per Byte, Software: Practice and Experience 51 (5), 2021
 //! <https://arxiv.org/abs/2010.03090>
+#![cfg_attr(feature = "portable", feature(portable_simd))]
 
 pub mod basic;
 pub mod compat;

@@ -57,6 +57,28 @@ jobs:
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
+  test-portable-simd:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-11, windows-latest]
+        features: ["", "--features std", "--features public_imp",  "--features std,public_imp"]
+        rustflags: ["-D warnings", "-D warnings -C target-feature=+avx2", "-D warnings -C target-feature=+sse4.2"]
+        exclude:
+            - os: macos-11
+              rustflags: "-D warnings -C target-feature=+avx2"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            profile: minimal
+            override: true
+      - name: Run tests
+        run: cargo test --no-default-features --features portable ${{ matrix.features }} --all-targets --verbose
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
+
   test-inlining-x86:
     runs-on: ubuntu-latest
     strategy:

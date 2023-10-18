@@ -217,6 +217,14 @@ pub mod imp {
         }
     }
 
+    /// Includes the portable SIMD implementations.
+    #[cfg(feature = "portable")]
+    pub mod portable {
+        /// Includes the validation implementation using portable SIMD.
+        pub use crate::implementation::portable::validate_utf8_basic as validate_utf8;
+        pub use crate::implementation::portable::ChunkedUtf8ValidatorImp;
+        pub use crate::implementation::portable::Utf8ValidatorImp;
+    }
     /// Includes the aarch64 SIMD implementations.
     #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
     pub mod aarch64 {

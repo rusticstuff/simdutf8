@@ -37,6 +37,9 @@ aarch64_neon = []
 # enable aarch64 prefetching for minor speedup - requires nightly
 aarch64_neon_prefetch = []
 
+# support for portable simd (nightly only)
+portable = []
+
 # deprecated - does not do anything
 hints = []
 
