@@ -103,7 +103,7 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 #[cfg(feature = "public_imp")]
 pub mod imp {
     /// Includes the x86/x86-64 SIMD implementations.
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub mod x86 {
         /// Includes the validation implementation for AVX 2-compatible CPUs.
         pub mod avx2 {

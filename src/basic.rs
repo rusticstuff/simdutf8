@@ -194,7 +194,7 @@ pub mod imp {
     }
 
     /// Includes the x86/x86-64 SIMD implementations.
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub mod x86 {
         /// Includes the validation implementation for AVX 2-compatible CPUs.
         ///
