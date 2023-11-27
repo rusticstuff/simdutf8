@@ -7,7 +7,7 @@
 //!
 //! The functions in this module also fail early: errors are checked on-the-fly as the string is processed and once
 //! an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
-//! This comes at a slight performance penality compared to the [`crate::basic`] module if the input is valid UTF-8.
+//! This comes at a slight performance penalty compared to the [`crate::basic`] module if the input is valid UTF-8.
 
 use core::fmt::Display;
 use core::fmt::Formatter;
@@ -103,7 +103,7 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 #[cfg(feature = "public_imp")]
 pub mod imp {
     /// Includes the x86/x86-64 SIMD implementations.
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub mod x86 {
         /// Includes the validation implementation for AVX 2-compatible CPUs.
         pub mod avx2 {
