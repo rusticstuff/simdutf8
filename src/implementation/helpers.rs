@@ -111,6 +111,7 @@ impl TempSimdChunkA32 {
 }
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 pub(crate) struct SimdU8Value<T>(pub(crate) T)
 where
     T: Copy;
