@@ -67,7 +67,7 @@ impl Display for Utf8Error {
 #[cfg(feature = "std")]
 impl std::error::Error for Utf8Error {}
 
-/// Analogue to [`std::str::from_utf8_mut()`].
+/// Analogue to [`std::str::from_utf8()`].
 ///
 /// Checks if the passed byte sequence is valid UTF-8 and returns an
 /// [`std::str`] reference to the passed byte slice wrapped in `Ok()` if it is.
