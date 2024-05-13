@@ -5,10 +5,10 @@ use simdutf8::basic::from_utf8_mut as basic_from_utf8_mut;
 use simdutf8::compat::from_utf8 as compat_from_utf8;
 use simdutf8::compat::from_utf8_mut as compat_from_utf8_mut;
 
-#[cfg(not(features = "std"))]
+#[cfg(not(feature = "std"))]
 extern crate std;
 
-#[cfg(not(features = "std"))]
+#[cfg(not(feature = "std"))]
 use std::{borrow::ToOwned, format};
 
 pub trait BStrExt {
