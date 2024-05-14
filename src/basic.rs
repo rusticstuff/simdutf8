@@ -11,7 +11,7 @@ use crate::implementation::validate_utf8_basic;
 
 /// Simple zero-sized UTF-8 error.
 ///
-/// No information is provided where the error occured or how long the invalid byte
+/// No information is provided where the error occurred or how long the invalid byte
 /// byte sequence is.
 #[derive(Copy, Eq, PartialEq, Clone, Debug)]
 pub struct Utf8Error;
@@ -194,7 +194,7 @@ pub mod imp {
     }
 
     /// Includes the x86/x86-64 SIMD implementations.
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub mod x86 {
         /// Includes the validation implementation for AVX 2-compatible CPUs.
         ///
