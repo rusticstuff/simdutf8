@@ -463,8 +463,7 @@ fn test_sse42_chunked_panic() {
 #[should_panic]
 #[cfg(all(
     feature = "public_imp",
-    target_arch = "aarch64",
-    feature = "aarch64_neon"
+    any(feature = "aarch64_neon", target_feature = "neon")
 ))]
 fn test_neon_chunked_panic() {
     test_chunked_streaming_with_chunk_size::<

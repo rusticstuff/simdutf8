@@ -116,7 +116,7 @@ pub mod imp {
     }
 
     /// Includes the aarch64 SIMD implementations.
-    #[cfg(all(feature = "aarch64_neon", target_arch = "aarch64"))]
+    #[cfg(any(feature = "aarch64_neon", target_feature = "neon"))]
     pub mod aarch64 {
         /// Includes the validation implementation for Neon SIMD.
         pub mod neon {
