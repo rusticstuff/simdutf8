@@ -35,7 +35,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           targets: ${{ matrix.target }}
       - name: Setup Wasmer
-        uses: wasmerio/setup-wasmer@v1
+        uses: wasmerio/setup-wasmer@v3.1
       - name: Install WASM Runner
         run: cargo install wasm-runner
       - name: Run tests
