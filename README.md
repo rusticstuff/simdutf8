@@ -14,7 +14,7 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * `basic` API for the fastest validation, optimized for valid UTF-8
 * `compat` API as a fully compatible replacement for `std::str::from_utf8()`
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
-* 🆕 ARM64 (aarch64) SIMD is supported with Rust 1.59 and 1.60 (use feature `aarch64_neon`) and Nightly (no extra feature needed)
+* 🆕 ARM64 (aarch64) SIMD is supported since Rust 1.61
 * 🆕 WASM (wasm32) SIMD is supported
 * x86-64: Up to 23 times faster than the std library on valid non-ASCII, up to four times faster on ASCII
 * aarch64: Up to eleven times faster than the std library on valid non-ASCII, up to four times faster on ASCII (Apple Silicon)
@@ -30,11 +30,6 @@ Add the dependency to your Cargo.toml file:
 ```toml
 [dependencies]
 simdutf8 = "0.1.4"
-```
-For ARM64 SIMD support on Rust 1.59 and 1.60:
-```toml
-[dependencies]
-simdutf8 = { version = "0.1.4", features = ["aarch64_neon"] }
 ```
 
 Use `simdutf8::basic::from_utf8()` as a drop-in replacement for `std::str::from_utf8()`.
@@ -85,11 +80,7 @@ the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implem
 for the SSE 4.2 implementation.
 
 ### ARM64
-The SIMD implementation is only available on Rust Nightly and Rust 1.59 or later. On Rust Nightly it is now turned on
-automatically.
-To get the SIMD implementation with Rust 1.59 and 1.60 the crate feature `aarch64_neon` needs to be enabled.
-For Rust Nightly this will no longer be required (but does not hurt either). It is expected that the SIMD implementation
-will be enabled automatically starting with Rust 1.61.
+The SIMD implementation is used automatically since Rust 1.61.
 
 ### WASM32
 For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.
@@ -176,4 +167,3 @@ simdjson itself is distributed under the Apache License 2.0.
 
 ## References
 John Keiser, Daniel Lemire, [Validating UTF-8 In Less Than One Instruction Per Byte](https://arxiv.org/abs/2010.03090), Software: Practice and Experience 51 (5), 2021
-

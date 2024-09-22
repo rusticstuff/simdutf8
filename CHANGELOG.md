@@ -1,6 +1,13 @@
 # Changelog
 ## [Unreleased]
 
+### Bug fixes
+* Fix Undefined Behavior in WebAssembly SIMD128 (#86) (thanks @CryZe)
+* Documentation and clippy fixes (thanks @rtfeldman, @jqnatividad, @rhysd)
+
+### Performance
+* WASM: Don't use u8x16_bitmask for ASCII Check (#79) (thanks @CryZe)
+
 ## [0.1.4] - 2022-04-02
 
 ### New features
@@ -72,4 +79,3 @@
 [0.0.3]: https://github.com/rusticstuff/simdutf8/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/rusticstuff/simdutf8/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/rusticstuff/simdutf8/releases/tag/v0.0.1
-
