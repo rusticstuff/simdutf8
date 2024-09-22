@@ -43,7 +43,7 @@ jobs:
             toolchain: "1.38.0"
           - features: "--no-default-features --features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
         include:
-          - os: macos-latest
+          - os: macos-latest # aarch64_neon_prefetch is only supported on macOS ARM64 nightly
             features: "--no-default-features --features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
             toolchain: "nightly"
             rustflags: "-D warnings"
