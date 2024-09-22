@@ -21,10 +21,9 @@ jobs:
         toolchain: ["1.38.0", stable, beta, nightly]
         features:
           [
-            "",
-            "--features std",
-            "--features public_imp",
-            "--features std,public_imp",
+            "--no-default-features",
+            "--all-features",
+            "--no-default-features --features public_imp",
           ]
         rustflags:
           [
