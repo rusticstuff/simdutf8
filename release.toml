@@ -4,3 +4,4 @@ pre-release-replacements = [
   {file="README.md", search="simdutf8 = \"[0-9.]+\"", replace="simdutf8 = \"{{version}}\"", exactly=1},
   {file="src/lib.rs", search="simdutf8 = \"[0-9.]+\"", replace="simdutf8 = \"{{version}}\"", exactly=1},
 ]
+allow-branch = ["main"]
