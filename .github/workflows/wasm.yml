@@ -2,9 +2,9 @@ name: ci-wasm
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
     - cron: "17 3 * * *"
 
@@ -19,17 +19,21 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         toolchain: [stable, beta, nightly]
-        features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
+        features:
+          [
+            "",
+            "--features std",
+            "--features public_imp",
+            "--features std,public_imp",
+          ]
         rustflags: ["-D warnings", "-D warnings -C target-feature=+simd128"]
         target: [wasm32-wasi]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@master
         with:
-            toolchain: ${{ matrix.toolchain }}
-            target: ${{ matrix.target }}
-            profile: minimal
-            override: true
+          toolchain: ${{ matrix.toolchain }}
+          targets: ${{ matrix.target }}
       - name: Setup Wasmer
         uses: wasmerio/setup-wasmer@v1
       - name: Install WASM Runner
@@ -51,12 +55,9 @@ jobs:
         working-directory: inlining
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-            toolchain: nightly
-            profile: minimal
-            target: ${{ matrix.target }}
-            override: true
+          targets: ${{ matrix.target }}
       - name: Install cargo-asm
         run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
@@ -71,17 +72,21 @@ jobs:
     strategy:
       matrix:
         toolchain: ["1.38.0", stable, beta, nightly]
-        features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
+        features:
+          [
+            "",
+            "--features std",
+            "--features public_imp",
+            "--features std,public_imp",
+          ]
         rustflags: ["-D warnings", "-D warnings -C target-feature=+simd128"]
         target: [wasm32-unknown-unknown]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@master
         with:
-            toolchain: ${{ matrix.toolchain }}
-            target: ${{ matrix.target }}
-            profile: minimal
-            override: true
+          toolchain: ${{ matrix.toolchain }}
+          targets: ${{ matrix.target }}
       - name: Run build
         run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
         env:
