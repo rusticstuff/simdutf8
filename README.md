@@ -80,7 +80,7 @@ the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implem
 for the SSE 4.2 implementation.
 
 ### ARM64
-The SIMD implementation is automatically used since Rust 1.61.
+The SIMD implementation is used automatically since Rust 1.61.
 
 ### WASM32
 For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.

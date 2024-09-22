@@ -8,7 +8,6 @@
 ### Performance
 * WASM: Don't use u8x16_bitmask for ASCII Check (#79) (thanks @CryZe)
 
-
 ## [0.1.4] - 2022-04-02
 
 ### New features
