@@ -26,7 +26,7 @@
 //! Add the dependency to your Cargo.toml file:
 //! ```toml
 //! [dependencies]
-//! simdutf8 = "0.1.4"
+//! simdutf8 = "0.1.5"
 //! ```
 //!
 //! Use [`basic::from_utf8()`] as a drop-in replacement for `std::str::from_utf8()`.

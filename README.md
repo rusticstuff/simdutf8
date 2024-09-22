@@ -29,7 +29,7 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 Add the dependency to your Cargo.toml file:
 ```toml
 [dependencies]
-simdutf8 = "0.1.4"
+simdutf8 = "0.1.5"
 ```
 
 Use `simdutf8::basic::from_utf8()` as a drop-in replacement for `std::str::from_utf8()`.
