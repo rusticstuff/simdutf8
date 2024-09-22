@@ -33,8 +33,12 @@ jobs:
             "-D warnings -C target-feature=+sse4.2",
           ]
         exclude:
-          - os: macos-11
+          - os: macos-latest
             rustflags: "-D warnings -C target-feature=+avx2"
+          - os: macos-latest
+            rustflags: "-D warnings -C target-feature=+sse4.2"
+          - os: macos-latest
+            toolchain: "1.38.0"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
