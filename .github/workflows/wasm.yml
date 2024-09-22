@@ -29,7 +29,7 @@ jobs:
         rustflags: ["-D warnings", "-D warnings -C target-feature=+simd128"]
         target: [wasm32-wasi]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
@@ -54,7 +54,7 @@ jobs:
       run:
         working-directory: inlining
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
         with:
           targets: ${{ matrix.target }}
@@ -82,7 +82,7 @@ jobs:
         rustflags: ["-D warnings", "-D warnings -C target-feature=+simd128"]
         target: [wasm32-unknown-unknown]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
