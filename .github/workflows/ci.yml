@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
     - cron: "17 3 * * *"
 
@@ -17,20 +17,37 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-11, windows-latest]
-        toolchain: ["1.38.0", stable, beta, nightly ]
-        features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
-        rustflags: ["-D warnings", "-D warnings -C target-feature=+avx2", "-D warnings -C target-feature=+sse4.2"]
+        os: [ubuntu-latest, macos-13, macos-latest, windows-latest]
+        toolchain: ["1.38.0", stable, beta, nightly]
+        features:
+          [
+            "",
+            "--features std",
+            "--features public_imp",
+            "--features std,public_imp",
+          ]
+        rustflags:
+          [
+            "-D warnings",
+            "-D warnings -C target-feature=+avx2",
+            "-D warnings -C target-feature=+sse4.2",
+          ]
         exclude:
-            - os: macos-11
-              rustflags: "-D warnings -C target-feature=+avx2"
+          - os: macos-latest
+            rustflags: "-D warnings -C target-feature=+avx2"
+          - os: macos-latest
+            rustflags: "-D warnings -C target-feature=+sse4.2"
+          - os: macos-latest
+            toolchain: "1.38.0"
+          - os: macos-13
+            toolchain: "1.38.0"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}
-            profile: minimal
-            override: true
+          toolchain: ${{ matrix.toolchain }}
+          profile: minimal
+          override: true
       - name: Run tests
         run: cargo test --no-default-features ${{ matrix.features }} --all-targets --verbose
         env:
@@ -40,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: ["1.38.0", stable, beta, nightly ]
+        toolchain: ["1.38.0", stable, beta, nightly]
     defaults:
       run:
         working-directory: inlining
@@ -48,16 +65,16 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: stable
-            profile: minimal
-            override: true
+          toolchain: stable
+          profile: minimal
+          override: true
       - name: Install cargo-asm
         run: cargo install cargo-asm
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}
-            profile: minimal
-            override: true
+          toolchain: ${{ matrix.toolchain }}
+          profile: minimal
+          override: true
       - name: Set default toolchain
         run: rustup default ${{ matrix.toolchain }}
       - name: Check if the expected fns are inlined
@@ -81,10 +98,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}
-            profile: minimal
-            target: ${{ matrix.target }}
-            override: true
+          toolchain: ${{ matrix.toolchain }}
+          profile: minimal
+          target: ${{ matrix.target }}
+          override: true
       - name: Install cargo-asm
         run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
@@ -100,11 +117,11 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: nightly
-            profile: minimal
-            override: true
+          toolchain: nightly
+          profile: minimal
+          override: true
       - name: Run cargo doc
-        run:  cargo doc --features public_imp
+        run: cargo doc --features public_imp
         env:
           RUSTDOCFLAGS: --cfg docsrs
 
@@ -112,17 +129,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: ["1.38.0", stable, beta, nightly ]
+        toolchain: ["1.38.0", stable, beta, nightly]
         target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}
-            target: ${{ matrix.target }}
-            profile: minimal
-            override: true
+          toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.target }}
+          profile: minimal
+          override: true
       - name: Build
         run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
 
@@ -137,10 +154,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}
-            target: ${{ matrix.target }}
-            profile: minimal
-            override: true
+          toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.target }}
+          profile: minimal
+          override: true
       - name: Build
         run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
 
@@ -150,8 +167,19 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         toolchain: [stable, nightly]
-        features: ["", "--features std", "--features public_imp", "--features std,public_imp"]
-        rustflags: ["-D warnings", "-D warnings -C target-feature=+avx2", "-D warnings -C target-feature=+sse4.2"]
+        features:
+          [
+            "",
+            "--features std",
+            "--features public_imp",
+            "--features std,public_imp",
+          ]
+        rustflags:
+          [
+            "-D warnings",
+            "-D warnings -C target-feature=+avx2",
+            "-D warnings -C target-feature=+sse4.2",
+          ]
         target: [i686-unknown-linux-gnu, i686-pc-windows-msvc]
         exclude:
           - os: ubuntu-latest
@@ -162,10 +190,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: ${{ matrix.toolchain }}
-            target: ${{ matrix.target }}
-            profile: minimal
-            override: true
+          toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.target }}
+          profile: minimal
+          override: true
       - name: Run tests
         run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
         env:
@@ -177,10 +205,10 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: stable
-            profile: minimal
-            components: rustfmt
-            override: true
+          toolchain: stable
+          profile: minimal
+          components: rustfmt
+          override: true
       - name: Checko formatting
         run: cargo fmt -- --check
 
@@ -190,10 +218,10 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: nightly
-            profile: minimal
-            components: clippy
-            override: true
+          toolchain: nightly
+          profile: minimal
+          components: clippy
+          override: true
       - uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
