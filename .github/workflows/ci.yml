@@ -17,14 +17,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-13, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-13, macos-latest, windows-latest] # macos-13 for last x86_64 macOS
         toolchain: ["1.38.0", stable, beta, nightly]
         features:
           [
             "",
-            "--features std",
             "--features public_imp",
-            "--features std,public_imp",
+            "--features std,public_imp,aarch64_neon",
+            "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch",
           ]
         rustflags:
           [
@@ -38,16 +38,20 @@ jobs:
           - os: macos-latest
             rustflags: "-D warnings -C target-feature=+sse4.2"
           - os: macos-latest
+            toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
+          - os: macos-13 # macos-12 (or later) does not work with 1.38.0
             toolchain: "1.38.0"
-          - os: macos-13
-            toolchain: "1.38.0"
+          - features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
+        include:
+          - os: macos-latest # aarch64_neon_prefetch is only supported on macOS ARM64 nightly
+            features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
+            toolchain: "nightly"
+            rustflags: "-D warnings"
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          profile: minimal
-          override: true
       - name: Run tests
         run: cargo test --no-default-features ${{ matrix.features }} --all-targets --verbose
         env:
@@ -62,19 +66,15 @@ jobs:
       run:
         working-directory: inlining
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          profile: minimal
-          override: true
       - name: Install cargo-asm
         run: cargo install cargo-asm
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          profile: minimal
-          override: true
       - name: Set default toolchain
         run: rustup default ${{ matrix.toolchain }}
       - name: Check if the expected fns are inlined
@@ -95,13 +95,11 @@ jobs:
       run:
         working-directory: inlining
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          profile: minimal
-          target: ${{ matrix.target }}
-          override: true
+          targets: ${{ matrix.target }}
       - name: Install cargo-asm
         run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
@@ -114,12 +112,8 @@ jobs:
   test-doc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          profile: minimal
-          override: true
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
       - name: Run cargo doc
         run: cargo doc --features public_imp
         env:
@@ -133,13 +127,11 @@ jobs:
         target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          target: ${{ matrix.target }}
-          profile: minimal
-          override: true
+          targets: ${{ matrix.target }}
       - name: Build
         run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
 
@@ -151,13 +143,11 @@ jobs:
         target: [aarch64-unknown-linux-gnu, aarch64-apple-darwin]
         features: ["--features std,aarch64_neon", "--features aarch64_neon"]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          target: ${{ matrix.target }}
-          profile: minimal
-          override: true
+          targets: ${{ matrix.target }}
       - name: Build
         run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
 
@@ -187,13 +177,11 @@ jobs:
           - os: windows-latest
             target: i686-unknown-linux-gnu
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          target: ${{ matrix.target }}
-          profile: minimal
-          override: true
+          targets: ${{ matrix.target }}
       - name: Run tests
         run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
         env:
@@ -202,31 +190,24 @@ jobs:
   fmt_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          profile: minimal
           components: rustfmt
-          override: true
-      - name: Checko formatting
+      - name: Check formatting
         run: cargo fmt -- --check
 
   clippy_check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
-          profile: minimal
           components: clippy
-          override: true
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-targets --all-features
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --no-default-features
+      - name: Clippy - all features enabled
+        run: cargo clippy --all-targets --all-features
+      - name: Clippy - all features disabled
+        run: cargo clippy --all-targets --no-default-features
