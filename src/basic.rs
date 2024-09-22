@@ -139,6 +139,7 @@ pub mod imp {
     }
 
     /// Like [`Utf8Validator`] this low-level API is for streaming validation of UTF-8 data.
+    ///
     /// It has additional restrictions imposed on how the input is passed in to allow
     /// validation with as little overhead as possible.
     ///
