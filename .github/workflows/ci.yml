@@ -200,11 +200,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-targets --all-features
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --no-default-features
+      - name: Clippy - all features enabled
+        run: cargo clippy --all-targets --all-features
+      - name: Clippy - all features disabled
+        run: cargo clippy --all-targets --no-default-features
