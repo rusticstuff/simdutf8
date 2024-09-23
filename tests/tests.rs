@@ -26,7 +26,7 @@ where
         let x = self.as_ref();
         let mut res = Vec::with_capacity(x.len() * count);
         for _ in 0..count {
-            #[allow(clippy::unwrap_used)]
+            #[expect(clippy::unwrap_used)]
             res.write_all(x).unwrap();
         }
         res
@@ -50,7 +50,6 @@ fn test_valid(input: &[u8]) {
 
 // unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
-#[allow(dead_code)]
 fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool) {
     unsafe {
         let mut validator = T::new();
@@ -64,7 +63,6 @@ fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool
 
 // unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
-#[allow(dead_code)]
 fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
     input: &[u8],
     block_size: usize,
@@ -81,7 +79,6 @@ fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
 
 // unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
-#[allow(dead_code)]
 fn test_chunked_streaming<T: simdutf8::basic::imp::ChunkedUtf8Validator>(input: &[u8], ok: bool) {
     for i in [64, 128, 256, 1024, 65536].iter() {
         test_chunked_streaming_with_chunk_size::<T>(input, *i, ok)
@@ -90,7 +87,6 @@ fn test_chunked_streaming<T: simdutf8::basic::imp::ChunkedUtf8Validator>(input: 
 
 // unused for cases where public_imp is set but no SIMD functions generated...
 #[cfg(feature = "public_imp")]
-#[allow(dead_code)]
 fn test_chunked_streaming_with_chunk_size<T: simdutf8::basic::imp::ChunkedUtf8Validator>(
     input: &[u8],
     chunk_size: usize,
@@ -107,7 +103,6 @@ fn test_chunked_streaming_with_chunk_size<T: simdutf8::basic::imp::ChunkedUtf8Va
 }
 
 #[cfg(feature = "public_imp")]
-#[allow(unused_variables)]
 fn test_valid_public_imp(input: &[u8]) {
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
         #[cfg(target_feature = "avx2")]
@@ -173,7 +168,6 @@ fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
 }
 
 #[cfg(feature = "public_imp")]
-#[allow(unused_variables)]
 fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
     if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
         #[cfg(target_feature = "avx2")]
@@ -424,7 +418,7 @@ fn error_debug_compat() {
 #[test]
 fn error_derives_basic() {
     let err = basic_from_utf8(b"\xF0").unwrap_err();
-    #[allow(clippy::clone_on_copy)] // used for coverage
+    #[expect(clippy::clone_on_copy)] // used for coverage
     let err2 = err.clone();
     assert_eq!(err, err2);
     assert!(!(err != err2));
@@ -433,7 +427,7 @@ fn error_derives_basic() {
 #[test]
 fn error_derives_compat() {
     let err = compat_from_utf8(b"\xF0").unwrap_err();
-    #[allow(clippy::clone_on_copy)] // used for coverage
+    #[expect(clippy::clone_on_copy)] // used for coverage
     let err2 = err.clone();
     assert_eq!(err, err2);
     assert!(!(err != err2));
