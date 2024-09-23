@@ -1,5 +1,5 @@
 #![warn(unused_extern_crates)]
-#![deny(
+#![warn(
     clippy::all,
     clippy::unwrap_used,
     clippy::unnecessary_unwrap,
@@ -8,8 +8,6 @@
 )]
 #![allow(clippy::redundant_pub_crate)] // check is broken
 #![allow(clippy::redundant_else)] // can make code more readable
-#![allow(clippy::explicit_iter_loop)] // can make code more readable
-#![allow(clippy::semicolon_if_nothing_returned)] // see https://github.com/rust-lang/rust-clippy/issues/7768
 #![allow(clippy::missing_const_for_fn)] // not necessary most of the times
 #![deny(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]

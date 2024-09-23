@@ -91,3 +91,24 @@ jobs:
         run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
+
+  clippy_check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest, macos-13]
+        target: [wasm32-wasi, wasm32-unknown-unknown]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+          targets: ${{ matrix.target }}
+      - name: Clippy - all features enabled
+        run: cargo clippy --target ${{ matrix.target }} --all-targets --all-features
+        env:
+          RUSTFLAGS: "-D warnings"
+      - name: Clippy - all features disabled
+        run: cargo clippy --target ${{ matrix.target }} --all-targets --no-default-features
+        env:
+          RUSTFLAGS: "-D warnings"
