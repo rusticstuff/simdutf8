@@ -103,6 +103,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy
+          targets: ${{ matrix.target }}
       - name: Clippy - all features enabled
         run: cargo clippy --target ${{ matrix.target }} --all-targets --all-features
         env:
