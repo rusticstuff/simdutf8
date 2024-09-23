@@ -209,5 +209,9 @@ jobs:
           components: clippy
       - name: Clippy - all features enabled
         run: RUSTFLAGS="-Dwarnings" cargo clippy --all-targets --all-features
+        env:
+          RUSTFLAGS: "-D warnings"
       - name: Clippy - all features disabled
         run: RUSTFLAGS="-Dwarnings" cargo clippy --all-targets --no-default-features
+        env:
+          RUSTFLAGS: "-D warnings"
