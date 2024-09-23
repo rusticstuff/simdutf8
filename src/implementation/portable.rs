@@ -145,10 +145,7 @@ impl SimdU8Value {
 
     #[inline]
     fn saturating_sub(self, b: Self) -> Self {
-        let l: u8x32 = self.0.cast();
-        let r: u8x32 = b.0.cast();
-        let res = l.saturating_sub(r);
-        Self::from(res.cast())
+        Self::from(self.0.saturating_sub(b.0))
     }
     // ist OK
     // ugly but shr<N> requires const generics
