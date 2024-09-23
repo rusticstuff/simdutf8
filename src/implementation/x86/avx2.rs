@@ -60,7 +60,7 @@ impl SimdU8Value {
         v30: u8,
         v31: u8,
     ) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
+        #[expect(clippy::cast_possible_wrap)]
         Self::from(_mm256_setr_epi8(
             v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
             v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
@@ -89,7 +89,7 @@ impl SimdU8Value {
         v14: u8,
         v15: u8,
     ) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
+        #[expect(clippy::cast_possible_wrap)]
         Self::from_32_cut_off_leading(
             v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v0, v1, v2, v3,
             v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
@@ -99,7 +99,7 @@ impl SimdU8Value {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        #[allow(clippy::cast_ptr_alignment)]
+        #[expect(clippy::cast_ptr_alignment)]
         Self::from(_mm256_loadu_si256(ptr.cast::<__m256i>()))
     }
 
@@ -136,7 +136,7 @@ impl SimdU8Value {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn splat(val: u8) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
+        #[expect(clippy::cast_possible_wrap)]
         Self::from(_mm256_set1_epi8(val as i8))
     }
 

@@ -1,4 +1,4 @@
-#[allow(unused_imports)]
+#[expect(unused_imports)]
 use std::io::{stdin, Read, Result};
 
 #[cfg(all(

@@ -64,7 +64,6 @@ macro_rules! algorithm_simd {
 
             $(#[$feat])*
             #[inline]
-            #[allow(clippy::too_many_lines)]
             unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
                 const TOO_SHORT: u8 = 1 << 0;
                 const TOO_LONG: u8 = 1 << 1;
@@ -523,7 +522,6 @@ macro_rules! simd_input_128_bit {
         impl SimdInput {
             $(#[$feat])*
             #[inline]
-            #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
                 Self {
                     vals: [
@@ -557,7 +555,7 @@ macro_rules! simd_input_256_bit {
         impl SimdInput {
             $(#[$feat])*
             #[inline]
-            #[allow(clippy::cast_ptr_alignment)]
+            #[expect(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
                 Self {
                     vals: [

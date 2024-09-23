@@ -58,7 +58,7 @@ impl SimdU8Value {
         v30: u8,
         v31: u8,
     ) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
+        #[expect(clippy::cast_possible_wrap)]
         Self::from(_mm_setr_epi8(
             v16 as i8, v17 as i8, v18 as i8, v19 as i8, v20 as i8, v21 as i8, v22 as i8, v23 as i8,
             v24 as i8, v25 as i8, v26 as i8, v27 as i8, v28 as i8, v29 as i8, v30 as i8, v31 as i8,
@@ -85,7 +85,7 @@ impl SimdU8Value {
         v14: u8,
         v15: u8,
     ) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
+        #[expect(clippy::cast_possible_wrap)]
         Self::from(_mm_setr_epi8(
             v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
             v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
@@ -95,7 +95,7 @@ impl SimdU8Value {
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        #[allow(clippy::cast_ptr_alignment)]
+        #[expect(clippy::cast_ptr_alignment)]
         Self::from(_mm_loadu_si128(ptr.cast::<__m128i>()))
     }
 
@@ -132,7 +132,7 @@ impl SimdU8Value {
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn splat(val: u8) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
+        #[expect(clippy::cast_possible_wrap)]
         Self::from(_mm_set1_epi8(val as i8))
     }
 
