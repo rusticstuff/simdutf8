@@ -202,9 +202,8 @@ fn test_invalid_public_imp(input: &[u8], valid_up_to: usize, error_len: Option<u
         }
     }
     #[cfg(all(
-        feature = "aarch64_neon",
         target_arch = "aarch64",
-        target_feature = "neon"
+        any(feature = "aarch64_neon", target_feature = "neon")
     ))]
     unsafe {
         assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_err());
