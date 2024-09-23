@@ -133,9 +133,8 @@ fn test_valid_public_imp(input: &[u8]) {
         }
     }
     #[cfg(all(
-        feature = "aarch64_neon",
         target_arch = "aarch64",
-        target_feature = "neon"
+        any(feature = "aarch64_neon", target_feature = "neon")
     ))]
     unsafe {
         assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
@@ -464,7 +463,7 @@ fn test_sse42_chunked_panic() {
 #[cfg(all(
     feature = "public_imp",
     target_arch = "aarch64",
-    feature = "aarch64_neon"
+    any(feature = "aarch64_neon", target_feature = "neon")
 ))]
 fn test_neon_chunked_panic() {
     test_chunked_streaming_with_chunk_size::<
