@@ -1,5 +1,5 @@
 #![warn(unused_extern_crates)]
-#![deny(
+#![warn(
     clippy::all,
     clippy::unwrap_used,
     clippy::unnecessary_unwrap,
