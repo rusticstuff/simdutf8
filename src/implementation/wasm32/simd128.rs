@@ -281,5 +281,5 @@ const fn simd_prefetch(_ptr: *const u8) {
 
 const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
-simd_input_128_bit!("simd128");
-algorithm_simd!("simd128");
+simd_input_128_bit!(#[target_feature(enable = "simd128")]);
+algorithm_simd!(#[target_feature(enable = "simd128")]);
