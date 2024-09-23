@@ -241,5 +241,5 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 
 const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
-simd_input_128_bit!("sse4.2");
-algorithm_simd!("sse4.2");
+simd_input_128_bit!(#[target_feature(enable = "sse4.2")]);
+algorithm_simd!(#[target_feature(enable = "sse4.2")]);
