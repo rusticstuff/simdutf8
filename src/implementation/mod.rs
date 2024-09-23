@@ -19,7 +19,7 @@ type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompa
 
 // Rust Portable SIMD implementation
 
-#[cfg(feature = "portable")]
+#[cfg(all(feature = "portable", feature = "public_imp"))]
 pub(crate) mod portable;
 
 // x86 implementation
