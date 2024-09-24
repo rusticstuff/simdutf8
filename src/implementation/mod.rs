@@ -16,6 +16,7 @@ pub(crate) mod helpers;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(crate) mod x86;
 
+use faux_expect::expect;
 /// Fn needed instead of re-import, otherwise not inlined in non-std case
 #[expect(clippy::inline_always)]
 #[inline(always)]
