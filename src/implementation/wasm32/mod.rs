@@ -1,8 +1,7 @@
-#[rustversion::not(any(nightly, since(1.81)))]
-use faux_expect::expect;
+use faux_expect::compat_expect;
 
 #[cfg(target_feature = "simd128")]
-#[expect(dead_code)]
+#[compat_expect(dead_code)]
 pub(crate) mod simd128;
 
 #[inline]
