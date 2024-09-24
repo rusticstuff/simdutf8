@@ -89,7 +89,6 @@ impl SimdU8Value {
         v14: u8,
         v15: u8,
     ) -> Self {
-        #[expect(clippy::cast_possible_wrap)]
         Self::from_32_cut_off_leading(
             v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v0, v1, v2, v3,
             v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,

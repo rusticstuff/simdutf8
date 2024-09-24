@@ -555,7 +555,6 @@ macro_rules! simd_input_256_bit {
         impl SimdInput {
             $(#[$feat])*
             #[inline]
-            #[expect(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
                 Self {
                     vals: [
