@@ -1,7 +1,15 @@
 #[cfg(any(feature = "std", feature = "public_imp", target_feature = "avx2"))]
 pub(crate) mod avx2;
 
-#[cfg(any(feature = "std", feature = "public_imp", target_feature = "sse4.2"))]
+#[cfg(any(
+    feature = "public_imp",
+    all(feature = "std", not(target_feature = "avx2")),
+    all(
+        not(feature = "std"),
+        not(target_feature = "avx2"),
+        target_feature = "sse4.2"
+    )
+))]
 pub(crate) mod sse42;
 
 // validate_utf8_basic() std: implementation auto-selection
