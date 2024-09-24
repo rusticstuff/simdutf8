@@ -1,5 +1,8 @@
 //! Contains the wasm32 UTF-8 validation implementation.
 
+#[rustversion::not(any(nightly, since(1.81)))]
+use faux_expect::expect;
+
 use core::arch::wasm32::{
     u8x16, u8x16_all_true, u8x16_gt, u8x16_lt, u8x16_shr, u8x16_shuffle, u8x16_splat,
     u8x16_sub_sat, u8x16_swizzle, v128, v128_and, v128_any_true, v128_or, v128_xor,

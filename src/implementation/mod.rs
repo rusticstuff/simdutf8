@@ -1,5 +1,7 @@
 //! Contains UTF-8 validation implementations.
 
+use faux_expect::compat_expect;
+
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 type Utf8ErrorBasic = crate::basic::Utf8Error;
 
@@ -16,9 +18,8 @@ pub(crate) mod helpers;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(crate) mod x86;
 
-use faux_expect::expect;
 /// Fn needed instead of re-import, otherwise not inlined in non-std case
-#[expect(clippy::inline_always)]
+#[compat_expect(clippy::inline_always)]
 #[inline(always)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), Utf8ErrorBasic> {
@@ -26,7 +27,7 @@ pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), Utf8ErrorBa
 }
 
 /// Fn needed instead of re-import, otherwise not inlined in non-std case
-#[expect(clippy::inline_always)]
+#[compat_expect(clippy::inline_always)]
 #[inline(always)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), Utf8ErrorCompat> {

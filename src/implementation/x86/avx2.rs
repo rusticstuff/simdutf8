@@ -2,6 +2,8 @@
 
 #![allow(clippy::too_many_arguments)]
 
+use faux_expect::compat_expect;
+
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
     __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
@@ -24,6 +26,7 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m256i>;
 
 impl SimdU8Value {
+    #[compat_expect(clippy::cast_possible_wrap)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn from_32_cut_off_leading(
@@ -60,7 +63,6 @@ impl SimdU8Value {
         v30: u8,
         v31: u8,
     ) -> Self {
-        #[expect(clippy::cast_possible_wrap)]
         Self::from(_mm256_setr_epi8(
             v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
             v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
@@ -95,10 +97,10 @@ impl SimdU8Value {
         )
     }
 
+    #[compat_expect(clippy::cast_ptr_alignment)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        #[expect(clippy::cast_ptr_alignment)]
         Self::from(_mm256_loadu_si256(ptr.cast::<__m256i>()))
     }
 
@@ -132,10 +134,10 @@ impl SimdU8Value {
         ))
     }
 
+    #[compat_expect(clippy::cast_possible_wrap)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn splat(val: u8) -> Self {
-        #[expect(clippy::cast_possible_wrap)]
         Self::from(_mm256_set1_epi8(val as i8))
     }
 

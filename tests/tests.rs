@@ -1,5 +1,7 @@
 #![allow(clippy::non_ascii_literal)]
 
+use faux_expect::compat_expect;
+
 use simdutf8::basic::from_utf8 as basic_from_utf8;
 use simdutf8::basic::from_utf8_mut as basic_from_utf8_mut;
 use simdutf8::compat::from_utf8 as compat_from_utf8;
@@ -20,13 +22,13 @@ impl<T> BStrExt for T
 where
     T: AsRef<[u8]>,
 {
+    #[compat_expect(clippy::unwrap_used)]
     fn repeat_x(&self, count: usize) -> Vec<u8> {
         use std::io::Write;
 
         let x = self.as_ref();
         let mut res = Vec::with_capacity(x.len() * count);
         for _ in 0..count {
-            #[expect(clippy::unwrap_used)]
             res.write_all(x).unwrap();
         }
         res
@@ -467,18 +469,18 @@ fn error_debug_compat() {
 }
 
 #[test]
+#[compat_expect(clippy::clone_on_copy)] // used for coverage
 fn error_derives_basic() {
     let err = basic_from_utf8(b"\xF0").unwrap_err();
-    #[expect(clippy::clone_on_copy)] // used for coverage
     let err2 = err.clone();
     assert_eq!(err, err2);
     assert!(!(err != err2));
 }
 
 #[test]
+#[compat_expect(clippy::clone_on_copy)] // used for coverage
 fn error_derives_compat() {
     let err = compat_from_utf8(b"\xF0").unwrap_err();
-    #[expect(clippy::clone_on_copy)] // used for coverage
     let err2 = err.clone();
     assert_eq!(err, err2);
     assert!(!(err != err2));
