@@ -3,19 +3,13 @@
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 type Utf8ErrorBasic = crate::basic::Utf8Error;
 
-#[expect(unused_macros)]
 #[macro_use]
+#[allow(unused_macros)]
 mod algorithm;
 
 pub(crate) mod helpers;
 
 // UTF-8 validation function types
-
-#[expect(dead_code)]
-type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorBasic>;
-
-#[expect(dead_code)]
-type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), Utf8ErrorCompat>;
 
 // x86 implementation
 

@@ -17,6 +17,7 @@ pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(),
 
 #[cold]
 #[expect(clippy::unwrap_used)]
+#[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     let offset = if failing_block_pos == 0 {
         // Error must be in this block since it is the first.
@@ -36,6 +37,7 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
     validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
+#[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     mut src: *const u8,
     mut dest: *mut u8,
@@ -76,6 +78,7 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
 pub(crate) const SIMD_CHUNK_SIZE: usize = 64;
 
 #[repr(C, align(32))]
+#[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) struct Utf8CheckAlgorithm<T> {
     pub(crate) prev: T,
     pub(crate) incomplete: T,
@@ -83,8 +86,10 @@ pub(crate) struct Utf8CheckAlgorithm<T> {
 }
 
 #[repr(C, align(16))]
+#[allow(dead_code)] // only used if a 128-bit SIMD implementation is used
 pub(crate) struct TempSimdChunkA16(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
+#[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunkA16 {
     #[inline]
     pub(crate) const fn new() -> Self {
@@ -93,9 +98,11 @@ impl TempSimdChunkA16 {
 }
 
 #[repr(C, align(32))]
+#[allow(dead_code)] // only used if a 256-bit SIMD implementation is used
 pub(crate) struct TempSimdChunkA32(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
-#[expect(dead_code)]
+#[cfg(target_arch = "x86_64")]
+#[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunkA32 {
     #[inline]
     pub(crate) const fn new() -> Self {
@@ -104,6 +111,7 @@ impl TempSimdChunkA32 {
 }
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) struct SimdU8Value<T>(pub(crate) T)
 where
     T: Copy;

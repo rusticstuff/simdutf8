@@ -1,11 +1,8 @@
-#[expect(dead_code)]
+#[cfg(any(feature = "std", feature = "public_imp", target_feature = "avx2"))]
 pub(crate) mod avx2;
 
-#[expect(dead_code)]
+#[cfg(any(feature = "std", feature = "public_imp", target_feature = "sse4.2"))]
 pub(crate) mod sse42;
-
-#[expect(unused_imports)]
-use super::helpers::SIMD_CHUNK_SIZE;
 
 // validate_utf8_basic() std: implementation auto-selection
 
@@ -14,10 +11,23 @@ use super::helpers::SIMD_CHUNK_SIZE;
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
+    use super::helpers::SIMD_CHUNK_SIZE;
     use core::mem;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
     type FnRaw = *mut ();
+    type ValidateUtf8Fn = unsafe fn(input: &[u8]) -> Result<(), crate::basic::Utf8Error>;
+
+    #[inline]
+    fn get_fastest_available_implementation_basic() -> ValidateUtf8Fn {
+        if std::is_x86_feature_detected!("avx2") {
+            avx2::validate_utf8_basic
+        } else if std::is_x86_feature_detected!("sse4.2") {
+            sse42::validate_utf8_basic
+        } else {
+            super::validate_utf8_basic_fallback
+        }
+    }
 
     static FN: AtomicPtr<()> = AtomicPtr::new(get_fastest as FnRaw);
 
@@ -32,19 +42,7 @@ pub(crate) unsafe fn validate_utf8_basic(
     }
 
     let fun = FN.load(Ordering::Relaxed);
-    mem::transmute::<FnRaw, super::ValidateUtf8Fn>(fun)(input)
-}
-
-#[cfg(all(feature = "std", not(target_feature = "avx2")))]
-#[inline]
-fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
-    if std::is_x86_feature_detected!("avx2") {
-        avx2::validate_utf8_basic
-    } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_basic
-    } else {
-        super::validate_utf8_basic_fallback
-    }
+    mem::transmute::<FnRaw, ValidateUtf8Fn>(fun)(input)
 }
 
 // validate_utf8_basic() no-std: implementation selection by config
@@ -53,7 +51,7 @@ fn get_fastest_available_implementation_basic() -> super::ValidateUtf8Fn {
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if input.len() < SIMD_CHUNK_SIZE {
+    if input.len() < super::helpers::SIMD_CHUNK_SIZE {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -76,7 +74,7 @@ unsafe fn validate_utf8_basic_avx2(
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if input.len() < SIMD_CHUNK_SIZE {
+    if input.len() < super::helpers::SIMD_CHUNK_SIZE {
         return super::validate_utf8_basic_fallback(input);
     }
 
@@ -110,10 +108,23 @@ pub(crate) use super::validate_utf8_basic_fallback as validate_utf8_basic;
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
+    use super::helpers::SIMD_CHUNK_SIZE;
     use core::mem;
     use std::sync::atomic::{AtomicPtr, Ordering};
 
     type FnRaw = *mut ();
+    type ValidateUtf8CompatFn = unsafe fn(input: &[u8]) -> Result<(), crate::compat::Utf8Error>;
+
+    #[inline]
+    fn get_fastest_available_implementation_compat() -> ValidateUtf8CompatFn {
+        if std::is_x86_feature_detected!("avx2") {
+            avx2::validate_utf8_compat
+        } else if std::is_x86_feature_detected!("sse4.2") {
+            sse42::validate_utf8_compat
+        } else {
+            super::validate_utf8_compat_fallback
+        }
+    }
 
     static FN: AtomicPtr<()> = AtomicPtr::new(get_fastest as FnRaw);
 
@@ -128,19 +139,7 @@ pub(crate) unsafe fn validate_utf8_compat(
     }
 
     let fun = FN.load(Ordering::Relaxed);
-    mem::transmute::<FnRaw, super::ValidateUtf8CompatFn>(fun)(input)
-}
-
-#[cfg(all(feature = "std", not(target_feature = "avx2")))]
-#[inline]
-fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn {
-    if std::is_x86_feature_detected!("avx2") {
-        avx2::validate_utf8_compat
-    } else if std::is_x86_feature_detected!("sse4.2") {
-        sse42::validate_utf8_compat
-    } else {
-        super::validate_utf8_compat_fallback
-    }
+    mem::transmute::<FnRaw, ValidateUtf8CompatFn>(fun)(input)
 }
 
 // validate_utf8_basic() no-std: implementation selection by config
@@ -149,7 +148,7 @@ fn get_fastest_available_implementation_compat() -> super::ValidateUtf8CompatFn 
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if input.len() < SIMD_CHUNK_SIZE {
+    if input.len() < super::helpers::SIMD_CHUNK_SIZE {
         return super::validate_utf8_compat_fallback(input);
     }
 
@@ -172,7 +171,7 @@ unsafe fn validate_utf8_compat_avx2(
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if input.len() < SIMD_CHUNK_SIZE {
+    if input.len() < super::helpers::SIMD_CHUNK_SIZE {
         return super::validate_utf8_compat_fallback(input);
     }
 
