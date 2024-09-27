@@ -2,7 +2,6 @@
 /// `SimdU8Value` - implementation of SIMD primitives
 /// `SimdInput` - which  holds 64 bytes of SIMD input
 /// `TempSimdChunk` - correctly aligned `TempSimdChunk`, either `TempSimdChunkA16` or `TempSimdChunkA32`
-
 macro_rules! algorithm_simd {
     ($(#[$feat:meta])*) => {
         use crate::{basic, compat};
