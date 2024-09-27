@@ -1,6 +1,6 @@
 //! Contains the aarch64 UTF-8 validation implementation.
 
-use faux_expect::compat_expect;
+use flexpect::flexpect;
 
 use core::arch::aarch64::{
     uint8x16_t, vandq_u8, vcgtq_u8, vdupq_n_u8, veorq_u8, vextq_u8, vld1q_u8, vmaxvq_u8,
@@ -15,7 +15,7 @@ type SimdU8Value = crate::implementation::helpers::SimdU8Value<uint8x16_t>;
 
 impl SimdU8Value {
     #[inline]
-    #[compat_expect(clippy::too_many_arguments)]
+    #[flexpect(clippy::too_many_arguments)]
     unsafe fn from_32_cut_off_leading(
         _v0: u8,
         _v1: u8,
@@ -57,7 +57,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[compat_expect(clippy::too_many_arguments)]
+    #[flexpect(clippy::too_many_arguments)]
     unsafe fn repeat_16(
         v0: u8,
         v1: u8,
@@ -100,7 +100,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[compat_expect(clippy::too_many_arguments)]
+    #[flexpect(clippy::too_many_arguments)]
     unsafe fn lookup_16(
         self,
         v0: u8,

@@ -1,7 +1,7 @@
-use faux_expect::compat_expect;
+use flexpect::flexpect;
 
 #[cfg(target_feature = "simd128")]
-#[compat_expect(dead_code)]
+#[flexpect(dead_code)]
 pub(crate) mod simd128;
 
 #[inline]

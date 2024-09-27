@@ -1,6 +1,6 @@
 //! Contains the wasm32 UTF-8 validation implementation.
 
-use faux_expect::compat_expect;
+use flexpect::flexpect;
 
 use core::arch::wasm32::{
     u8x16, u8x16_all_true, u8x16_gt, u8x16_lt, u8x16_shr, u8x16_shuffle, u8x16_splat,
@@ -18,9 +18,9 @@ struct AlignV128Array([u8; 16]);
 
 impl SimdU8Value {
     #[inline]
-    #[compat_expect(clippy::too_many_arguments)]
-    #[compat_expect(clippy::cast_possible_wrap)]
-    #[compat_expect(clippy::cast_ptr_alignment)]
+    #[flexpect(clippy::too_many_arguments)]
+    #[flexpect(clippy::cast_possible_wrap)]
+    #[flexpect(clippy::cast_ptr_alignment)]
     unsafe fn from_32_cut_off_leading(
         _v0: u8,
         _v1: u8,
@@ -62,9 +62,9 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[compat_expect(clippy::too_many_arguments)]
-    #[compat_expect(clippy::cast_possible_wrap)]
-    #[compat_expect(clippy::cast_ptr_alignment)]
+    #[flexpect(clippy::too_many_arguments)]
+    #[flexpect(clippy::cast_possible_wrap)]
+    #[flexpect(clippy::cast_ptr_alignment)]
     unsafe fn repeat_16(
         v0: u8,
         v1: u8,
@@ -95,7 +95,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[compat_expect(clippy::too_many_arguments)]
+    #[flexpect(clippy::too_many_arguments)]
     unsafe fn lookup_16(
         self,
         v0: u8,
@@ -125,13 +125,13 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[compat_expect(clippy::cast_possible_wrap)]
+    #[flexpect(clippy::cast_possible_wrap)]
     unsafe fn splat(val: u8) -> Self {
         Self::from(u8x16_splat(val))
     }
 
     #[inline]
-    #[compat_expect(clippy::cast_possible_wrap)]
+    #[flexpect(clippy::cast_possible_wrap)]
     unsafe fn splat0() -> Self {
         Self::from(u8x16(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
     }
@@ -158,7 +158,7 @@ impl SimdU8Value {
 
     // ugly but shr<N> requires const generics
 
-    #[compat_expect(clippy::cast_lossless)]
+    #[flexpect(clippy::cast_lossless)]
     #[inline]
     unsafe fn shr4(self) -> Self {
         Self::from(u8x16_shr(self.0, 4))
@@ -168,7 +168,7 @@ impl SimdU8Value {
 
     // TODO make this into a macro
 
-    #[compat_expect(clippy::cast_lossless)]
+    #[flexpect(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev1(self, prev: Self) -> Self {
         Self::from(u8x16_shuffle::<
@@ -193,7 +193,7 @@ impl SimdU8Value {
 
     // ugly but prev<N> requires const generics
 
-    #[compat_expect(clippy::cast_lossless)]
+    #[flexpect(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev2(self, prev: Self) -> Self {
         Self::from(u8x16_shuffle::<
@@ -218,7 +218,7 @@ impl SimdU8Value {
 
     // ugly but prev<N> requires const generics
 
-    #[compat_expect(clippy::cast_lossless)]
+    #[flexpect(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev3(self, prev: Self) -> Self {
         Self::from(u8x16_shuffle::<
