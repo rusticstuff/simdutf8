@@ -69,6 +69,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
+      - name: Install stable toolchain
+        run: rustup toolchain add stable
+      - name: Install rustfilt
+        run: cargo +stable install rustfilt
       - name: Check if the expected fns are inlined
         run: |
           ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt
@@ -96,7 +100,7 @@ jobs:
       - name: Install stable toolchain
         run: rustup toolchain add stable
       - name: Install rustfilt
-        run: cargo install rustfilt
+        run: cargo +stable install rustfilt
       - name: Check if the expected fns are inlined
         run: |
           ./check-inlining.sh ${{ matrix.target }} expected-methods-aarch64-neon.txt
