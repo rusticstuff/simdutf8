@@ -46,7 +46,7 @@ jobs:
           WASM_RUNNER_VERBOSE: 1
 
   test-inlining-wasm32:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         target: [wasm32-wasi, wasm32-unknown-unknown]
