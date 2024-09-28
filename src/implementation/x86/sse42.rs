@@ -1,7 +1,5 @@
 //! Contains the x86-64/x86 SSE4.2 UTF-8 validation implementation.
 
-#![allow(clippy::too_many_arguments)]
-
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
     __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
@@ -22,6 +20,7 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
 
 impl SimdU8Value {
+    #[flexpect::flexpect(clippy::too_many_arguments)]
     #[flexpect::flexpect(clippy::cast_possible_wrap)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
@@ -65,6 +64,7 @@ impl SimdU8Value {
         ))
     }
 
+    #[flexpect::flexpect(clippy::too_many_arguments)]
     #[flexpect::flexpect(clippy::cast_possible_wrap)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
@@ -99,6 +99,7 @@ impl SimdU8Value {
         Self::from(_mm_loadu_si128(ptr.cast::<__m128i>()))
     }
 
+    #[flexpect::flexpect(clippy::too_many_arguments)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn lookup_16(

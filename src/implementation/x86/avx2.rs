@@ -1,7 +1,5 @@
 //! Contains the x86-64/x86 AVX2 UTF-8 validation implementation.
 
-#![allow(clippy::too_many_arguments)]
-
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
     __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
@@ -25,6 +23,7 @@ type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m256i>;
 
 impl SimdU8Value {
     #[flexpect::flexpect(clippy::cast_possible_wrap)]
+    #[flexpect::flexpect(clippy::too_many_arguments)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn from_32_cut_off_leading(
@@ -69,6 +68,7 @@ impl SimdU8Value {
         ))
     }
 
+    #[flexpect::flexpect(clippy::too_many_arguments)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn repeat_16(
@@ -102,6 +102,7 @@ impl SimdU8Value {
         Self::from(_mm256_loadu_si256(ptr.cast::<__m256i>()))
     }
 
+    #[flexpect::flexpect(clippy::too_many_arguments)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn lookup_16(
