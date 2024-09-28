@@ -86,10 +86,11 @@ jobs:
           cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-sse42.txt -
 
   test-inlining-aarch64-enabled-by-default:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest, macos-latest
     strategy:
       matrix:
-        toolchain: [nightly, beta, stable]
+        # the neon target feature was unconditionally enabled for aarch64 in 1.61.0
+        toolchain: [nightly, beta, stable, 1.61.0]
         target: [aarch64-unknown-linux-gnu, aarch64-apple-darwin]
     defaults:
       run:
@@ -100,14 +101,14 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           targets: ${{ matrix.target }}
-      - name: Install cargo-asm
-        run: cargo install cargo-asm
+      - name: Install stable toolchain
+        run: rustup toolchain add stable
+      - name: Install rustfilt
+        run: cargo install rustfilt
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;cargo asm --target ${{ matrix.target }} --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features --features aarch64_neon|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-aarch64-neon.txt -
+          ./check-inlining.sh ${{ matrix.target }} expected-methods-aarch64-neon.txt
+          ./check-inlining.sh ${{ matrix.target }} expected-methods-aarch64-neon.txt "--no-default-features"
 
   test-doc:
     runs-on: ubuntu-latest
