@@ -14,4 +14,12 @@ build_args="${3:-}"
 cargo clean --quiet
 cargo build --quiet --release --target $target $build_args
 nm_output=$(nm -U ../target/$target/release/libsimdutf8.rlib 2>/dev/null)
-echo "$nm_output" | rustfilt | egrep " (t|T) _" | cut -c 21- | grep -Ev $INLINE_IGNORE_PATTERN | diff -u $expected_fns -
+if [[ $target == *darwin* ]]; then
+    pattern=" (t|T) _"
+    cut_arg=21
+else
+    pattern=" (t|T) "
+    cut_arg=20
+fi
+
+echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev $INLINE_IGNORE_PATTERN | diff -u $expected_fns -
