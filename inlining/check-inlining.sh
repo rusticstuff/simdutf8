@@ -8,7 +8,7 @@ expected_fns="$2"
 build_args="${3:-}"
 cargo clean --quiet
 cargo build --quiet --release --target $target $build_args
-nm_output=$(nm -U ../target/$target/release/libsimdutf8.rlib 2>/dev/null)
+nm_output=$(nm --defined-only ../target/$target/release/libsimdutf8.rlib)
 if [[ $target == *darwin* ]]; then
     pattern=" (t|T) _"
     cut_arg=21
