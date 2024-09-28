@@ -1,7 +1,5 @@
-use flexpect::flexpect;
-
 #[cfg(target_feature = "simd128")]
-#[flexpect(dead_code)]
+#[flexpect::flexpect(dead_code)]
 pub(crate) mod simd128;
 
 #[inline]

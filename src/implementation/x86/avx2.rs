@@ -2,8 +2,6 @@
 
 #![allow(clippy::too_many_arguments)]
 
-use flexpect::flexpect;
-
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
     __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
@@ -26,7 +24,7 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m256i>;
 
 impl SimdU8Value {
-    #[flexpect(clippy::cast_possible_wrap)]
+    #[flexpect::flexpect(clippy::cast_possible_wrap)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn from_32_cut_off_leading(
@@ -97,7 +95,7 @@ impl SimdU8Value {
         )
     }
 
-    #[flexpect(clippy::cast_ptr_alignment)]
+    #[flexpect::flexpect(clippy::cast_ptr_alignment)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
@@ -134,7 +132,7 @@ impl SimdU8Value {
         ))
     }
 
-    #[flexpect(clippy::cast_possible_wrap)]
+    #[flexpect::flexpect(clippy::cast_possible_wrap)]
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn splat(val: u8) -> Self {
