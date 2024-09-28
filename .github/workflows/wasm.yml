@@ -68,6 +68,7 @@ jobs:
         run: |
           ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt
           ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt --no-default-features
+          ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt --features public_imp
   cross-build-wasm32-unknown:
     runs-on: ubuntu-latest
     strategy:
