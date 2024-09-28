@@ -20,8 +20,8 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
 
 impl SimdU8Value {
-    #[flexpect::flexpect(clippy::too_many_arguments)]
-    #[flexpect::flexpect(clippy::cast_possible_wrap)]
+    #[flexpect::e(clippy::too_many_arguments)]
+    #[flexpect::e(clippy::cast_possible_wrap)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn from_32_cut_off_leading(
@@ -64,8 +64,8 @@ impl SimdU8Value {
         ))
     }
 
-    #[flexpect::flexpect(clippy::too_many_arguments)]
-    #[flexpect::flexpect(clippy::cast_possible_wrap)]
+    #[flexpect::e(clippy::too_many_arguments)]
+    #[flexpect::e(clippy::cast_possible_wrap)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn repeat_16(
@@ -92,14 +92,14 @@ impl SimdU8Value {
         ))
     }
 
-    #[flexpect::flexpect(clippy::cast_ptr_alignment)]
+    #[flexpect::e(clippy::cast_ptr_alignment)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
         Self::from(_mm_loadu_si128(ptr.cast::<__m128i>()))
     }
 
-    #[flexpect::flexpect(clippy::too_many_arguments)]
+    #[flexpect::e(clippy::too_many_arguments)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn lookup_16(
@@ -130,7 +130,7 @@ impl SimdU8Value {
         ))
     }
 
-    #[flexpect::flexpect(clippy::cast_possible_wrap)]
+    #[flexpect::e(clippy::cast_possible_wrap)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn splat(val: u8) -> Self {

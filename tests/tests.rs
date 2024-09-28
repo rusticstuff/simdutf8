@@ -20,7 +20,7 @@ impl<T> BStrExt for T
 where
     T: AsRef<[u8]>,
 {
-    #[flexpect::flexpect(clippy::unwrap_used)]
+    #[flexpect::e(clippy::unwrap_used)]
     fn repeat_x(&self, count: usize) -> Vec<u8> {
         use std::io::Write;
 
@@ -467,7 +467,7 @@ fn error_debug_compat() {
 }
 
 #[test]
-#[flexpect::flexpect(clippy::clone_on_copy)] // used for coverage
+#[flexpect::e(clippy::clone_on_copy)] // used for coverage
 fn error_derives_basic() {
     let err = basic_from_utf8(b"\xF0").unwrap_err();
     let err2 = err.clone();
@@ -476,7 +476,7 @@ fn error_derives_basic() {
 }
 
 #[test]
-#[flexpect::flexpect(clippy::clone_on_copy)] // used for coverage
+#[flexpect::e(clippy::clone_on_copy)] // used for coverage
 fn error_derives_compat() {
     let err = compat_from_utf8(b"\xF0").unwrap_err();
     let err2 = err.clone();

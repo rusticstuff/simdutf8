@@ -1,7 +1,7 @@
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 
 #[inline]
-#[flexpect::flexpect(clippy::cast_possible_truncation)]
+#[flexpect::e(clippy::cast_possible_truncation)]
 pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
     match core::str::from_utf8(&input[offset..]) {
         Ok(_) => Ok(()),
@@ -16,7 +16,7 @@ pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(),
 }
 
 #[cold]
-#[flexpect::flexpect(clippy::unwrap_used)]
+#[flexpect::e(clippy::unwrap_used)]
 #[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     let offset = if failing_block_pos == 0 {
