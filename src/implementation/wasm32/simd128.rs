@@ -17,7 +17,6 @@ struct AlignV128Array([u8; 16]);
 impl SimdU8Value {
     #[inline]
     #[flexpect::flexpect(clippy::too_many_arguments)]
-    #[flexpect::flexpect(clippy::cast_possible_wrap)]
     #[flexpect::flexpect(clippy::cast_ptr_alignment)]
     unsafe fn from_32_cut_off_leading(
         _v0: u8,
@@ -61,7 +60,6 @@ impl SimdU8Value {
 
     #[inline]
     #[flexpect::flexpect(clippy::too_many_arguments)]
-    #[flexpect::flexpect(clippy::cast_possible_wrap)]
     #[flexpect::flexpect(clippy::cast_ptr_alignment)]
     unsafe fn repeat_16(
         v0: u8,
@@ -123,13 +121,11 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[flexpect::flexpect(clippy::cast_possible_wrap)]
     unsafe fn splat(val: u8) -> Self {
         Self::from(u8x16_splat(val))
     }
 
     #[inline]
-    #[flexpect::flexpect(clippy::cast_possible_wrap)]
     unsafe fn splat0() -> Self {
         Self::from(u8x16(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
     }
@@ -155,18 +151,13 @@ impl SimdU8Value {
     }
 
     // ugly but shr<N> requires const generics
-
-    #[flexpect::flexpect(clippy::cast_lossless)]
     #[inline]
     unsafe fn shr4(self) -> Self {
         Self::from(u8x16_shr(self.0, 4))
     }
 
     // ugly but prev<N> requires const generics
-
     // TODO make this into a macro
-
-    #[flexpect::flexpect(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev1(self, prev: Self) -> Self {
         Self::from(u8x16_shuffle::<
@@ -190,8 +181,6 @@ impl SimdU8Value {
     }
 
     // ugly but prev<N> requires const generics
-
-    #[flexpect::flexpect(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev2(self, prev: Self) -> Self {
         Self::from(u8x16_shuffle::<
@@ -215,8 +204,6 @@ impl SimdU8Value {
     }
 
     // ugly but prev<N> requires const generics
-
-    #[flexpect::flexpect(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev3(self, prev: Self) -> Self {
         Self::from(u8x16_shuffle::<
