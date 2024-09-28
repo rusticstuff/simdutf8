@@ -4,7 +4,7 @@ type Utf8ErrorCompat = crate::compat::Utf8Error;
 type Utf8ErrorBasic = crate::basic::Utf8Error;
 
 #[macro_use]
-#[allow(unused_macros)]
+#[allow(unused_macros)] // only used if there is a SIMD implementation
 mod algorithm;
 
 pub(crate) mod helpers;
