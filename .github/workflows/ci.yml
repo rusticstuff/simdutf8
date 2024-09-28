@@ -71,7 +71,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
       - name: Check if the expected fns are inlined
         run: |
-          ./check-inlining.sh expected-methods-x86-std.txt
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx2.txt
           ./check-inlining.sh x86_64-unknown-linux-gnu empty.txt "--no-default-features"
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx2.txt "--no-default-features"
