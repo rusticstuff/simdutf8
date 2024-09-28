@@ -1,5 +1,6 @@
 .DS_Store
 Cargo.lock
 /target
+/faux-expect/target
 /.vscode
 /.idea

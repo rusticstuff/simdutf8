@@ -1,5 +1,4 @@
 #[cfg(any(feature = "aarch64_neon", target_feature = "neon"))]
-#[allow(dead_code)]
 pub(crate) mod neon;
 
 #[inline]

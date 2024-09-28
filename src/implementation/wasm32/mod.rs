@@ -1,5 +1,4 @@
 #[cfg(target_feature = "simd128")]
-#[allow(dead_code)]
 pub(crate) mod simd128;
 
 #[inline]

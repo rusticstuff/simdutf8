@@ -1,12 +1,10 @@
-#[allow(unused_imports)]
-use std::io::{stdin, Read, Result};
-
 #[cfg(all(
     feature = "public_imp",
     any(target_arch = "x86", target_arch = "x86_64")
 ))]
-fn main() -> Result<()> {
+fn main() -> std::io::Result<()> {
     use simdutf8::basic::imp::Utf8Validator;
+    use std::io::{stdin, Read};
 
     unsafe {
         if !std::is_x86_feature_detected!("avx2") {

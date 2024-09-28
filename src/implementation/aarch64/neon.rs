@@ -13,8 +13,7 @@ type SimdU8Value = crate::implementation::helpers::SimdU8Value<uint8x16_t>;
 
 impl SimdU8Value {
     #[inline]
-    #[allow(clippy::too_many_arguments)]
-    #[allow(clippy::cast_possible_wrap)]
+    #[flexpect::e(clippy::too_many_arguments)]
     unsafe fn from_32_cut_off_leading(
         _v0: u8,
         _v1: u8,
@@ -56,8 +55,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[allow(clippy::too_many_arguments)]
-    #[allow(clippy::cast_possible_wrap)]
+    #[flexpect::e(clippy::too_many_arguments)]
     unsafe fn repeat_16(
         v0: u8,
         v1: u8,
@@ -83,7 +81,6 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[allow(clippy::cast_ptr_alignment)]
     unsafe fn load_from(ptr: *const u8) -> Self {
         // WORKAROUND for https://github.com/rust-lang/stdarch/issues/1148
         // The vld1q_u8 intrinsic is currently broken, it treats it as individual
@@ -101,7 +98,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[allow(clippy::too_many_arguments)]
+    #[flexpect::e(clippy::too_many_arguments)]
     unsafe fn lookup_16(
         self,
         v0: u8,
@@ -131,13 +128,11 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[allow(clippy::cast_possible_wrap)]
     unsafe fn splat(val: u8) -> Self {
         Self::from(vmovq_n_u8(val))
     }
 
     #[inline]
-    #[allow(clippy::cast_possible_wrap)]
     unsafe fn splat0() -> Self {
         Self::from(vdupq_n_u8(0))
     }
@@ -164,7 +159,6 @@ impl SimdU8Value {
 
     // ugly but shr<N> requires const generics
 
-    #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn shr4(self) -> Self {
         Self::from(vshrq_n_u8(self.0, 4))
@@ -172,7 +166,6 @@ impl SimdU8Value {
 
     // ugly but prev<N> requires const generics
 
-    #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev1(self, prev: Self) -> Self {
         Self::from(vextq_u8(prev.0, self.0, 16 - 1))
@@ -180,7 +173,6 @@ impl SimdU8Value {
 
     // ugly but prev<N> requires const generics
 
-    #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev2(self, prev: Self) -> Self {
         Self::from(vextq_u8(prev.0, self.0, 16 - 2))
@@ -188,7 +180,6 @@ impl SimdU8Value {
 
     // ugly but prev<N> requires const generics
 
-    #[allow(clippy::cast_lossless)]
     #[inline]
     unsafe fn prev3(self, prev: Self) -> Self {
         Self::from(vextq_u8(prev.0, self.0, 16 - 3))

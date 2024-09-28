@@ -1,7 +1,5 @@
 //! Contains the x86-64/x86 SSE4.2 UTF-8 validation implementation.
 
-#![allow(clippy::too_many_arguments)]
-
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
     __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
@@ -22,6 +20,8 @@ use crate::implementation::helpers::Utf8CheckAlgorithm;
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<__m128i>;
 
 impl SimdU8Value {
+    #[flexpect::e(clippy::too_many_arguments)]
+    #[flexpect::e(clippy::cast_possible_wrap)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn from_32_cut_off_leading(
@@ -58,13 +58,14 @@ impl SimdU8Value {
         v30: u8,
         v31: u8,
     ) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
         Self::from(_mm_setr_epi8(
             v16 as i8, v17 as i8, v18 as i8, v19 as i8, v20 as i8, v21 as i8, v22 as i8, v23 as i8,
             v24 as i8, v25 as i8, v26 as i8, v27 as i8, v28 as i8, v29 as i8, v30 as i8, v31 as i8,
         ))
     }
 
+    #[flexpect::e(clippy::too_many_arguments)]
+    #[flexpect::e(clippy::cast_possible_wrap)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn repeat_16(
@@ -85,20 +86,20 @@ impl SimdU8Value {
         v14: u8,
         v15: u8,
     ) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
         Self::from(_mm_setr_epi8(
             v0 as i8, v1 as i8, v2 as i8, v3 as i8, v4 as i8, v5 as i8, v6 as i8, v7 as i8,
             v8 as i8, v9 as i8, v10 as i8, v11 as i8, v12 as i8, v13 as i8, v14 as i8, v15 as i8,
         ))
     }
 
+    #[flexpect::e(clippy::cast_ptr_alignment)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        #[allow(clippy::cast_ptr_alignment)]
         Self::from(_mm_loadu_si128(ptr.cast::<__m128i>()))
     }
 
+    #[flexpect::e(clippy::too_many_arguments)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn lookup_16(
@@ -129,10 +130,10 @@ impl SimdU8Value {
         ))
     }
 
+    #[flexpect::e(clippy::cast_possible_wrap)]
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn splat(val: u8) -> Self {
-        #[allow(clippy::cast_possible_wrap)]
         Self::from(_mm_set1_epi8(val as i8))
     }
 
