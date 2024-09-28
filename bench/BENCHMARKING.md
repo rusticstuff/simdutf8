@@ -51,9 +51,10 @@ variable to your installation for it to be found (e.g., `LLVM_SYS_120_PREFIX` at
 * Optional: disable hyper-threading (not sure if necessary, my test machine has no hyper threading)
 
 ### Factors affecting performance
-* missed inlining plays a huge role of course, unfortunately one can not use `#[inline(always)] on
-* functions with `#[target_feature(enable = "...")]` and even though that would only be strong a hint.
-  What is needed is an error on non-inlining. Simulating that using [cargo asm](https://github.com/gnzlbg/cargo-asm) to make sure that methods supposed to be inlined do not exist in the rlib.
+* missed inlining plays a huge role of course, unfortunately one can not use `#[inline(always)]` on
+  functions with `#[target_feature(enable = "...")]` and even though that would only be strong a hint.
+  What is needed is an error on non-inlining. This can be checked with `nm` on the rlib or with tools
+  like cargo-show-asm.
 * alignment plays a huge role on some machines (modern Intel, modern AMD not so much)
   * up to 20% better performance on long but unaligned slices (which are apparently likely at least on Linux)
 

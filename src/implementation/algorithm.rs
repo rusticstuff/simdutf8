@@ -2,7 +2,6 @@
 /// `SimdU8Value` - implementation of SIMD primitives
 /// `SimdInput` - which  holds 64 bytes of SIMD input
 /// `TempSimdChunk` - correctly aligned `TempSimdChunk`, either `TempSimdChunkA16` or `TempSimdChunkA32`
-
 macro_rules! algorithm_simd {
     ($(#[$feat:meta])*) => {
         use crate::{basic, compat};
@@ -65,7 +64,6 @@ macro_rules! algorithm_simd {
 
             $(#[$feat])*
             #[inline]
-            #[allow(clippy::too_many_lines)]
             unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
                 const TOO_SHORT: u8 = 1 << 0;
                 const TOO_LONG: u8 = 1 << 1;
@@ -276,6 +274,7 @@ macro_rules! algorithm_simd {
 
         $(#[$feat])*
         #[inline]
+        #[flexpect::e(clippy::redundant_else)] // more readable
         unsafe fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
             use crate::implementation::helpers::SIMD_CHUNK_SIZE;
             let len = input.len();
@@ -524,7 +523,6 @@ macro_rules! simd_input_128_bit {
         impl SimdInput {
             $(#[$feat])*
             #[inline]
-            #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
                 Self {
                     vals: [
@@ -558,7 +556,6 @@ macro_rules! simd_input_256_bit {
         impl SimdInput {
             $(#[$feat])*
             #[inline]
-            #[allow(clippy::cast_ptr_alignment)]
             unsafe fn new(ptr: &[u8]) -> Self {
                 Self {
                     vals: [
