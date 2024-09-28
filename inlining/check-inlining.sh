@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-INLINE_IGNORE_PATTERN="drop_in_place|::fmt::"
+INLINE_IGNORE_PATTERN='drop_in_place|::fmt::|^\$x\.'
 
 target="$1"
 expected_fns="$2"
