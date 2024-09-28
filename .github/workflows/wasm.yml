@@ -42,7 +42,7 @@ jobs:
         run: cargo test --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --all-targets --verbose
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
-          CARGO_TARGET_WASM32_WASI_RUNNER: wasm-runner wasmer
+          CARGO_TARGET_WASM32_WASIP1_RUNNER: wasm-runner wasmer
           WASM_RUNNER_VERBOSE: 1
 
   test-inlining-wasm32:
