@@ -13,7 +13,7 @@ env:
   INLINE_IGNORE_PATTERN: "drop_in_place|::fmt::"
 
 jobs:
-  test-wasm32-wasi:
+  test-wasm32-wasip1:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -27,7 +27,7 @@ jobs:
             "--features std,public_imp",
           ]
         rustflags: ["-D warnings", "-D warnings -C target-feature=+simd128"]
-        target: [wasm32-wasi]
+        target: [wasm32-wasip1]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -49,7 +49,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        target: [wasm32-wasi, wasm32-unknown-unknown]
+        target: [wasm32-wasip1, wasm32-unknown-unknown]
     defaults:
       run:
         working-directory: inlining
@@ -58,10 +58,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           targets: ${{ matrix.target }}
-      - name: Install stable toolchain
-        run: rustup toolchain add stable
       - name: Install rustfilt
-        run: cargo +stable install rustfilt
+        run: cargo install rustfilt
       - name: Check if the expected fns are inlined
         env:
           RUSTFLAGS: "-C target-feature=+simd128"
@@ -99,7 +97,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest, macos-13]
-        target: [wasm32-wasi, wasm32-unknown-unknown]
+        target: [wasm32-wasip1, wasm32-unknown-unknown]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
