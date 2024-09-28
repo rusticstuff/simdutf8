@@ -1,3 +1,3 @@
-simdutf8::implementation::helpers::get_compat_error
-simdutf8::implementation::wasm32::validate_utf8_basic_simd128
-simdutf8::implementation::wasm32::validate_utf8_compat_simd128
+::implementation::helpers::get_compat_error
+::implementation::wasm32::validate_utf8_basic_simd128
+::implementation::wasm32::validate_utf8_compat_simd128

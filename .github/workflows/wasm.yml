@@ -61,12 +61,11 @@ jobs:
       - name: Install cargo-asm
         run: cargo install cargo-asm
       - name: Check if the expected fns are inlined
+        env:
+          RUSTFLAGS: "-C target-feature=+simd128"
         run: |
-          cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-wasm32-simd128.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+simd128" cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-wasm32-simd128.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }}|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
-          cargo clean;cargo asm --target ${{ matrix.target }} --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
-
+          ./check-inlining.sh {{ matrix.target }} expected-methods-wasm32-simd128.txt
+          ./check-inlining.sh {{ matrix.target }} expected-methods-wasm32-simd128.txt --no-default-features
   cross-build-wasm32-unknown:
     runs-on: ubuntu-latest
     strategy:
