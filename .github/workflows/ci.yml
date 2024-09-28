@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest] # macos-13 for last x86_64 macOS
+        os: [ubuntu-latest, macos-13, macos-latest, windows-latest] # macos-13 for last x86_64 macOS
         toolchain: ["1.38.0", stable, beta, nightly]
         features:
           [
@@ -39,6 +39,8 @@ jobs:
             rustflags: "-D warnings -C target-feature=+sse4.2"
           - os: macos-latest
             toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
+          - os: macos-13 # macos-12 (or later) does not work with 1.38.0
+            toolchain: "1.38.0"
           - features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
           - features: "--features std,public_imp,portable"
         include:
