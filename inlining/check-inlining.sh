@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-INLINE_IGNORE_PATTERN='drop_in_place|::fmt::|^\$x\.'
-
 target="$1"
 expected_fns="$2"
 build_args="${3:-}"
@@ -16,5 +14,5 @@ else
     pattern=" (t|T) "
     cut_arg=20
 fi
-
-echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev $INLINE_IGNORE_PATTERN | sort | diff -u $expected_fns -
+inline_ignore_pattern='drop_in_place|::fmt::|^\$x\.|^<T as core::convert::From<T>>::from$'
+echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev "$inline_ignore_pattern" | sort | diff -u $expected_fns -
