@@ -3,11 +3,6 @@ set -euo pipefail
 
 INLINE_IGNORE_PATTERN="drop_in_place|::fmt::"
 
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <target> <build_args>"
-    exit 1
-fi
-
 target="$1"
 expected_fns="$2"
 build_args="${3:-}"
@@ -22,4 +17,4 @@ else
     cut_arg=20
 fi
 
-echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev $INLINE_IGNORE_PATTERN | diff -u $expected_fns -
+echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev $INLINE_IGNORE_PATTERN | sort | diff -u $expected_fns -

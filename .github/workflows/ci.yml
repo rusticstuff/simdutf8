@@ -10,7 +10,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  INLINE_IGNORE_PATTERN: "drop_in_place|::fmt::"
 
 jobs:
   test:
@@ -69,21 +68,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
-      - name: Install cargo-asm
-        run: cargo install cargo-asm
-      - uses: dtolnay/rust-toolchain@master
-        with:
           toolchain: ${{ matrix.toolchain }}
-      - name: Set default toolchain
-        run: rustup default ${{ matrix.toolchain }}
       - name: Check if the expected fns are inlined
         run: |
-          cargo clean;cargo asm|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-std.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-std-avx2.txt -
-          cargo clean;cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u empty.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+avx2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-avx2.txt -
-          cargo clean;RUSTFLAGS="-C target-feature=+sse4.2" cargo asm --no-default-features|egrep -v $INLINE_IGNORE_PATTERN|diff -u expected-methods-x86-nostd-sse42.txt -
+          ./check-inlining.sh expected-methods-x86-std.txt
+          RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx2.txt
+          ./check-inlining.sh x86_64-unknown-linux-gnu empty.txt "--no-default-features"
+          RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx2.txt "--no-default-features"
+          RUSTFLAGS="-C target-feature=+sse4.2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-sse42.txt "--no-default-features"
 
   test-inlining-aarch64-enabled-by-default:
     runs-on: ubuntu-latest, macos-latest
