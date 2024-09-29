@@ -116,6 +116,16 @@ mod public_imp {
         }
         #[cfg(feature = "portable_public_imp")]
         unsafe {
+            assert!(simdutf8::basic::imp::portable::simd128::validate_utf8(input).is_ok());
+            assert!(simdutf8::compat::imp::portable::simd128::validate_utf8(input).is_ok());
+
+            test_streaming::<simdutf8::basic::imp::portable::simd128::Utf8ValidatorImp>(
+                input, true,
+            );
+            test_chunked_streaming::<
+                simdutf8::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
+            >(input, true);
+
             assert!(simdutf8::basic::imp::portable::simd256::validate_utf8(input).is_ok());
             assert!(simdutf8::compat::imp::portable::simd256::validate_utf8(input).is_ok());
 
@@ -185,6 +195,18 @@ mod public_imp {
         }
         #[cfg(feature = "portable_public_imp")]
         unsafe {
+            assert!(simdutf8::basic::imp::portable::simd128::validate_utf8(input).is_err());
+            let err = simdutf8::compat::imp::portable::simd128::validate_utf8(input).unwrap_err();
+            assert_eq!(err.valid_up_to(), valid_up_to);
+            assert_eq!(err.error_len(), error_len);
+
+            test_streaming::<simdutf8::basic::imp::portable::simd128::Utf8ValidatorImp>(
+                input, false,
+            );
+            test_chunked_streaming::<
+                simdutf8::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
+            >(input, false);
+
             assert!(simdutf8::basic::imp::portable::simd256::validate_utf8(input).is_err());
             let err = simdutf8::compat::imp::portable::simd256::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
