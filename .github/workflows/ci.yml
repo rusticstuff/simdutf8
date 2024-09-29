@@ -52,6 +52,10 @@ jobs:
             features: "--features std,public_imp,portable"
             toolchain: "nightly"
             rustflags: "-D warnings"
+          - os: "macos-latest"
+            features: "--features std,public_imp,portable"
+            toolchain: "nightly"
+            rustflags: "-D warnings"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
