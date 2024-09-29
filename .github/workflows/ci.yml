@@ -48,6 +48,9 @@ jobs:
             features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
             toolchain: "nightly"
             rustflags: "-D warnings"
+          - features: "--features std,public_imp,portable"
+            toolchain: "nightly"
+            rustflags: "-D warnings"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
