@@ -217,14 +217,6 @@ pub mod imp {
         }
     }
 
-    /// Includes the portable SIMD implementations.
-    #[cfg(feature = "portable_public_imp")]
-    pub mod portable {
-        /// Includes the validation implementation using portable SIMD.
-        pub use crate::implementation::portable::validate_utf8_basic as validate_utf8;
-        pub use crate::implementation::portable::ChunkedUtf8ValidatorImp;
-        pub use crate::implementation::portable::Utf8ValidatorImp;
-    }
     /// Includes the aarch64 SIMD implementations.
     #[cfg(all(
         target_arch = "aarch64",
@@ -254,5 +246,14 @@ pub mod imp {
             pub use crate::implementation::wasm32::simd128::ChunkedUtf8ValidatorImp;
             pub use crate::implementation::wasm32::simd128::Utf8ValidatorImp;
         }
+    }
+
+    /// Includes the portable SIMD implementations.
+    #[cfg(feature = "portable_public_imp")]
+    pub mod portable {
+        /// Includes the validation implementation using portable SIMD.
+        pub use crate::implementation::portable::portable::validate_utf8_basic as validate_utf8;
+        pub use crate::implementation::portable::portable::ChunkedUtf8ValidatorImp;
+        pub use crate::implementation::portable::portable::Utf8ValidatorImp;
     }
 }
