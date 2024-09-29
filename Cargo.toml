@@ -39,8 +39,8 @@ aarch64_neon_prefetch = []
 
 # features for the portable SIMD implementation (nightly only)
 
-# enable the portable SIMD public implementation, requires public_imp to be enabled as well
-portable_public_imp = []
+# make the portable SIMD public implementation available
+portable_public_imp = ["public_imp"]
 
 # use the portable SIMD implementation when no architecture-specific implementation is available
 portable_fallback = []
