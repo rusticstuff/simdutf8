@@ -48,7 +48,8 @@ jobs:
             features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
             toolchain: "nightly"
             rustflags: "-D warnings"
-          - features: "--features std,public_imp,portable"
+          - os: "ubuntu-latest"
+            features: "--features std,public_imp,portable"
             toolchain: "nightly"
             rustflags: "-D warnings"
     steps:
