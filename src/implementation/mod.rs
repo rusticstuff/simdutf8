@@ -8,23 +8,6 @@ pub(crate) mod helpers;
 
 // UTF-8 validation function types
 
-// Rust Portable SIMD implementation
-
-#[cfg(any(
-    feature = "portable_public_imp",
-    feature = "portable_override",
-    all(
-        feature = "portable_fallback",
-        not(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            target_arch = "aarch64",
-            target_arch = "wasm32"
-        )),
-    )
-))]
-pub(crate) mod portable;
-
 // x86 implementation
 
 #[cfg(all(
@@ -106,17 +89,33 @@ pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
 ))]
 pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;
 
-// portable SIMD
+// portable SIMD implementation
+
 #[cfg(any(
+    feature = "portable_public_imp",
     feature = "portable_override",
     all(
+        feature = "portable_fallback",
         not(any(
             target_arch = "x86",
             target_arch = "x86_64",
             target_arch = "aarch64",
             target_arch = "wasm32"
         )),
-        feature = "portable_fallback"
+    )
+))]
+pub(crate) mod portable;
+
+#[cfg(any(
+    feature = "portable_override",
+    all(
+        feature = "portable_fallback",
+        not(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            target_arch = "aarch64",
+            target_arch = "wasm32"
+        )),
     )
 ))]
 pub(super) use portable::validate_utf8_basic;
@@ -124,13 +123,13 @@ pub(super) use portable::validate_utf8_basic;
 #[cfg(any(
     feature = "portable_override",
     all(
+        feature = "portable_fallback",
         not(any(
             target_arch = "x86",
             target_arch = "x86_64",
             target_arch = "aarch64",
             target_arch = "wasm32"
-        )),
-        feature = "portable_fallback"
+        ))
     )
 ))]
 pub(super) use portable::validate_utf8_compat;
