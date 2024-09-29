@@ -15,6 +15,14 @@
     all(target_arch = "aarch64", feature = "aarch64_neon_prefetch"),
     feature(stdarch_aarch64_prefetch)
 )]
+#![cfg_attr(
+    any(
+        feature = "portable_public_imp",
+        feature = "portable_fallback",
+        feature = "portable_override"
+    ),
+    feature(portable_simd)
+)]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
 //! [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs), but now heavily improved.
@@ -102,7 +110,6 @@
 //!
 //! See Validating UTF-8 In Less Than One Instruction Per Byte, Software: Practice and Experience 51 (5), 2021
 //! <https://arxiv.org/abs/2010.03090>
-#![cfg_attr(feature = "portable", feature(portable_simd))]
 
 pub mod basic;
 pub mod compat;

@@ -114,7 +114,7 @@ mod public_imp {
                 input, true,
             );
         }
-        #[cfg(feature = "portable")]
+        #[cfg(feature = "portable_public_imp")]
         unsafe {
             assert!(simdutf8::basic::imp::portable::validate_utf8(input).is_ok());
             assert!(simdutf8::compat::imp::portable::validate_utf8(input).is_ok());
@@ -181,7 +181,7 @@ mod public_imp {
                 input, false,
             );
         }
-        #[cfg(feature = "portable")]
+        #[cfg(feature = "portable_public_imp")]
         unsafe {
             assert!(simdutf8::basic::imp::portable::validate_utf8(input).is_err());
             let err = simdutf8::compat::imp::portable::validate_utf8(input).unwrap_err();

@@ -24,7 +24,7 @@ jobs:
             "--features public_imp",
             "--features std,public_imp,aarch64_neon",
             "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch",
-            "--features std,public_imp,portable",
+            "--features std,public_imp,portable_public_imp,portable_override",
           ]
         rustflags:
           [
@@ -42,18 +42,18 @@ jobs:
           - os: macos-13 # macos-12 (or later) does not work with 1.38.0
             toolchain: "1.38.0"
           - features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
-          - features: "--features std,public_imp,portable"
+          - features: "--features std,public_imp,portable_public_imp,portable_override"
         include:
           - os: macos-latest # aarch64_neon_prefetch is only supported on macOS ARM64 nightly
             features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
             toolchain: "nightly"
             rustflags: "-D warnings"
           - os: "ubuntu-latest"
-            features: "--features std,public_imp,portable"
+            features: "--features std,public_imp,portable_public_imp,portable_override"
             toolchain: "nightly"
             rustflags: "-D warnings"
           - os: "macos-latest"
-            features: "--features std,public_imp,portable"
+            features: "--features std,public_imp,portable_public_imp,portable_override"
             toolchain: "nightly"
             rustflags: "-D warnings"
     steps:
@@ -62,7 +62,7 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
       - name: Run tests
-        run: cargo test --no-default-features ${{ matrix.features }} --all-targets --verbose
+        run: cargo test --release --no-default-features ${{ matrix.features }} --all-targets --verbose
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
@@ -215,6 +215,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy
+      - name: Clippy - default
+        run: cargo clippy --all-targets
+        env:
+          RUSTFLAGS: "-D warnings"
       - name: Clippy - all features enabled
         run: cargo clippy --all-targets --all-features
         env:

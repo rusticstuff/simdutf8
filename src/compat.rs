@@ -116,7 +116,7 @@ pub mod imp {
     }
 
     /// Includes the x86/x86-64 SIMD implementations.
-    #[cfg(feature = "portable")]
+    #[cfg(feature = "portable_public_imp")]
     pub mod portable {
         /// Includes the validation implementation for portable SIMD.
         pub use crate::implementation::portable::validate_utf8_compat as validate_utf8;

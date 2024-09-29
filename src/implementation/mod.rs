@@ -13,7 +13,14 @@ pub(crate) mod helpers;
 
 // Rust Portable SIMD implementation
 
-#[cfg(all(feature = "portable", feature = "public_imp"))]
+#[cfg(all(
+    any(
+        feature = "portable_public_imp",
+        feature = "portable_fallback",
+        feature = "portable_override"
+    ),
+    feature = "public_imp"
+))]
 pub(crate) mod portable;
 
 // x86 implementation
