@@ -1,4 +1,4 @@
-pub(crate) mod portable;
+pub(crate) mod simd256;
 
 #[cfg(any(
     feature = "portable_override",
@@ -36,7 +36,7 @@ pub(crate) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basi
 ))]
 #[inline(never)]
 unsafe fn validate_utf8_basic_portable(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
-    portable::validate_utf8_basic(input)
+    simd256::validate_utf8_basic(input)
 }
 
 #[cfg(any(
@@ -75,5 +75,5 @@ pub(crate) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
 ))]
 #[inline(never)]
 unsafe fn validate_utf8_compat_portable(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
-    portable::validate_utf8_compat(input)
+    simd256::validate_utf8_compat(input)
 }

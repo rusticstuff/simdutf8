@@ -140,6 +140,8 @@ pub mod imp {
     #[cfg(feature = "portable_public_imp")]
     pub mod portable {
         /// Includes the validation implementation for portable SIMD.
-        pub use crate::implementation::portable::portable::validate_utf8_compat as validate_utf8;
+        pub mod simd256 {
+            pub use crate::implementation::portable::simd256::validate_utf8_compat as validate_utf8;
+        }
     }
 }
