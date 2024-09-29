@@ -78,7 +78,6 @@ impl SimdU8Value {
 
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        #[allow(clippy::cast_ptr_alignment)]
         Self::from(ptr.cast::<u8x16>().read_unaligned())
     }
 
