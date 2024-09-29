@@ -189,7 +189,7 @@ impl SimdU8Value {
 
     #[inline]
     fn any_bit_set(self) -> bool {
-        self.0 != u8x16::from_array([0; 16])
+        self.0 != u8x16::splat(0)
     }
 
     #[inline]
