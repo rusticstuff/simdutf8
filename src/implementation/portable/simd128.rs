@@ -79,7 +79,7 @@ impl SimdU8Value {
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
         #[allow(clippy::cast_ptr_alignment)]
-        Self::from(u8x16::from_array(ptr.cast::<[u8; 16]>().read_unaligned()))
+        Self::from(ptr.cast::<u8x16>().read_unaligned())
     }
 
     // ist OK
@@ -148,7 +148,7 @@ impl SimdU8Value {
     // ugly but shr<N> requires const generics
     #[inline]
     fn shr4(self) -> Self {
-        Self::from(self.0 >> u8x16::from([4; 16]))
+        Self::from(self.0 >> 4)
     }
     // ist OK
     #[inline]
