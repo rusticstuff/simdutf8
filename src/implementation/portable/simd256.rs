@@ -194,7 +194,7 @@ impl SimdU8Value {
     }
 
     #[inline]
-    fn signed_gt(self, other: Self) -> Self {
+    fn unsigned_gt(self, other: Self) -> Self {
         let gt = self.0.simd_gt(other.0).to_int();
         Self::from(gt.cast())
     }
@@ -226,7 +226,7 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
 
         is_third_byte
             .or(is_fourth_byte)
-            .signed_gt(SimdU8Value::splat0())
+            .unsigned_gt(SimdU8Value::splat0())
     }
 }
 
