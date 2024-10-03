@@ -194,8 +194,11 @@ impl SimdU8Value {
 
     #[inline]
     fn is_ascii(self) -> bool {
-        let significan_bits = self.0 & u8x16::from_array([0b1000_0000; 16]);
-        significan_bits == u8x16::from_array([0; 16])
+        if HAS_FAST_REDUCE_MAX {
+            self.0.reduce_max() < 0b1000_0000
+        } else {
+            (self.0 & u8x16::splat(0b1000_0000)) == u8x16::splat(0)
+        }
     }
 }
 
@@ -220,6 +223,12 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
 
 #[inline]
 unsafe fn simd_prefetch(_ptr: *const u8) {}
+
+#[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+const HAS_FAST_REDUCE_MAX: bool = true;
+
+#[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
+const HAS_FAST_REDUCE_MAX: bool = false;
 
 const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
