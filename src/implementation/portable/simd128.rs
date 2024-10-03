@@ -10,7 +10,6 @@ use core::simd::{simd_swizzle, u8x16};
 type SimdU8Value = crate::implementation::helpers::SimdU8Value<u8x16>;
 
 impl SimdU8Value {
-    // ist OK
     #[inline]
     fn from_32_cut_off_leading(
         _v0: u8,
@@ -51,7 +50,6 @@ impl SimdU8Value {
         ]))
     }
 
-    // ist OK
     #[inline]
     fn repeat_16(
         v0: u8,
@@ -81,7 +79,6 @@ impl SimdU8Value {
         Self::from(ptr.cast::<u8x16>().read_unaligned())
     }
 
-    // ist OK
     #[inline]
     fn lookup_16(
         self,
@@ -112,13 +109,13 @@ impl SimdU8Value {
         let res = src.swizzle_dyn(idx);
         Self::from(res)
     }
-    // ist OK
+
     #[inline]
     fn splat(val: u8) -> Self {
         #[allow(clippy::cast_possible_wrap)]
         Self::from(u8x16::splat(val))
     }
-    // ist OK
+
     #[inline]
     fn splat0() -> Self {
         Self::from(u8x16::splat(0))
@@ -143,13 +140,13 @@ impl SimdU8Value {
     fn saturating_sub(self, b: Self) -> Self {
         Self::from(self.0.saturating_sub(b.0))
     }
-    // ist OK
+
     // ugly but shr<N> requires const generics
     #[inline]
     fn shr4(self) -> Self {
         Self::from(self.0 >> 4)
     }
-    // ist OK
+
     #[inline]
     fn prev1(self, prev: Self) -> Self {
         Self::from(simd_swizzle!(
@@ -159,7 +156,6 @@ impl SimdU8Value {
         ))
     }
 
-    // ist OK
     // ugly but prev<N> requires const generics
     #[inline]
     fn prev2(self, prev: Self) -> Self {
@@ -170,7 +166,6 @@ impl SimdU8Value {
         ))
     }
 
-    // ist OK
     // ugly but prev<N> requires const generics
     #[inline]
     fn prev3(self, prev: Self) -> Self {
