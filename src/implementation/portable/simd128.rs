@@ -217,10 +217,16 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
 #[inline]
 unsafe fn simd_prefetch(_ptr: *const u8) {}
 
-#[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+#[cfg(all(
+    any(target_arch = "aarch64", target_arch = "arm"),
+    target_feature = "neon"
+))]
 const HAS_FAST_REDUCE_MAX: bool = true;
 
-#[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
+#[cfg(not(all(
+    any(target_arch = "aarch64", target_arch = "arm"),
+    target_feature = "neon"
+)))]
 const HAS_FAST_REDUCE_MAX: bool = false;
 
 const PREFETCH: bool = false;
