@@ -184,11 +184,11 @@ impl SimdU8Value {
 
     #[inline]
     fn any_bit_set(self) -> bool {
-if HAS_FAST_REDUCE_MAX {
+        if HAS_FAST_REDUCE_MAX {
             self.0.reduce_max() != 0
         } else {
-        self.0 != u8x16::splat(0)
-}
+            self.0 != u8x16::splat(0)
+        }
     }
 
     #[inline]
