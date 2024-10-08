@@ -63,6 +63,8 @@ variable to your installation for it to be found (e.g., `LLVM_SYS_120_PREFIX` at
 * single 0-initialized temp buf -> ❌ not faster
 * single aligned buffer -> ❌ not faster
 * two buffers, aligned -> ✔️ improved perf.
+* unaligned reads + prefetching -> ✔️ almost as good as aligned reads, better if two extra blocks are read
+  (beginning and end) due to unaligned data
 * Aligment on `Utf8CheckingState<T>` and `SimdInput` -> ❌ not faster, but seems like a good idea nevertheless
 
 ### Laptops

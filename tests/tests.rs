@@ -114,6 +114,28 @@ mod public_imp {
                 input, true,
             );
         }
+        #[cfg(feature = "portable_public_imp")]
+        unsafe {
+            assert!(simdutf8::basic::imp::portable::simd128::validate_utf8(input).is_ok());
+            assert!(simdutf8::compat::imp::portable::simd128::validate_utf8(input).is_ok());
+
+            test_streaming::<simdutf8::basic::imp::portable::simd128::Utf8ValidatorImp>(
+                input, true,
+            );
+            test_chunked_streaming::<
+                simdutf8::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
+            >(input, true);
+
+            assert!(simdutf8::basic::imp::portable::simd256::validate_utf8(input).is_ok());
+            assert!(simdutf8::compat::imp::portable::simd256::validate_utf8(input).is_ok());
+
+            test_streaming::<simdutf8::basic::imp::portable::simd256::Utf8ValidatorImp>(
+                input, true,
+            );
+            test_chunked_streaming::<
+                simdutf8::basic::imp::portable::simd256::ChunkedUtf8ValidatorImp,
+            >(input, true);
+        }
     }
 
     #[allow(unused_variables)] // nothing to do if not SIMD implementation is available
@@ -170,6 +192,32 @@ mod public_imp {
             test_chunked_streaming::<simdutf8::basic::imp::wasm32::simd128::ChunkedUtf8ValidatorImp>(
                 input, false,
             );
+        }
+        #[cfg(feature = "portable_public_imp")]
+        unsafe {
+            assert!(simdutf8::basic::imp::portable::simd128::validate_utf8(input).is_err());
+            let err = simdutf8::compat::imp::portable::simd128::validate_utf8(input).unwrap_err();
+            assert_eq!(err.valid_up_to(), valid_up_to);
+            assert_eq!(err.error_len(), error_len);
+
+            test_streaming::<simdutf8::basic::imp::portable::simd128::Utf8ValidatorImp>(
+                input, false,
+            );
+            test_chunked_streaming::<
+                simdutf8::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
+            >(input, false);
+
+            assert!(simdutf8::basic::imp::portable::simd256::validate_utf8(input).is_err());
+            let err = simdutf8::compat::imp::portable::simd256::validate_utf8(input).unwrap_err();
+            assert_eq!(err.valid_up_to(), valid_up_to);
+            assert_eq!(err.error_len(), error_len);
+
+            test_streaming::<simdutf8::basic::imp::portable::simd256::Utf8ValidatorImp>(
+                input, false,
+            );
+            test_chunked_streaming::<
+                simdutf8::basic::imp::portable::simd256::ChunkedUtf8ValidatorImp,
+            >(input, false);
         }
     }
 
@@ -395,21 +443,21 @@ fn simple_invalid() {
 #[test]
 fn incomplete_on_32nd_byte() {
     let mut invalid = b"a".repeat_x(31);
-    invalid.push(b'\xF0');
+    invalid.push(0xf0);
     test_invalid(&invalid, 31, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte() {
     let mut invalid = b"a".repeat_x(63);
-    invalid.push(b'\xF0');
+    invalid.push(0xf0);
     test_invalid(&invalid, 63, None)
 }
 
 #[test]
 fn incomplete_on_64th_byte_65_bytes_total() {
     let mut invalid = b"a".repeat_x(63);
-    invalid.push(b'\xF0');
+    invalid.push(0xf0);
     invalid.push(b'a');
     test_invalid(&invalid, 63, Some(1))
 }

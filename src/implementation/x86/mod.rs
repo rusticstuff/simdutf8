@@ -14,7 +14,11 @@ pub(crate) mod sse42;
 
 // validate_utf8_basic() std: implementation auto-selection
 
-#[cfg(all(feature = "std", not(target_feature = "avx2")))]
+#[cfg(all(
+    feature = "std",
+    not(target_feature = "avx2"),
+    not(feature = "portable_override")
+))]
 #[inline]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
@@ -55,7 +59,7 @@ pub(crate) unsafe fn validate_utf8_basic(
 
 // validate_utf8_basic() no-std: implementation selection by config
 
-#[cfg(target_feature = "avx2")]
+#[cfg(all(target_feature = "avx2", not(feature = "portable_override")))]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
@@ -66,7 +70,8 @@ pub(crate) unsafe fn validate_utf8_basic(
     validate_utf8_basic_avx2(input)
 }
 
-#[cfg(target_feature = "avx2")]
+/// This function definition is only needed to make sure that it is never inlined.
+#[cfg(all(target_feature = "avx2", not(feature = "portable_override")))]
 #[inline(never)]
 unsafe fn validate_utf8_basic_avx2(
     input: &[u8],
@@ -77,7 +82,8 @@ unsafe fn validate_utf8_basic_avx2(
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    target_feature = "sse4.2"
+    target_feature = "sse4.2",
+    not(feature = "portable_override")
 ))]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
@@ -89,10 +95,12 @@ pub(crate) unsafe fn validate_utf8_basic(
     validate_utf8_basic_sse42(input)
 }
 
+/// This function definition is only needed to make sure that it is never inlined.
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    target_feature = "sse4.2"
+    target_feature = "sse4.2",
+    not(feature = "portable_override")
 ))]
 #[inline(never)]
 unsafe fn validate_utf8_basic_sse42(
@@ -110,8 +118,11 @@ pub(crate) use super::validate_utf8_basic_fallback as validate_utf8_basic;
 
 // validate_utf8_compat() std: implementation auto-selection
 
-#[cfg(all(feature = "std", not(target_feature = "avx2")))]
-#[cfg(feature = "std")]
+#[cfg(all(
+    feature = "std",
+    not(target_feature = "avx2"),
+    not(feature = "portable_override")
+))]
 #[inline]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
@@ -163,6 +174,7 @@ pub(crate) unsafe fn validate_utf8_compat(
     validate_utf8_compat_avx2(input)
 }
 
+/// This function definition is only needed to make sure that it is never inlined.
 #[cfg(target_feature = "avx2")]
 #[inline(never)]
 unsafe fn validate_utf8_compat_avx2(
@@ -186,6 +198,7 @@ pub(crate) unsafe fn validate_utf8_compat(
     validate_utf8_compat_sse42(input)
 }
 
+/// This function definition is only needed to make sure that it is never inlined.
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
