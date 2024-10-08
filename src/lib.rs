@@ -23,6 +23,19 @@
     ),
     feature(portable_simd)
 )]
+// FIXME: remove once https://github.com/rust-lang/portable-simd/pull/443 is merged
+#![cfg_attr(
+    all(
+        any(
+            feature = "portable_public_imp",
+            feature = "portable_fallback",
+            feature = "portable_override"
+        ),
+        target_arch = "arm",
+        target_feature = "neon"
+    ),
+    feature(stdarch_arm_neon_intrinsics)
+)]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
 //! [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs), but now heavily improved.
