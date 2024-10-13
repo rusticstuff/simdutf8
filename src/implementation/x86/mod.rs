@@ -14,11 +14,7 @@ pub(crate) mod sse42;
 
 // validate_utf8_basic() std: implementation auto-selection
 
-#[cfg(all(
-    feature = "std",
-    not(target_feature = "avx2"),
-    not(feature = "portable_override")
-))]
+#[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
@@ -59,7 +55,7 @@ pub(crate) unsafe fn validate_utf8_basic(
 
 // validate_utf8_basic() no-std: implementation selection by config
 
-#[cfg(all(target_feature = "avx2", not(feature = "portable_override")))]
+#[cfg(target_feature = "avx2")]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
@@ -71,7 +67,7 @@ pub(crate) unsafe fn validate_utf8_basic(
 }
 
 /// This function definition is only needed to make sure that it is never inlined.
-#[cfg(all(target_feature = "avx2", not(feature = "portable_override")))]
+#[cfg(target_feature = "avx2")]
 #[inline(never)]
 unsafe fn validate_utf8_basic_avx2(
     input: &[u8],
@@ -82,8 +78,7 @@ unsafe fn validate_utf8_basic_avx2(
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    target_feature = "sse4.2",
-    not(feature = "portable_override")
+    target_feature = "sse4.2"
 ))]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
@@ -99,8 +94,7 @@ pub(crate) unsafe fn validate_utf8_basic(
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
-    target_feature = "sse4.2",
-    not(feature = "portable_override")
+    target_feature = "sse4.2"
 ))]
 #[inline(never)]
 unsafe fn validate_utf8_basic_sse42(
@@ -118,11 +112,7 @@ pub(crate) use super::validate_utf8_basic_fallback as validate_utf8_basic;
 
 // validate_utf8_compat() std: implementation auto-selection
 
-#[cfg(all(
-    feature = "std",
-    not(target_feature = "avx2"),
-    not(feature = "portable_override")
-))]
+#[cfg(all(feature = "std", not(target_feature = "avx2")))]
 #[inline]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],

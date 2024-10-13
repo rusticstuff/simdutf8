@@ -42,13 +42,6 @@ aarch64_neon_prefetch = []
 # make the portable SIMD public implementation available (nightly only)
 portable_public_imp = ["public_imp"]
 
-# always use the portable SIMD implementation, even if an architecture-specific
-# implementation is available (nightly only)
-#
-# CAVE: This uses the SIMD algorithm even if the CPU has no SIMD functionality
-# with atrocious performance.
-portable_override = []
-
 # deprecated - does not do anything
 hints = []
 

@@ -19,7 +19,7 @@ simdutf8_wasmer_llvm = ["simdutf8_wasmer", "wasmer/default-llvm", "wasmer/defaul
 simdutf8_wasmtime = ["wasmtime"]
 
 # Use portable simd
-simdutf8_portable =  ["simdutf8/portable_override"]
+simdutf8_portable =  ["simdutf8/portable_public_imp"]
 
 [dependencies]
 core_affinity = "0.5"
