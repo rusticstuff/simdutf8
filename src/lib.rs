@@ -16,21 +16,13 @@
     feature(stdarch_aarch64_prefetch)
 )]
 #![cfg_attr(
-    any(
-        feature = "portable_public_imp",
-        feature = "portable_fallback",
-        feature = "portable_override"
-    ),
+    any(feature = "portable_public_imp", feature = "portable_override"),
     feature(portable_simd)
 )]
 // FIXME: remove once https://github.com/rust-lang/portable-simd/pull/443 is merged
 #![cfg_attr(
     all(
-        any(
-            feature = "portable_public_imp",
-            feature = "portable_fallback",
-            feature = "portable_override"
-        ),
+        any(feature = "portable_public_imp", feature = "portable_override"),
         target_arch = "arm",
         target_feature = "neon"
     ),

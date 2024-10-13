@@ -10,15 +10,6 @@
             )
         ),
     ),
-    all(
-        feature = "portable_fallback",
-        not(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            target_arch = "aarch64",
-            target_arch = "wasm32"
-        )),
-    )
 ))]
 pub(crate) mod simd128;
 
@@ -32,18 +23,7 @@ pub(crate) mod simd128;
 ))]
 pub(crate) mod simd256;
 
-#[cfg(any(
-    feature = "portable_override",
-    all(
-        feature = "portable_fallback",
-        not(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            target_arch = "aarch64",
-            target_arch = "wasm32"
-        )),
-    )
-))]
+#[cfg(feature = "portable_override")]
 #[inline]
 pub(crate) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     if input.len() < super::helpers::SIMD_CHUNK_SIZE {
@@ -65,41 +45,19 @@ unsafe fn validate_utf8_basic_portable(input: &[u8]) -> Result<(), crate::basic:
 }
 
 /// This function definition is only needed to make sure that it is never inlined.
-#[cfg(any(
-    all(
-        feature = "portable_override",
-        not(all(
-            any(target_arch = "x86", target_arch = "x86_64"),
-            target_feature = "avx2"
-        ))
-    ),
-    all(
-        feature = "portable_fallback",
-        not(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            target_arch = "aarch64",
-            target_arch = "wasm32"
-        )),
-    )
+#[cfg(all(
+    feature = "portable_override",
+    not(all(
+        any(target_arch = "x86", target_arch = "x86_64"),
+        target_feature = "avx2"
+    ))
 ))]
 #[inline(never)]
 unsafe fn validate_utf8_basic_portable(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     simd128::validate_utf8_basic(input)
 }
 
-#[cfg(any(
-    feature = "portable_override",
-    all(
-        feature = "portable_fallback",
-        not(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            target_arch = "aarch64",
-            target_arch = "wasm32"
-        )),
-    )
-))]
+#[cfg(feature = "portable_override")]
 #[inline]
 pub(crate) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
     if input.len() < super::helpers::SIMD_CHUNK_SIZE {
@@ -110,23 +68,12 @@ pub(crate) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
 }
 
 /// This function definition is only needed to make sure that it is never inlined.
-#[cfg(any(
-    all(
-        feature = "portable_override",
-        not(all(
-            any(target_arch = "x86", target_arch = "x86_64"),
-            target_feature = "avx2"
-        ))
-    ),
-    all(
-        feature = "portable_fallback",
-        not(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            target_arch = "aarch64",
-            target_arch = "wasm32"
-        )),
-    )
+#[cfg(all(
+    feature = "portable_override",
+    not(all(
+        any(target_arch = "x86", target_arch = "x86_64"),
+        target_feature = "avx2"
+    ))
 ))]
 #[inline(never)]
 unsafe fn validate_utf8_compat_portable(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
