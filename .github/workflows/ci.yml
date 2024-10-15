@@ -205,6 +205,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy
+      - name: Clippy - default
+        run: cargo clippy --all-targets
+        env:
+          RUSTFLAGS: "-D warnings"
       - name: Clippy - all features enabled
         run: cargo clippy --all-targets --all-features
         env:
