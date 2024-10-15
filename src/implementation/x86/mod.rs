@@ -111,7 +111,6 @@ pub(crate) use super::validate_utf8_basic_fallback as validate_utf8_basic;
 // validate_utf8_compat() std: implementation auto-selection
 
 #[cfg(all(feature = "std", not(target_feature = "avx2")))]
-#[cfg(feature = "std")]
 #[inline]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
