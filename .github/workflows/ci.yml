@@ -227,3 +227,35 @@ jobs:
         run: cargo clippy --all-targets --no-default-features
         env:
           RUSTFLAGS: "-D warnings"
+
+  clippy_check_arm:
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: "-D warnings"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+          targets: "thumbv7neon-unknown-linux-gnueabihf, armv7-unknown-linux-gnueabihf, armv7-linux-androideabi"
+      - name: Run Clippy for thumbv7neon-unknown-linux-gnueabihf
+        run: |
+          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets
+          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets --all-features
+          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets --no-default-features
+          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets --no-default-features --features armv7_neon
+          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets --no-default-features --features armv7_neon,public_imp
+      - name: Run Clippy for armv7-unknown-linux-gnueabihf
+        run: |
+          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets
+          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets --all-features
+          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets --no-default-features
+          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets --no-default-features --features armv7_neon
+          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets --no-default-features --features armv7_neon,public_imp
+      - name: Run Clippy for armv7-linux-androideabi
+        run: |
+          cargo clippy --target armv7-linux-androideabi --all-targets
+          cargo clippy --target armv7-linux-androideabi --all-targets --all-features
+          cargo clippy --target armv7-linux-androideabi --all-targets --no-default-features
+          cargo clippy --target armv7-linux-androideabi --all-targets --no-default-features --features armv7_neon
+          cargo clippy --target armv7-linux-androideabi --all-targets --no-default-features --features armv7_neon,public_imp
