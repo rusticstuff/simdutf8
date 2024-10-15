@@ -15,13 +15,35 @@
     all(target_arch = "aarch64", feature = "aarch64_neon_prefetch"),
     feature(stdarch_aarch64_prefetch)
 )]
+#![cfg_attr(feature = "portable_public_imp", feature(portable_simd))]
 #![cfg_attr(
-    any(feature = "portable_public_imp", feature = "armv7_neon"),
-    feature(portable_simd)
+    all(
+        target_arch = "arm",
+        target_feature = "v7",
+        target_endian = "little",
+        not(target_feature = "neon"),
+        feature = "armv7_neon"
+    ),
+    feature(stdarch_arm_feature_detection)
 )]
-#![cfg_attr(feature = "armv7_neon", feature(stdarch_arm_feature_detection))]
-#![cfg_attr(feature = "armv7_neon", feature(stdarch_arm_neon_intrinsics))]
-#![cfg_attr(feature = "armv7_neon", feature(arm_target_feature))]
+#![cfg_attr(
+    all(
+        target_arch = "arm",
+        target_feature = "v7",
+        target_endian = "little",
+        feature = "armv7_neon"
+    ),
+    feature(stdarch_arm_neon_intrinsics)
+)]
+#![cfg_attr(
+    all(
+        target_arch = "arm",
+        target_feature = "v7",
+        target_endian = "little",
+        feature = "armv7_neon"
+    ),
+    feature(arm_target_feature)
+)]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
 //! [simdjson](https://github.com/simdjson/simdjson). Originally ported to Rust by the developers of [simd-json.rs](https://simd-json.rs), but now heavily improved.
