@@ -1,2 +1,0 @@
-[target.thumbv7neon-unknown-linux-gnueabihf]
-linker = "arm-linux-gnueabihf-gcc"
