@@ -91,10 +91,7 @@ mod public_imp {
                 );
             }
         }
-        #[cfg(all(
-            target_arch = "aarch64",
-            any(feature = "aarch64_neon", target_feature = "neon")
-        ))]
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
         unsafe {
             assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
             assert!(simdutf8::compat::imp::aarch64::neon::validate_utf8(input).is_ok());
@@ -166,10 +163,7 @@ mod public_imp {
                 );
             }
         }
-        #[cfg(all(
-            target_arch = "aarch64",
-            any(feature = "aarch64_neon", target_feature = "neon")
-        ))]
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
         unsafe {
             assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_err());
             let err = simdutf8::compat::imp::aarch64::neon::validate_utf8(input).unwrap_err();
@@ -300,10 +294,7 @@ mod public_imp {
 
     #[test]
     #[should_panic]
-    #[cfg(all(
-        target_arch = "aarch64",
-        any(feature = "aarch64_neon", target_feature = "neon")
-    ))]
+    #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
     fn test_neon_chunked_panic() {
         test_chunked_streaming_with_chunk_size::<
             simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp,
