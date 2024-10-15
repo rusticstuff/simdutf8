@@ -22,7 +22,8 @@
         target_feature = "v7",
         target_endian = "little",
         not(target_feature = "neon"),
-        feature = "armv7_neon"
+        feature = "armv7_neon",
+        feature = "std"
     ),
     feature(stdarch_arm_feature_detection)
 )]
