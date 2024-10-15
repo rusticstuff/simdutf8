@@ -210,6 +210,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest, macos-13]
+    env:
+      RUSTFLAGS: "-D warnings"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
@@ -217,13 +219,7 @@ jobs:
           components: clippy
       - name: Clippy - default
         run: cargo clippy --all-targets
-        env:
-          RUSTFLAGS: "-D warnings"
       - name: Clippy - all features enabled
         run: cargo clippy --all-targets --all-features
-        env:
-          RUSTFLAGS: "-D warnings"
       - name: Clippy - all features disabled
         run: cargo clippy --all-targets --no-default-features
-        env:
-          RUSTFLAGS: "-D warnings"
