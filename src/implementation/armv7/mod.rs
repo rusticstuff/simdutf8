@@ -1,20 +1,12 @@
-#[cfg(any(feature = "std", feature = "public_imp", target_feature = "avx2"))]
-pub(crate) mod avx2;
-
-#[cfg(any(
-    feature = "public_imp",
-    all(feature = "std", not(target_feature = "avx2")),
-    all(
-        not(feature = "std"),
-        not(target_feature = "avx2"),
-        target_feature = "sse4.2"
-    )
+#[cfg(all(
+    feature = "armv7_neon",
+    any(feature = "std", feature = "public_imp", target_feature = "neon")
 ))]
-pub(crate) mod sse42;
+pub(crate) mod neon;
 
 // validate_utf8_basic() std: implementation auto-selection
 
-#[cfg(all(feature = "std", not(target_feature = "avx2")))]
+#[cfg(all(feature = "armv7_neon", feature = "std", not(target_feature = "neon")))]
 #[inline]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
@@ -28,10 +20,8 @@ pub(crate) unsafe fn validate_utf8_basic(
 
     #[inline]
     fn get_fastest_available_implementation_basic() -> ValidateUtf8Fn {
-        if std::is_x86_feature_detected!("avx2") {
-            avx2::validate_utf8_basic
-        } else if std::is_x86_feature_detected!("sse4.2") {
-            sse42::validate_utf8_basic
+        if std::arch::is_arm_feature_detected!("neon") {
+            neon::validate_utf8_basic
         } else {
             super::validate_utf8_basic_fallback
         }
@@ -55,7 +45,7 @@ pub(crate) unsafe fn validate_utf8_basic(
 
 // validate_utf8_basic() no-std: implementation selection by config
 
-#[cfg(target_feature = "avx2")]
+#[cfg(all(feature = "armv7_neon", target_feature = "neon"))]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
@@ -63,54 +53,26 @@ pub(crate) unsafe fn validate_utf8_basic(
         return super::validate_utf8_basic_fallback(input);
     }
 
-    validate_utf8_basic_avx2(input)
+    validate_utf8_basic_neon(input)
 }
 
-#[cfg(target_feature = "avx2")]
+#[cfg(all(feature = "armv7_neon", target_feature = "neon"))]
 #[inline(never)]
-unsafe fn validate_utf8_basic_avx2(
+unsafe fn validate_utf8_basic_neon(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    avx2::validate_utf8_basic(input)
+    neon::validate_utf8_basic(input)
 }
 
-#[cfg(all(
-    not(feature = "std"),
-    not(target_feature = "avx2"),
-    target_feature = "sse4.2"
-))]
-pub(crate) unsafe fn validate_utf8_basic(
-    input: &[u8],
-) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if input.len() < super::helpers::SIMD_CHUNK_SIZE {
-        return super::validate_utf8_basic_fallback(input);
-    }
-
-    validate_utf8_basic_sse42(input)
-}
-
-#[cfg(all(
-    not(feature = "std"),
-    not(target_feature = "avx2"),
-    target_feature = "sse4.2"
-))]
-#[inline(never)]
-unsafe fn validate_utf8_basic_sse42(
-    input: &[u8],
-) -> core::result::Result<(), crate::basic::Utf8Error> {
-    sse42::validate_utf8_basic(input)
-}
-
-#[cfg(all(
-    not(feature = "std"),
-    not(target_feature = "avx2"),
-    not(target_feature = "sse4.2")
+#[cfg(any(
+    not(feature = "armv7_neon"),
+    all(not(feature = "std"), not(target_feature = "neon"))
 ))]
 pub(crate) use super::validate_utf8_basic_fallback as validate_utf8_basic;
 
 // validate_utf8_compat() std: implementation auto-selection
 
-#[cfg(all(feature = "std", not(target_feature = "avx2")))]
+#[cfg(all(feature = "armv7_neon", feature = "std", not(target_feature = "neon")))]
 #[inline]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
@@ -124,10 +86,8 @@ pub(crate) unsafe fn validate_utf8_compat(
 
     #[inline]
     fn get_fastest_available_implementation_compat() -> ValidateUtf8CompatFn {
-        if std::is_x86_feature_detected!("avx2") {
-            avx2::validate_utf8_compat
-        } else if std::is_x86_feature_detected!("sse4.2") {
-            sse42::validate_utf8_compat
+        if std::arch::is_arm_feature_detected!("neon") {
+            neon::validate_utf8_compat
         } else {
             super::validate_utf8_compat_fallback
         }
@@ -151,7 +111,7 @@ pub(crate) unsafe fn validate_utf8_compat(
 
 // validate_utf8_basic() no-std: implementation selection by config
 
-#[cfg(target_feature = "avx2")]
+#[cfg(all(feature = "armv7_neon", target_feature = "neon"))]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
@@ -159,47 +119,19 @@ pub(crate) unsafe fn validate_utf8_compat(
         return super::validate_utf8_compat_fallback(input);
     }
 
-    validate_utf8_compat_avx2(input)
+    validate_utf8_compat_neon(input)
 }
 
-#[cfg(target_feature = "avx2")]
+#[cfg(all(feature = "armv7_neon", target_feature = "neon"))]
 #[inline(never)]
-unsafe fn validate_utf8_compat_avx2(
+unsafe fn validate_utf8_compat_neon(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    avx2::validate_utf8_compat(input)
+    neon::validate_utf8_compat(input)
 }
 
-#[cfg(all(
-    not(feature = "std"),
-    not(target_feature = "avx2"),
-    target_feature = "sse4.2"
-))]
-pub(crate) unsafe fn validate_utf8_compat(
-    input: &[u8],
-) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if input.len() < super::helpers::SIMD_CHUNK_SIZE {
-        return super::validate_utf8_compat_fallback(input);
-    }
-
-    validate_utf8_compat_sse42(input)
-}
-
-#[cfg(all(
-    not(feature = "std"),
-    not(target_feature = "avx2"),
-    target_feature = "sse4.2"
-))]
-#[inline(never)]
-pub(crate) unsafe fn validate_utf8_compat_sse42(
-    input: &[u8],
-) -> core::result::Result<(), crate::compat::Utf8Error> {
-    sse42::validate_utf8_compat(input)
-}
-
-#[cfg(all(
-    not(feature = "std"),
-    not(target_feature = "avx2"),
-    not(target_feature = "sse4.2")
+#[cfg(any(
+    not(feature = "armv7_neon"),
+    all(not(feature = "std"), not(target_feature = "neon"))
 ))]
 pub(crate) use super::validate_utf8_compat_fallback as validate_utf8_compat;

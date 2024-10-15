@@ -78,6 +78,7 @@ pub(super) use wasm32::validate_utf8_compat;
     target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "aarch64",
+    all(target_arch = "arm", target_feature = "v7", target_endian = "little"),
     target_arch = "wasm32"
 )))]
 pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
@@ -86,6 +87,7 @@ pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
     target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "aarch64",
+    all(target_arch = "arm", target_feature = "v7", target_endian = "little"),
     target_arch = "wasm32"
 )))]
 pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;
