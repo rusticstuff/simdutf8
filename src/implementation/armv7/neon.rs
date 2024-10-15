@@ -72,7 +72,7 @@ impl SimdU8Value {
         let arr: [u8; 16] = [
             v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31,
         ];
-        Self::from(vld1q_u8(arr.as_ptr()))
+        Self(vld1q_u8(arr.as_ptr()))
     }
 
     #[inline]
@@ -99,7 +99,7 @@ impl SimdU8Value {
         let arr: [u8; 16] = [
             v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
         ];
-        Self::from(vld1q_u8(arr.as_ptr()))
+        Self(vld1q_u8(arr.as_ptr()))
     }
 
     #[inline]
@@ -117,7 +117,7 @@ impl SimdU8Value {
             dst.as_mut_ptr().cast::<u8>(),
             core::mem::size_of::<uint8x16_t>(),
         );
-        Self::from(dst.assume_init())
+        Self(dst.assume_init())
     }
 
     #[inline]
@@ -146,43 +146,43 @@ impl SimdU8Value {
             v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
         )
         .0;
-        Self::from(vqtbl1q_u8(rep, self.0))
+        Self(vqtbl1q_u8(rep, self.0))
     }
 
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn splat(val: u8) -> Self {
-        Self::from(vmovq_n_u8(val))
+        Self(vmovq_n_u8(val))
     }
 
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn splat0() -> Self {
-        Self::from(vdupq_n_u8(0))
+        Self(vdupq_n_u8(0))
     }
 
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn or(self, b: Self) -> Self {
-        Self::from(vorrq_u8(self.0, b.0))
+        Self(vorrq_u8(self.0, b.0))
     }
 
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn and(self, b: Self) -> Self {
-        Self::from(vandq_u8(self.0, b.0))
+        Self(vandq_u8(self.0, b.0))
     }
 
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn xor(self, b: Self) -> Self {
-        Self::from(veorq_u8(self.0, b.0))
+        Self(veorq_u8(self.0, b.0))
     }
 
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn saturating_sub(self, b: Self) -> Self {
-        Self::from(vqsubq_u8(self.0, b.0))
+        Self(vqsubq_u8(self.0, b.0))
     }
 
     // ugly but shr<N> requires const generics
@@ -190,7 +190,7 @@ impl SimdU8Value {
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn shr4(self) -> Self {
-        Self::from(vshrq_n_u8(self.0, 4))
+        Self(vshrq_n_u8(self.0, 4))
     }
 
     // ugly but prev<N> requires const generics
@@ -198,7 +198,7 @@ impl SimdU8Value {
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn prev1(self, prev: Self) -> Self {
-        Self::from(vextq_u8(prev.0, self.0, 16 - 1))
+        Self(vextq_u8(prev.0, self.0, 16 - 1))
     }
 
     // ugly but prev<N> requires const generics
@@ -206,7 +206,7 @@ impl SimdU8Value {
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn prev2(self, prev: Self) -> Self {
-        Self::from(vextq_u8(prev.0, self.0, 16 - 2))
+        Self(vextq_u8(prev.0, self.0, 16 - 2))
     }
 
     // ugly but prev<N> requires const generics
@@ -214,13 +214,13 @@ impl SimdU8Value {
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn prev3(self, prev: Self) -> Self {
-        Self::from(vextq_u8(prev.0, self.0, 16 - 3))
+        Self(vextq_u8(prev.0, self.0, 16 - 3))
     }
 
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn unsigned_gt(self, other: Self) -> Self {
-        Self::from(vcgtq_u8(self.0, other.0))
+        Self(vcgtq_u8(self.0, other.0))
     }
 
     #[inline]
