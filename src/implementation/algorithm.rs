@@ -362,7 +362,7 @@ macro_rules! algorithm_simd {
             $(#[$feat])*
             #[inline]
             unsafe fn update_from_incomplete_data(&mut self) {
-                let simd_input = SimdInput::new(&self.incomplete_data);
+                let simd_input = SimdInput::new(self.incomplete_data.as_ptr());
                 self.algorithm.check_utf8(simd_input);
                 self.incomplete_len = 0;
             }
@@ -469,7 +469,7 @@ macro_rules! algorithm_simd {
                     "Input size must be a multiple of 64."
                 );
                 for chunk in input.chunks_exact(SIMD_CHUNK_SIZE) {
-                    let input = SimdInput::new(chunk);
+                    let input = SimdInput::new(chunk.as_ptr());
                     self.algorithm.check_utf8(input);
                 }
             }
@@ -497,7 +497,7 @@ macro_rules! algorithm_simd {
                                 remaining_input.as_ptr(),
                                 remaining_input.len(),
                             );
-                            let simd_input = SimdInput::new(&tmpbuf.0.as_ptr());
+                            let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
                             self.algorithm.check_utf8(simd_input);
                         }
                     }
