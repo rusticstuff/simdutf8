@@ -18,14 +18,11 @@ simdutf8_wasmer_cranelift = ["simdutf8_wasmer", "wasmer/default-cranelift", "was
 simdutf8_wasmer_llvm = ["simdutf8_wasmer", "wasmer/default-llvm", "wasmer/default-universal"]
 simdutf8_wasmtime = ["wasmtime"]
 
-# Use portable simd
-simdutf8_portable =  ["simdutf8/portable_public_imp"]
-
 [dependencies]
 core_affinity = "0.5"
-criterion = "0.5"
-simdutf8 = { path = ".." }
-simdjson-utf8 = { path = "simdjson-utf8", optional = true }
+criterion = "0.3"
+simdutf8 = { version = "*", path = "..", features = ["aarch64_neon"] }
+simdjson-utf8 = { version = "*", path = "simdjson-utf8", optional = true }
 # default is cranelift which is not as performant as the llvm backend
 wasmer = { version = "2.1", optional = true, default-features = false }
 wasmtime = { version = "0.32", optional = true }
