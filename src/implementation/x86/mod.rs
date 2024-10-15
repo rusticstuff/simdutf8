@@ -66,7 +66,6 @@ pub(crate) unsafe fn validate_utf8_basic(
     validate_utf8_basic_avx2(input)
 }
 
-/// This function definition is only needed to make sure that it is never inlined.
 #[cfg(target_feature = "avx2")]
 #[inline(never)]
 unsafe fn validate_utf8_basic_avx2(
@@ -90,7 +89,6 @@ pub(crate) unsafe fn validate_utf8_basic(
     validate_utf8_basic_sse42(input)
 }
 
-/// This function definition is only needed to make sure that it is never inlined.
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),
@@ -164,7 +162,6 @@ pub(crate) unsafe fn validate_utf8_compat(
     validate_utf8_compat_avx2(input)
 }
 
-/// This function definition is only needed to make sure that it is never inlined.
 #[cfg(target_feature = "avx2")]
 #[inline(never)]
 unsafe fn validate_utf8_compat_avx2(
@@ -188,7 +185,6 @@ pub(crate) unsafe fn validate_utf8_compat(
     validate_utf8_compat_sse42(input)
 }
 
-/// This function definition is only needed to make sure that it is never inlined.
 #[cfg(all(
     not(feature = "std"),
     not(target_feature = "avx2"),

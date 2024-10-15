@@ -11,7 +11,6 @@ pub(crate) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basi
     validate_utf8_basic_neon(input)
 }
 
-/// This function definition is only needed to make sure that it is never inlined.
 #[inline(never)]
 #[cfg(any(feature = "aarch64_neon", target_feature = "neon"))]
 unsafe fn validate_utf8_basic_neon(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
@@ -31,7 +30,6 @@ pub(crate) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
     validate_utf8_compat_neon(input)
 }
 
-/// This function definition is only needed to make sure that it is never inlined.
 #[inline(never)]
 #[cfg(any(feature = "aarch64_neon", target_feature = "neon"))]
 unsafe fn validate_utf8_compat_neon(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
