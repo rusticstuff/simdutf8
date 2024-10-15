@@ -38,14 +38,16 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
 }
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
-#[inline]
+#[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neon
 pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     mut src: *const u8,
     mut dest: *mut u8,
     mut len: usize,
 ) {
-    // This gets properly auto-vectorized on AVX 2 and SSE 4.2
-    #[inline]
+    // This gets properly auto-vectorized on AVX 2 and SSE 4.2.
+    // Needs to be forced because otherwise it is not inlined on armv7 neon.
+    #[inline(always)]
+    #[flexpect::e(clippy::inline_always)]
     unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
         dest.cast::<u64>()
             .write_unaligned(src.cast::<u64>().read_unaligned());
@@ -92,7 +94,8 @@ pub(crate) struct TempSimdChunkA16(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunkA16 {
-    #[inline]
+    #[flexpect::e(clippy::inline_always)]
+    #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
     pub(crate) const fn new() -> Self {
         Self([0; SIMD_CHUNK_SIZE])
     }
@@ -104,7 +107,8 @@ pub(crate) struct TempSimdChunkA32(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunkA32 {
-    #[inline]
+    #[flexpect::e(clippy::inline_always)]
+    #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
     pub(crate) const fn new() -> Self {
         Self([0; SIMD_CHUNK_SIZE])
     }
