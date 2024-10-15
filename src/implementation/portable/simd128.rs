@@ -113,17 +113,6 @@ impl SimdU8Value {
         Self::from(res)
     }
 
-    // FIXME: remove once https://github.com/rust-lang/portable-simd/pull/443 is merged
-    #[cfg(all(target_arch = "arm", target_feature = "neon"))]
-    #[inline]
-    unsafe fn arm_neon_swizzle_dyn(lut: u8x16, idx: u8x16) -> u8x16 {
-        use core::arch::arm::{uint8x8x2_t, vcombine_u8, vget_high_u8, vget_low_u8, vtbl2_u8};
-        let lut = uint8x8x2_t(vget_low_u8(lut.into()), vget_high_u8(lut.into()));
-        let lo = vtbl2_u8(lut, vget_low_u8(idx.into()));
-        let hi = vtbl2_u8(lut, vget_high_u8(idx.into()));
-        return vcombine_u8(lo, hi).into();
-    }
-
     #[inline]
     fn splat(val: u8) -> Self {
         #[allow(clippy::cast_possible_wrap)]
