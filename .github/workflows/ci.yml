@@ -46,7 +46,7 @@ jobs:
           cargo test --release --no-default-features --features std,public_imp --all-targets --verbose
       - name: Run tests on nightly
         run: cargo test --release --all-features --all-targets --verbose
-        if: ${{ matrix.toolchain == "nightly" }}
+        if: ${{ matrix.toolchain == 'nightly'}}
 
   test-inlining-x86:
     runs-on: ubuntu-latest
@@ -169,7 +169,7 @@ jobs:
       - name: Run nightly tests
         run: |
           cargo build --no-default-features --all-features --target i686-unknown-linux-gnu --verbose
-        if: ${{ matrix.toolchain == "nightly" }}
+        if: ${{ matrix.toolchain == 'nightly' }}
 
   fmt_check:
     runs-on: ubuntu-latest
