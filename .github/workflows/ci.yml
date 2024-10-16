@@ -16,15 +16,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-13, macos-latest, windows-latest] # macos-13 for last x86_64 macOS
+        os: [ubuntu-latest, macos-latest] # for x86_64 and aarch64
         toolchain: ["1.38.0", stable, beta, nightly]
-        features:
-          [
-            "",
-            "--features public_imp",
-            "--features std,public_imp,aarch64_neon",
-            "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch",
-            "--features std,public_imp,portable_public_imp",
+        features: [
+            "--features std", # default
+            "--features public_imp", # no-std
+            "--all-features",
           ]
         rustflags:
           [
@@ -39,23 +36,10 @@ jobs:
             rustflags: "-D warnings -C target-feature=+sse4.2"
           - os: macos-latest
             toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
-          - os: macos-13 # macos-12 (or later) does not work with 1.38.0
-            toolchain: "1.38.0"
-          - features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
-          - features: "--features std,public_imp,portable_public_imp"
+          - features: "--all-features"
         include:
-          - os: macos-latest # aarch64_neon_prefetch is only supported on macOS ARM64 nightly
-            features: "--features std,public_imp,aarch64_neon,aarch64_neon_prefetch"
+          - features: "--all-features"
             toolchain: "nightly"
-            rustflags: "-D warnings"
-          - os: "ubuntu-latest"
-            features: "--features std,public_imp,portable_public_imp"
-            toolchain: "nightly"
-            rustflags: "-D warnings"
-          - os: "macos-latest"
-            features: "--features std,public_imp,portable_public_imp"
-            toolchain: "nightly"
-            rustflags: "-D warnings"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
