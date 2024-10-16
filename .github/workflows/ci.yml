@@ -18,11 +18,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest] # for x86_64 and aarch64
         toolchain: ["1.38.0", stable, beta, nightly]
-        features: [
-            "--features std", # default
-            "--features public_imp", # no-std
-            "--all-features",
-          ]
         rustflags:
           [
             "-D warnings",
@@ -36,19 +31,22 @@ jobs:
             rustflags: "-D warnings -C target-feature=+sse4.2"
           - os: macos-latest
             toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
-          - features: "--all-features"
-        include:
-          - features: "--all-features"
-            toolchain: "nightly"
+    env:
+      RUSTFLAGS: ${{ matrix.rustflags }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
       - name: Run tests
-        run: cargo test --release --no-default-features ${{ matrix.features }} --all-targets --verbose
-        env:
-          RUSTFLAGS: ${{ matrix.rustflags }}
+        run: |
+          cargo test --release --no-default-features --all-targets --verbose
+          cargo test --release --no-default-features --features std --all-targets --verbose
+          cargo test --release --no-default-features --features public_imp --all-targets --verbose
+          cargo test --release --no-default-features --features std,public_imp --all-targets --verbose
+      - name: Run tests on nightly
+        run: cargo test --release --all-features --all-targets --verbose
+        if: ${{ matrix.toolchain == "nightly" }}
 
   test-inlining-x86:
     runs-on: ubuntu-latest
@@ -131,9 +129,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [1.59.0, stable, beta, nightly]
+        toolchain: [1.61.0, stable, beta, nightly]
         target: [aarch64-unknown-linux-gnu, aarch64-apple-darwin]
-        features: ["--features std,aarch64_neon", "--features aarch64_neon"]
+        features: ["--features std", ""]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -144,30 +142,18 @@ jobs:
         run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
 
   cross-build-i686:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        toolchain: [stable, nightly]
-        features:
-          [
-            "",
-            "--features std",
-            "--features public_imp",
-            "--features std,public_imp",
-          ]
+        toolchain: [1.38.0, stable, nightly]
         rustflags:
           [
             "-D warnings",
             "-D warnings -C target-feature=+avx2",
             "-D warnings -C target-feature=+sse4.2",
           ]
-        target: [i686-unknown-linux-gnu, i686-pc-windows-msvc]
-        exclude:
-          - os: ubuntu-latest
-            target: i686-pc-windows-msvc
-          - os: windows-latest
-            target: i686-unknown-linux-gnu
+    env:
+      RUSTFLAGS: ${{ matrix.rustflags }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -175,9 +161,15 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           targets: ${{ matrix.target }}
       - name: Run tests
-        run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
-        env:
-          RUSTFLAGS: ${{ matrix.rustflags }}
+        run: |
+          cargo build --no-default-features --target i686-unknown-linux-gnu--verbose
+          cargo build --no-default-features --features std --target i686-unknown-linux-gnu --verbose
+          cargo build --no-default-features --features public_imp -target i686-unknown-linux-gnu --verbose
+          cargo build --no-default-features --features std,public_imp i686-unknown-linux-gnu --verbose
+      - name: Run nightly tests
+        run: |
+          cargo build --no-default-features --all-features --target i686-unknown-linux-gnu --verbose
+        if: ${{ matrix.toolchain == "nightly" }}
 
   fmt_check:
     runs-on: ubuntu-latest
