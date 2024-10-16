@@ -159,7 +159,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          targets: ${{ matrix.target }}
+          targets: i686-unknown-linux-gnu
       - name: Run tests
         run: |
           cargo build --no-default-features --target i686-unknown-linux-gnu --verbose
