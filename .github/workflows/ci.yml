@@ -162,7 +162,7 @@ jobs:
           targets: ${{ matrix.target }}
       - name: Run tests
         run: |
-          cargo build --no-default-features --target i686-unknown-linux-gnu--verbose
+          cargo build --no-default-features --target i686-unknown-linux-gnu --verbose
           cargo build --no-default-features --features std --target i686-unknown-linux-gnu --verbose
           cargo build --no-default-features --features public_imp -target i686-unknown-linux-gnu --verbose
           cargo build --no-default-features --features std,public_imp i686-unknown-linux-gnu --verbose
