@@ -16,23 +16,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest] # for x86_64 and aarch64
+        os: [ubuntu-latest, macos-latest, windows-latest, macos-13]
         toolchain: ["1.38.0", stable, beta, nightly]
-        rustflags:
-          [
-            "-D warnings",
-            "-D warnings -C target-feature=+avx2",
-            "-D warnings -C target-feature=+sse4.2",
-          ]
-        exclude:
-          - os: macos-latest
-            rustflags: "-D warnings -C target-feature=+avx2"
-          - os: macos-latest
-            rustflags: "-D warnings -C target-feature=+sse4.2"
-          - os: macos-latest
-            toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
     env:
-      RUSTFLAGS: ${{ matrix.rustflags }}
+      RUSTFLAGS: "-D warnings"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -40,10 +27,27 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
       - name: Run tests
         run: |
-          cargo test --release --no-default-features --all-targets --verbose
-          cargo test --release --no-default-features --features std --all-targets --verbose
-          cargo test --release --no-default-features --features public_imp --all-targets --verbose
-          cargo test --release --no-default-features --features std,public_imp --all-targets --verbose
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"
+          do
+            cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
+          done
+      - name: Run with SSE4.2
+        run: |
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"
+          do
+            cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
+          done
+        env:
+          RUSTFLAGS: "-D warnings -C target-feature=+sse4.2"
+      - name: Run withAVX2
+        run: |
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"
+          do
+            cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
+          done
+        env:
+          RUSTFLAGS: "-D warnings -C target-feature=+avx2"
+        if: ${{ matrix.os != 'macos-latest'}}
       - name: Run tests on nightly
         run: cargo test --release --all-features --all-targets --verbose
         if: ${{ matrix.toolchain == 'nightly'}}
@@ -79,7 +83,6 @@ jobs:
       matrix:
         # the neon target feature was unconditionally enabled for aarch64 in 1.61.0
         toolchain: [nightly, beta, stable, 1.61.0]
-        target: [aarch64-unknown-linux-gnu, aarch64-apple-darwin]
     defaults:
       run:
         working-directory: inlining
@@ -88,17 +91,19 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          targets: ${{ matrix.target }}
+          targets: aarch64-unknown-linux-gnu, aarch64-apple-darwin
       - name: Install stable toolchain
         run: rustup toolchain add stable
       - name: Install rustfilt
         run: cargo +stable install rustfilt
       - name: Check if the expected fns are inlined
         run: |
-          ./check-inlining.sh ${{ matrix.target }} expected-methods-aarch64-neon.txt
-          ./check-inlining.sh ${{ matrix.target }} expected-methods-aarch64-neon.txt --no-default-features
-          ./check-inlining.sh ${{ matrix.target }} expected-methods-aarch64-neon.txt "--features public_imp"
-
+          for target in aarch64-unknown-linux-gnu aarch64-apple-darwin
+          do
+            ./check-inlining.sh $target expected-methods-aarch64-neon.txt
+            ./check-inlining.sh $target expected-methods-aarch64-neon.txt --no-default-features
+            ./check-inlining.sh $target expected-methods-aarch64-neon.txt "--features public_imp"
+          done
   test-doc:
     runs-on: ubuntu-latest
     steps:
@@ -114,16 +119,20 @@ jobs:
     strategy:
       matrix:
         toolchain: ["1.38.0", stable, beta, nightly]
-        target: [arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu]
         features: ["--features std", ""]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          targets: ${{ matrix.target }}
+          targets: arm-unknown-linux-gnueabi, aarch64-unknown-linux-gnu
       - name: Build
-        run: cargo build --no-default-features --target ${{ matrix.target }} ${{ matrix.features }} --verbose
+        run: |
+          for target in arm-unknown-linux-gnueabi aarch64-unknown-linux-gnu
+          do
+            cargo build --no-default-features --target $target --verbose
+            cargo build --no-default-features --target $target --verbose
+          done
 
   cross-buildfeature-aarch64-neon:
     runs-on: ubuntu-latest
