@@ -20,6 +20,9 @@ jobs:
         toolchain: ["1.38.0", stable, beta, nightly]
     env:
       RUSTFLAGS: "-D warnings"
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
