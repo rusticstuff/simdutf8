@@ -27,30 +27,30 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
       - name: Run tests
         run: |
-          for features in "" "--features std" "--features public_imp" "--features std,public_imp"
-          do
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
           done
-      - name: Run with SSE4.2
+      - name: Run with SSE4.2 + AVX2 target features
         run: |
-          for features in "" "--features std" "--features public_imp" "--features std,public_imp"
-          do
-            cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
+            cargo clean
+            RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --no-default-features $features --all-targets --verbose
+            cargo clean
+            RUSTFLAGS="-D warnings -C target-feature=+avx2" cargo test --release --no-default-features $features --all-targets --verbose
           done
-        env:
-          RUSTFLAGS: "-D warnings -C target-feature=+sse4.2"
-      - name: Run withAVX2
-        run: |
-          for features in "" "--features std" "--features public_imp" "--features std,public_imp"
-          do
-            cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
-          done
-        env:
-          RUSTFLAGS: "-D warnings -C target-feature=+avx2"
+        shell: bash
         if: ${{ matrix.os != 'macos-latest'}}
-      - name: Run tests on nightly
+      - name: Run tests with all features on nightly
         run: cargo test --release --all-features --all-targets --verbose
         if: ${{ matrix.toolchain == 'nightly'}}
+      - name: Run test with all features and with SSE4.2 + AVX2 target features on nightly
+        run: |
+          cargo clean
+          RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --all-features --all-targets --verbose
+          cargo clean
+          RUSTFLAGS="-D warnings -C target-feature=+avx2" cargo test --release --all-features --all-targets --verbose
+        shell: bash
+        if: ${{ matrix.os != 'macos-latest' && matrix.toolchain == 'nightly' }}
 
   test-inlining-x86:
     runs-on: ubuntu-latest
