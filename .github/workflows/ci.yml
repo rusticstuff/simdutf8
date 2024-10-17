@@ -21,6 +21,8 @@ jobs:
         exclude:
           - os: macos-latest
             toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
+          - os: macos-13
+            toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
     env:
       RUSTFLAGS: "-D warnings"
     defaults:
