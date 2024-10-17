@@ -67,6 +67,7 @@ jobs:
         toolchain: ["1.38.0", stable, beta, nightly]
     env:
       RUSTFLAGS: "-D warnings"
+      CARGO_BUILD_TARGET: "i686-pc-windows-msvc"
     defaults:
       run:
         shell: bash
