@@ -17,12 +17,18 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest, macos-13]
-        toolchain: ["1.38.0", stable, beta, nightly]
+        toolchain: ["1.38.0", "1.61.0", stable, beta, nightly]
         exclude:
           - os: macos-latest
             toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
           - os: macos-13
-            toolchain: "1.38.0" # macOS ARM64 is not supported by 1.38.0
+            toolchain: "1.38.0" # macOS is not supported by 1.38.0 (flexpect)
+          - toolchain: "1.61.0" # only macos
+        include:
+          - os: macos-latest
+            toolchain: "1.61.0"
+          - os: macos-13
+            toolchain: "1.61.0"
     env:
       RUSTFLAGS: "-D warnings"
     defaults:
