@@ -77,7 +77,7 @@ jobs:
         run: |
           for rustflags in "-D warnings", "-D warnings -C target-feature=+simd128"; do
             for features in  "" "--features std" "--features public_imp" "--features std,public_imp"; do
-              cargo clean; RUSTFLAGS=$rustflags cargo build --no-default-features $features --target ${{ matrix.target }} --verbose
+              cargo clean; RUSTFLAGS=$rustflags cargo build --no-default-features $features --target wasm32-unknown-unknown --verbose
             done
           done
         env:
@@ -92,7 +92,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy
-          targets: ${{ matrix.target }}
+          targets: wasm32-wasip1, wasm32-unknown-unknown
       - name: Clippy
         run: |
           for target in wasm32-wasip1 wasm32-unknown-unknown; do
