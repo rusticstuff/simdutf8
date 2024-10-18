@@ -87,11 +87,7 @@ jobs:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
   clippy_check:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest, macos-13]
-        target: [wasm32-wasip1, wasm32-unknown-unknown]
+    runs-on: ubuntu-latest
     env:
       RUSTFLAGS: "-D warnings -C target-feature=+simd128"
     steps:
@@ -102,7 +98,9 @@ jobs:
           targets: ${{ matrix.target }}
       - name: Clippy
         run: |
-          for rustflags in "-D warnings" "-D warnings -C target-feature=+simd128"; do
-            RUSTFLAGS=$rustflags cargo clippy --target ${{ matrix.target }} --all-targets --all-features
-            RUSTFLAGS=$rustflags cargo clippy --target ${{ matrix.target }} --all-targets --no-default-features
+          for target in wasm32-wasip1 wasm32-unknown-unknown; do
+            for rustflags in "-D warnings" "-D warnings -C target-feature=+simd128"; do
+              RUSTFLAGS=$rustflags cargo clippy --target $target --all-targets --all-features
+              RUSTFLAGS=$rustflags cargo clippy --target $target --all-targets --no-default-features
+            done
           done
