@@ -56,10 +56,10 @@ jobs:
           RUSTFLAGS: "-C target-feature=+simd128"
         run: |
           for target in wasm32-wasip1 wasm32-unknown-unknown; do
-            ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt
-            ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt --no-default-features
-            ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt "--features public_imp"
-            ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt "--features public_imp,std"
+            ./check-inlining.sh $target expected-methods-wasm32-simd128.txt
+            ./check-inlining.sh $target expected-methods-wasm32-simd128.txt --no-default-features
+            ./check-inlining.sh $target expected-methods-wasm32-simd128.txt "--features public_imp"
+            ./check-inlining.sh $target expected-methods-wasm32-simd128.txt "--features public_imp,std"
           done
 
   build-wasm32-unknown:
