@@ -40,7 +40,7 @@ jobs:
           WASM_RUNNER_VERBOSE: 1
 
   test-inlining-wasm32:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     defaults:
       run:
         working-directory: inlining
@@ -59,7 +59,7 @@ jobs:
             ./check-inlining.sh $target expected-methods-wasm32-simd128.txt
             ./check-inlining.sh $target expected-methods-wasm32-simd128.txt --no-default-features
             ./check-inlining.sh $target expected-methods-wasm32-simd128.txt "--features public_imp"
-            # ./check-inlining.sh $target expected-methods-wasm32-simd128.txt "--features public_imp,std"
+            ./check-inlining.sh $target expected-methods-wasm32-simd128.txt "--features public_imp,std"
           done
 
   build-wasm32-unknown:
@@ -75,7 +75,7 @@ jobs:
           targets: wasm32-unknown-unknown
       - name: Run build
         run: |
-          for rustflags in "-D warnings", "-D warnings -C target-feature=+simd128"; do
+          for rustflags in "-D warnings" "-D warnings -C target-feature=+simd128"; do
             for features in  "" "--features std" "--features public_imp" "--features std,public_imp"; do
               cargo clean; RUSTFLAGS=$rustflags cargo build --no-default-features $features --target wasm32-unknown-unknown --verbose
             done
