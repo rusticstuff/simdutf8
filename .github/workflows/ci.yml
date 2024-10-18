@@ -128,7 +128,7 @@ jobs:
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx2.txt --no-default-features
           RUSTFLAGS="-C target-feature=+sse4.2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-sse42.txt --no-default-features
 
-  test-inlining-aarch64-enabled-by-default:
+  test-inlining-aarch64:
     runs-on: macos-latest
     strategy:
       matrix:
@@ -155,6 +155,7 @@ jobs:
             ./check-inlining.sh $target expected-methods-aarch64-neon.txt --no-default-features
             ./check-inlining.sh $target expected-methods-aarch64-neon.txt "--features public_imp"
           done
+
   test-doc:
     runs-on: ubuntu-latest
     steps:

@@ -32,7 +32,7 @@ jobs:
         run: |
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             for rustflags in "" "-C target-feature=+simd128"; do
-              cargo clean; RUSTFLAGS=$rustflags cargo test --no-default-features $features --target ${{ matrix.target }} --all-targets --verbose
+              cargo clean; RUSTFLAGS=$rustflags cargo test --no-default-features $features --target wasm32-wasip1 --all-targets --verbose
             done
           done
         env:
