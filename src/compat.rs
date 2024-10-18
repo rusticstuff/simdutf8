@@ -124,6 +124,23 @@ pub mod imp {
         }
     }
 
+    /// Includes the armv7 NEON SIMD implementations.
+    #[cfg(all(
+        target_arch = "arm",
+        target_feature = "v7",
+        target_endian = "little",
+        feature = "armv7_neon",
+    ))]
+    pub mod armv7 {
+        /// Includes the Neon-based validation implementation for armv7 neon-compatible CPUs.
+        ///
+        /// Using the provided functionality on CPUs which do not support neon is undefined
+        /// behavior and will very likely cause a crash.
+        pub mod neon {
+            pub use crate::implementation::armv7::neon::validate_utf8_compat as validate_utf8;
+        }
+    }
+
     /// Includes the wasm32 SIMD implementations.
     #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
     pub mod wasm32 {

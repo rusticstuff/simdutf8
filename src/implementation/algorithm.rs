@@ -183,15 +183,15 @@ macro_rules! algorithm_simd {
                 // WORKAROUND
                 // necessary because the for loop is not unrolled on ARM64
                 if input.vals.len() == 2 {
-                    self.check_bytes(*input.vals.get_unchecked(0));
-                    self.check_bytes(*input.vals.get_unchecked(1));
-                    self.incomplete = Self::is_incomplete(*input.vals.get_unchecked(1));
+                    self.check_bytes(*input.vals.as_ptr());
+                    self.check_bytes(*input.vals.as_ptr().add(1));
+                    self.incomplete = Self::is_incomplete(*input.vals.as_ptr().add(1));
                 } else if input.vals.len() == 4 {
-                    self.check_bytes(*input.vals.get_unchecked(0));
-                    self.check_bytes(*input.vals.get_unchecked(1));
-                    self.check_bytes(*input.vals.get_unchecked(2));
-                    self.check_bytes(*input.vals.get_unchecked(3));
-                    self.incomplete = Self::is_incomplete(*input.vals.get_unchecked(3));
+                    self.check_bytes(*input.vals.as_ptr());
+                    self.check_bytes(*input.vals.as_ptr().add(1));
+                    self.check_bytes(*input.vals.as_ptr().add(2));
+                    self.check_bytes(*input.vals.as_ptr().add(3));
+                    self.incomplete = Self::is_incomplete(*input.vals.as_ptr().add(3));
                 } else {
                     panic!("Unsupported number of chunks");
                 }
@@ -219,7 +219,7 @@ macro_rules! algorithm_simd {
             let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
             while idx < iter_lim {
-                let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                let simd_input = SimdInput::new(input.as_ptr().add(idx as usize));
                 idx += SIMD_CHUNK_SIZE;
                 if !simd_input.is_ascii() {
                     algorithm.check_block(simd_input);
@@ -231,7 +231,7 @@ macro_rules! algorithm_simd {
                 if PREFETCH {
                     simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
                 }
-                let input = SimdInput::new(input.get_unchecked(idx as usize..));
+                let input = SimdInput::new(input.as_ptr().add(idx as usize));
                 algorithm.check_utf8(input);
                 idx += SIMD_CHUNK_SIZE;
             }
@@ -243,7 +243,7 @@ macro_rules! algorithm_simd {
                     tmpbuf.0.as_mut_ptr(),
                     len - idx,
                 );
-                let simd_input = SimdInput::new(&tmpbuf.0);
+                let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
                 algorithm.check_utf8(simd_input);
             }
             algorithm.check_incomplete_pending();
@@ -286,7 +286,7 @@ macro_rules! algorithm_simd {
             'outer: loop {
                 if only_ascii {
                     while idx < iter_lim {
-                        let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                        let simd_input = SimdInput::new(input.as_ptr().add(idx as usize));
                         if !simd_input.is_ascii() {
                             algorithm.check_block(simd_input);
                             if algorithm.has_error() {
@@ -304,7 +304,7 @@ macro_rules! algorithm_simd {
                         if PREFETCH {
                             simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
                         }
-                        let simd_input = SimdInput::new(input.get_unchecked(idx as usize..));
+                        let simd_input = SimdInput::new(input.as_ptr().add(idx as usize));
                         if simd_input.is_ascii() {
                             algorithm.check_incomplete_pending();
                             if algorithm.has_error() {
@@ -333,7 +333,7 @@ macro_rules! algorithm_simd {
                     tmpbuf.0.as_mut_ptr(),
                     len - idx,
                 );
-                let simd_input = SimdInput::new(&tmpbuf.0);
+                let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
 
                 algorithm.check_utf8(simd_input);
             }
@@ -362,7 +362,7 @@ macro_rules! algorithm_simd {
             $(#[$feat])*
             #[inline]
             unsafe fn update_from_incomplete_data(&mut self) {
-                let simd_input = SimdInput::new(&self.incomplete_data);
+                let simd_input = SimdInput::new(self.incomplete_data.as_ptr());
                 self.algorithm.check_utf8(simd_input);
                 self.incomplete_len = 0;
             }
@@ -407,7 +407,7 @@ macro_rules! algorithm_simd {
                 let mut idx: usize = 0;
                 let iter_lim = len - (len % SIMD_CHUNK_SIZE);
                 while idx < iter_lim {
-                    let input = SimdInput::new(input.get_unchecked(idx as usize..));
+                    let input = SimdInput::new(input.as_ptr().add(idx as usize));
                     self.algorithm.check_utf8(input);
                     idx += SIMD_CHUNK_SIZE;
                 }
@@ -469,7 +469,7 @@ macro_rules! algorithm_simd {
                     "Input size must be a multiple of 64."
                 );
                 for chunk in input.chunks_exact(SIMD_CHUNK_SIZE) {
-                    let input = SimdInput::new(chunk);
+                    let input = SimdInput::new(chunk.as_ptr());
                     self.algorithm.check_utf8(input);
                 }
             }
@@ -497,7 +497,7 @@ macro_rules! algorithm_simd {
                                 remaining_input.as_ptr(),
                                 remaining_input.len(),
                             );
-                            let simd_input = SimdInput::new(&tmpbuf.0);
+                            let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
                             self.algorithm.check_utf8(simd_input);
                         }
                     }
@@ -523,13 +523,13 @@ macro_rules! simd_input_128_bit {
         impl SimdInput {
             $(#[$feat])*
             #[inline]
-            unsafe fn new(ptr: &[u8]) -> Self {
+            unsafe fn new(ptr: *const u8) -> Self {
                 Self {
                     vals: [
-                        SimdU8Value::load_from(ptr.as_ptr()),
-                        SimdU8Value::load_from(ptr.as_ptr().add(16)),
-                        SimdU8Value::load_from(ptr.as_ptr().add(32)),
-                        SimdU8Value::load_from(ptr.as_ptr().add(48)),
+                        SimdU8Value::load_from(ptr),
+                        SimdU8Value::load_from(ptr.add(16)),
+                        SimdU8Value::load_from(ptr.add(32)),
+                        SimdU8Value::load_from(ptr.add(48)),
                     ],
                 }
             }
@@ -556,11 +556,11 @@ macro_rules! simd_input_256_bit {
         impl SimdInput {
             $(#[$feat])*
             #[inline]
-            unsafe fn new(ptr: &[u8]) -> Self {
+            unsafe fn new(ptr: *const u8) -> Self {
                 Self {
                     vals: [
-                        SimdU8Value::load_from(ptr.as_ptr()),
-                        SimdU8Value::load_from(ptr.as_ptr().add(32)),
+                        SimdU8Value::load_from(ptr),
+                        SimdU8Value::load_from(ptr.add(32)),
                     ],
                 }
             }
