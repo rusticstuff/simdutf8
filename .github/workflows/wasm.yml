@@ -61,28 +61,25 @@ jobs:
             ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt "--features public_imp"
             ./check-inlining.sh ${{ matrix.target }} expected-methods-wasm32-simd128.txt "--features public_imp,std"
           done
+
   build-wasm32-unknown:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         toolchain: ["1.38.0", stable, beta, nightly]
-        features:
-          [
-            "",
-            "--features std",
-            "--features public_imp",
-            "--features std,public_imp",
-          ]
-        rustflags: ["-D warnings", "-D warnings -C target-feature=+simd128"]
-        target: [wasm32-unknown-unknown]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          targets: ${{ matrix.target }}
+          targets: wasm32-unknown-unknown
       - name: Run build
-        run: cargo build --no-default-features ${{ matrix.features }} --target ${{ matrix.target }} --verbose
+        run: |
+          for rustflags in "-D warnings", "-D warnings -C target-feature=+simd128"; do
+            for features in  "" "--features std" "--features public_imp" "--features std,public_imp"; do
+              cargo clean; RUSTFLAGS=$rustflags cargo build --no-default-features $features --target ${{ matrix.target }} --verbose
+            done
+          done
         env:
           RUSTFLAGS: ${{ matrix.rustflags }}
 
