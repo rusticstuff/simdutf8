@@ -109,7 +109,7 @@ jobs:
         shell: bash
         if: ${{ matrix.toolchain == 'nightly' }}
 
-  test-inlining-x86:
+  test-inlining:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -122,38 +122,20 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
+          targets: "x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu, aarch64-apple-darwin"
+          components: "llvm-tools-preview"
       - name: Install stable toolchain
         run: rustup toolchain add stable
       - name: Install rustfilt
         run: cargo +stable install rustfilt
-      - name: Check if the expected fns are inlined
+      - name: Check x86_64 inlining
         run: |
           ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt
           ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt "--features public_imp"
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx2.txt
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx2.txt --no-default-features
           RUSTFLAGS="-C target-feature=+sse4.2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-sse42.txt --no-default-features
-
-  test-inlining-aarch64:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        # the neon target feature was unconditionally enabled for aarch64 in 1.61.0
-        toolchain: [nightly, beta, stable, 1.61.0]
-    defaults:
-      run:
-        working-directory: inlining
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.toolchain }}
-          targets: aarch64-unknown-linux-gnu, aarch64-apple-darwin
-      - name: Install stable toolchain
-        run: rustup toolchain add stable
-      - name: Install rustfilt
-        run: cargo +stable install rustfilt
-      - name: Check if the expected fns are inlined
+      - name: Check aarch64 inlining
         run: |
           for target in aarch64-unknown-linux-gnu aarch64-apple-darwin
           do
