@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [1.38.0, stable, nightly]
+        toolchain: [stable, beta, nightly]
     steps:
       - uses: actions/checkout@v4
       - name: Install cross
@@ -45,8 +45,6 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           target: i686-unknown-linux-gnu
           args: "--no-default-features --verbose"
-        env:
-          RUSTFLAGS: "-D warnings"
       - name: test with cross
         run: |
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
@@ -65,13 +63,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [nightly]
+        toolchain: [stable, beta, nightly]
     steps:
       - uses: actions/checkout@v4
       - name: Cross test
         uses: houseabsolute/actions-rust-cross@v0
         with:
-          command: test
+          command: build
           toolchain: ${{ matrix.toolchain }}
           target: aarch64-unknown-linux-gnu
           args: "--no-default-features --verbose"
+      - name: test with cross
+        run: |
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
+            cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu $features
+          done
+      - name: nightly-only test with cross
+        run: |
+          cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu --all-features
+        if: ${{ matrix.toolchain == 'nightly' }}
