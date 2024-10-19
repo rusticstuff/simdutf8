@@ -54,6 +54,17 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           target: i686-unknown-linux-gnu
           args: "--no-default-features --verbose"
+        env:
+          RUSTFLAGS: "-D warnings"
+      - name: Cross test 2
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: test
+          toolchain: ${{ matrix.toolchain }}
+          target: i686-unknown-linux-gnu
+          args: "--no-default-features --verbose"
+        env:
+          RUSTFLAGS: "-D warnings -C target-feature=+avx2"
       # - name: Run tests
       #   run: |
       #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose
