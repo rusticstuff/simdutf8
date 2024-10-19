@@ -31,32 +31,37 @@ jobs:
             cargo build --no-default-features --target $target --verbose
           done
 
-  cross-build-i686:
+  cross-test-i686:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [1.38.0, stable, nightly]
-        rustflags:
-          [
-            "-D warnings",
-            "-D warnings -C target-feature=+avx2",
-            "-D warnings -C target-feature=+sse4.2",
-          ]
-    env:
-      RUSTFLAGS: ${{ matrix.rustflags }}
+        toolchain: [nightly]
+        # toolchain: [1.38.0, stable, nightly]
+        # rustflags:
+        #   [
+        #     "-D warnings",
+        #     "-D warnings -C target-feature=+avx2",
+        #     "-D warnings -C target-feature=+sse4.2",
+        #   ]
+    # env:
+    #   RUSTFLAGS: ${{ matrix.rustflags }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
+      - name: Cross test
+        uses: houseabsolute/actions-rust-cross@v0
         with:
+          command: test
           toolchain: ${{ matrix.toolchain }}
-          targets: i686-unknown-linux-gnu
-      - name: Run tests
-        run: |
-          cargo build --no-default-features --target i686-unknown-linux-gnu --verbose
-          cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features std
-          cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features public_imp
-          cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features std,public_imp
-      - name: Run nightly tests
-        run: |
-          cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --all-features
-        if: ${{ matrix.toolchain == 'nightly' }}
+          target: i686-unknown-linux-gnu
+          args: "--no-default-features --verbose"
+          strip: true
+      # - name: Run tests
+      #   run: |
+      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose
+      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features std
+      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features public_imp
+      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features std,public_imp
+      # - name: Run nightly tests
+      #   run: |
+      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --all-features
+      #   if: ${{ matrix.toolchain == 'nightly' }}
