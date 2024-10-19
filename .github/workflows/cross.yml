@@ -47,28 +47,22 @@ jobs:
     #   RUSTFLAGS: ${{ matrix.rustflags }}
     steps:
       - uses: actions/checkout@v4
-      - name: Cross test
+      - name: Install cross
         uses: houseabsolute/actions-rust-cross@v0
         with:
-          command: test
+          command: build
           toolchain: ${{ matrix.toolchain }}
           target: i686-unknown-linux-gnu
           args: "--no-default-features --verbose"
         env:
           RUSTFLAGS: "-D warnings"
-      - name: test cross direct
+      - name: test with cross
         run: |
-          RUSTFLAGS="-D warnings -C target-feature=+avxx2" /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu
-      # - name: Run tests
-      #   run: |
-      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose
-      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features std
-      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features public_imp
-      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --features std,public_imp
-      # - name: Run nightly tests
-      #   run: |
-      #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose --all-features
-      #   if: ${{ matrix.toolchain == 'nightly' }}
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
+            for rustflags in "-D warnings" "-D warnings -C target-feature=+avx2" "-D warnings -C target-feature=+sse4.2"; do
+              cargo clean; RUSTFLAGS=$rustflags /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu $features
+            done
+          done
 
   cross-test-aarch64:
     runs-on: ubuntu-latest
