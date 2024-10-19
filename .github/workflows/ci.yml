@@ -135,14 +135,17 @@ jobs:
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx2.txt
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx2.txt --no-default-features
           RUSTFLAGS="-C target-feature=+sse4.2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-sse42.txt --no-default-features
-      - name: Check aarch64 inlining
+      - name: Check aarch64 Linux inlining
         run: |
-          for target in aarch64-unknown-linux-gnu aarch64-apple-darwin
-          do
-            ./check-inlining.sh $target expected-methods-aarch64-neon.txt
-            ./check-inlining.sh $target expected-methods-aarch64-neon.txt --no-default-features
-            ./check-inlining.sh $target expected-methods-aarch64-neon.txt "--features public_imp"
-          done
+          ./check-inlining.sh aarch64-unknown-linux-gnu expected-methods-aarch64-neon.txt
+          ./check-inlining.sh aarch64-unknown-linux-gnu expected-methods-aarch64-neon.txt --no-default-features
+          ./check-inlining.sh aarch64-unknown-linux-gnu expected-methods-aarch64-neon.txt "--features public_imp"
+      - name: Check aarch64 macOS inlining
+        run: |
+          ./check-inlining.sh aarch64-apple-darwin expected-methods-aarch64-neon.txt
+          ./check-inlining.sh aarch64-apple-darwin expected-methods-aarch64-neon.txt --no-default-features
+          ./check-inlining.sh aarch64-apple-darwin expected-methods-aarch64-neon.txt "--features public_imp"
+        if: ${{ matrix.toolchain != '1.38.0' }}
 
   test-doc:
     runs-on: ubuntu-latest
