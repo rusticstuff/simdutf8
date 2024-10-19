@@ -35,16 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain: [nightly]
-        # toolchain: [1.38.0, stable, nightly]
-        # rustflags:
-        #   [
-        #     "-D warnings",
-        #     "-D warnings -C target-feature=+avx2",
-        #     "-D warnings -C target-feature=+sse4.2",
-        #   ]
-    # env:
-    #   RUSTFLAGS: ${{ matrix.rustflags }}
+        toolchain: [1.38.0, stable, nightly]
     steps:
       - uses: actions/checkout@v4
       - name: Install cross
@@ -63,6 +54,12 @@ jobs:
               cargo clean; RUSTFLAGS=$rustflags /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu $features
             done
           done
+      - name: nightly-only test with cross
+        run: |
+          for rustflags in "-D warnings" "-D warnings -C target-feature=+avx2" "-D warnings -C target-feature=+sse4.2"; do
+            cargo clean; RUSTFLAGS=$rustflags /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu --all-features
+          done
+        if: ${{ matrix.toolchain == 'nightly' }}
 
   cross-test-aarch64:
     runs-on: ubuntu-latest
