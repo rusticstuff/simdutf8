@@ -58,7 +58,7 @@ jobs:
           RUSTFLAGS: "-D warnings"
       - name: test cross direct
         run: |
-          RUSTFLAGS="-D warnings -C target-feature=+avx2" /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu
+          RUSTFLAGS="-D warnings -C target-feature=+avxx2" /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu
       # - name: Run tests
       #   run: |
       #     cargo build --no-default-features --target i686-unknown-linux-gnu --verbose
