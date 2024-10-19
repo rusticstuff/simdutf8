@@ -140,7 +140,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           targets: "aarch64-apple-darwin aarch64-unknown-linux-gnu"
           components: "llvm-tools-preview"
-          if: ${{ matrix.toolchain != '1.38.0' }}
+        if: ${{ matrix.toolchain != '1.38.0' }}
       - name: Check aarch64 inlining
         run: |
           for target in aarch64-unknown-linux-gnu aarch64-apple-darwin
