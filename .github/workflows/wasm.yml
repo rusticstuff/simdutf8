@@ -24,6 +24,7 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           targets: wasm32-wasip1
+          components: "llvm-tools-preview"
       - name: Setup Wasmer
         uses: wasmerio/setup-wasmer@v3.1
       - name: Install WASM Runner
