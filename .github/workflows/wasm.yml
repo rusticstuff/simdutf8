@@ -24,7 +24,6 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           targets: wasm32-wasip1
-          components: "llvm-tools-preview"
       - name: Setup Wasmer
         uses: wasmerio/setup-wasmer@v3.1
       - name: Install WASM Runner
@@ -50,6 +49,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           targets: "wasm32-wasip1,wasm32-unknown-unknown"
+          components: "llvm-tools-preview"
       - name: Install rustfilt
         run: cargo install rustfilt
       - name: Check if the expected fns are inlined
