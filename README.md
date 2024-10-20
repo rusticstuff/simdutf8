@@ -16,9 +16,9 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * Supports AVX 2 and SSE 4.2 implementations on x86 and x86-64
 * ARM64 (aarch64) SIMD is supported since Rust 1.61
 * WASM (wasm32) SIMD is supported
+* 🆕 armv7 NEON support with the `armv7_neon` feature on nightly Rust
 * x86-64: Up to 23 times faster than the std library on valid non-ASCII, up to four times faster on ASCI
 * aarch64: Up to eleven times faster than the std library on valid non-ASCII, up to four times faster on ASCII (Apple Silicon)
-* 🆕 armv7 NEON support with the `armv7_neon` feature on nightly Rust
 * Faster than the original simdjson implementation
 * Selects the fastest implementation at runtime based on CPU support (on x86)
 * Falls back to the excellent std implementation if SIMD extensions are not supported
