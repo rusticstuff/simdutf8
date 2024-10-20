@@ -9,6 +9,9 @@ pub(crate) mod helpers;
 // UTF-8 validation function types
 pub(crate) mod portable;
 
+pub(super) use portable::simd128::validate_utf8_basic;
+pub(super) use portable::simd128::validate_utf8_compat;
+
 // fallback method implementations
 #[inline]
 pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {

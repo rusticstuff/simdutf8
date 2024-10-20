@@ -14,7 +14,7 @@ std = [] # fixme: needed?
 public_imp = []
 
 # use 256-bit vectors
-v256 = []
+simd256 = []
 
 [dependencies]
 flexpect = "0.0.4"
