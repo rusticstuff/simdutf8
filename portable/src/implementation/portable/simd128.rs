@@ -218,9 +218,6 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
     }
 }
 
-#[inline]
-unsafe fn simd_prefetch(_ptr: *const u8) {}
-
 #[cfg(all(
     any(target_arch = "aarch64", target_arch = "arm"),
     target_feature = "neon"
@@ -233,7 +230,6 @@ const HAS_FAST_REDUCE_MAX: bool = true;
 )))]
 const HAS_FAST_REDUCE_MAX: bool = false;
 
-const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!();
 algorithm_simd!();

@@ -225,10 +225,6 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
     }
 }
 
-#[inline]
-unsafe fn simd_prefetch(_ptr: *const u8) {}
-
-const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA32 as TempSimdChunk;
 simd_input_256_bit!();
 algorithm_simd!();
