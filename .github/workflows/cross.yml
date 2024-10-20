@@ -65,7 +65,7 @@ jobs:
           cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu --all-features
         if: ${{ matrix.toolchain == 'nightly' }}
 
-  cross-test-thumbv7neon-unknown-linux-gnueabihf:
+  cross-test-armv7:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -83,14 +83,14 @@ jobs:
         run: |
           for rustflags in "-D warnings" "-D warnings -Ctarget-feature=+neon"; do
             for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
-              cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu $features
+              cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target armv7-unknown-linux-gnueabihf $features
             done
           done
       - name: test with cross with armv7_neon enabled
         run: |
           for rustflags in "-D warnings" "-D warnings -Ctarget-feature=+neon"; do
             for features in "--features armv7_neon" "--features armv7_neon,std" "--features armv7_neon,public_imp" "--features armv7_neon,std,public_imp" "--all-features"; do
-              cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu $features
+              cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target armv7-unknown-linux-gnueabihf $features
             done
           done
         if: ${{ matrix.toolchain == 'nightly' }}
