@@ -1,9 +1,9 @@
-cargo-features = ["edition2024"]
+#cargo-features = ["edition2024"] # TODO
 
 [package]
 name = "simdutf8-portable"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [features]
 default = ["std"]
