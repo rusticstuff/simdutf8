@@ -1,7 +1,7 @@
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 
 #[inline]
-#[flexpect::e(clippy::cast_possible_truncation)]
+#[expect(clippy::cast_possible_truncation)]
 pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
     match core::str::from_utf8(&input[offset..]) {
         Ok(_) => Ok(()),
@@ -16,7 +16,7 @@ pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(),
 }
 
 #[cold]
-#[flexpect::e(clippy::unwrap_used)]
+#[expect(clippy::unwrap_used)]
 #[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     let offset = if failing_block_pos == 0 {
@@ -47,7 +47,7 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     // This gets properly auto-vectorized on AVX 2 and SSE 4.2.
     // Needs to be forced because otherwise it is not inlined on armv7 neon.
     #[inline(always)]
-    #[flexpect::e(clippy::inline_always)]
+    #[expect(clippy::inline_always)]
     unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
         dest.cast::<u64>()
             .write_unaligned(src.cast::<u64>().read_unaligned());
@@ -94,7 +94,7 @@ pub(crate) struct TempSimdChunkA16(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunkA16 {
-    #[flexpect::e(clippy::inline_always)]
+    #[expect(clippy::inline_always)]
     #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
     pub(crate) const fn new() -> Self {
         Self([0; SIMD_CHUNK_SIZE])
@@ -107,7 +107,7 @@ pub(crate) struct TempSimdChunkA32(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunkA32 {
-    #[flexpect::e(clippy::inline_always)]
+    #[expect(clippy::inline_always)]
     #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
     pub(crate) const fn new() -> Self {
         Self([0; SIMD_CHUNK_SIZE])

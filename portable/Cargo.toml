@@ -15,6 +15,3 @@ public_imp = []
 
 # use 256-bit vectors
 simd256 = []
-
-[dependencies]
-flexpect = "0.0.4"
