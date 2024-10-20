@@ -81,8 +81,6 @@ jobs:
               cargo clean; RUSTFLAGS=$rustflags cargo build --no-default-features $features --target wasm32-unknown-unknown --verbose
             done
           done
-        env:
-          RUSTFLAGS: ${{ matrix.rustflags }}
 
   clippy_check:
     runs-on: ubuntu-latest
