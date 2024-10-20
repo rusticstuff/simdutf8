@@ -1,0 +1,5 @@
+simdutf8::implementation::armv7::validate_utf8_basic
+simdutf8::implementation::armv7::validate_utf8_basic_neon
+simdutf8::implementation::armv7::validate_utf8_compat
+simdutf8::implementation::armv7::validate_utf8_compat_neon
+simdutf8::implementation::helpers::get_compat_error

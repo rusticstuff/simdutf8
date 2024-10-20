@@ -11,9 +11,12 @@ nm_output=$($LLVM_NM --defined-only ../target/$target/release/libsimdutf8.rlib)
 if [[ $target == *darwin* ]]; then
     pattern=" (t|T) _"
     cut_arg=21
+elif [[ $target == *armv7* ]]; then
+    pattern=" (t|T) "
+    cut_arg=12
 else
     pattern=" (t|T) "
     cut_arg=20
 fi
-inline_ignore_pattern='drop_in_place|::fmt::|^\$x\.|^<T as core::convert::From<T>>::from$'
+inline_ignore_pattern='drop_in_place|::fmt::|^\$x\.|^<T as core::convert::From<T>>::from$|^core::result::Result<T,E>::map_err$'
 echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev "$inline_ignore_pattern" | sort | diff -u $expected_fns -
