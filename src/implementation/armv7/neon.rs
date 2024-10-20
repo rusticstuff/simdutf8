@@ -232,7 +232,7 @@ impl SimdU8Value {
     #[inline]
     #[target_feature(enable = "neon")]
     unsafe fn is_ascii(self) -> bool {
-        vmaxvq_u8(self.0) < 0b1000_0000_u8
+        vmaxvq_u8(self.0) > 0b1000_0000_u8
     }
 }
 
