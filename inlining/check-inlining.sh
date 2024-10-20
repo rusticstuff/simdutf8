@@ -6,7 +6,8 @@ expected_fns="$2"
 build_args="${3:-}"
 cargo clean --quiet
 cargo build --quiet --release --target $target $build_args
-nm_output=$(nm --defined-only ../target/$target/release/libsimdutf8.rlib)
+LLVM_NM=$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's|host: ||p')/bin/llvm-nm
+nm_output=$($LLVM_NM --defined-only ../target/$target/release/libsimdutf8.rlib)
 if [[ $target == *darwin* ]]; then
     pattern=" (t|T) _"
     cut_arg=21
