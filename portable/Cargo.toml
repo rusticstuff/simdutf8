@@ -1,0 +1,20 @@
+cargo-features = ["edition2024"]
+
+[package]
+name = "simdutf8-portable"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = ["std"]
+
+std = [] # fixme: needed?
+
+# expose SIMD implementations in basic::imp::* and compat::imp::*
+public_imp = []
+
+# use 256-bit vectors
+v256 = []
+
+[dependencies]
+flexpect = "0.0.4"
