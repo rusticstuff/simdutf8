@@ -207,24 +207,12 @@ jobs:
         with:
           components: clippy
           targets: "thumbv7neon-unknown-linux-gnueabihf, armv7-unknown-linux-gnueabihf, armv7-linux-androideabi"
-      - name: Run Clippy for thumbv7neon-unknown-linux-gnueabihf
+      - name: Run Clippy
         run: |
-          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets
-          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets --all-features
-          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets --no-default-features
-          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets --no-default-features --features armv7_neon
-          cargo clippy --target thumbv7neon-unknown-linux-gnueabihf --all-targets --no-default-features --features armv7_neon,public_imp
-      - name: Run Clippy for armv7-unknown-linux-gnueabihf
-        run: |
-          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets
-          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets --all-features
-          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets --no-default-features
-          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets --no-default-features --features armv7_neon
-          cargo clippy --target armv7-unknown-linux-gnueabihf --all-targets --no-default-features --features armv7_neon,public_imp
-      - name: Run Clippy for armv7-linux-androideabi
-        run: |
-          cargo clippy --target armv7-linux-androideabi --all-targets
-          cargo clippy --target armv7-linux-androideabi --all-targets --all-features
-          cargo clippy --target armv7-linux-androideabi --all-targets --no-default-features
-          cargo clippy --target armv7-linux-androideabi --all-targets --no-default-features --features armv7_neon
-          cargo clippy --target armv7-linux-androideabi --all-targets --no-default-features --features armv7_neon,public_imp
+          for target in thumbv7neon-unknown-linux-gnueabihf armv7-unknown-linux-gnueabihf armv7-linux-androideabi; do
+            cargo clippy --target $target --all-targets
+            cargo clippy --target $target --all-targets --all-features
+            cargo clippy --target $target --all-targets --no-default-features
+            cargo clippy --target $target --all-targets --no-default-features --features armv7_neon
+            cargo clippy --target $target --all-targets --no-default-features --features armv7_neon,public_imp
+          done
