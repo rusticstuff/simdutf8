@@ -29,6 +29,27 @@ pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
     x86::validate_utf8_compat(input)
 }
 
+// armv7 implementation
+
+#[cfg(all(target_arch = "arm", target_feature = "v7", target_endian = "little"))]
+pub(crate) mod armv7;
+
+/// Fn needed instead of re-import, otherwise not inlined in non-std case
+#[flexpect::e(clippy::inline_always)]
+#[inline(always)]
+#[cfg(all(target_arch = "arm", target_feature = "v7", target_endian = "little"))]
+pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+    armv7::validate_utf8_basic(input)
+}
+
+/// Fn needed instead of re-import, otherwise not inlined in non-std case
+#[flexpect::e(clippy::inline_always)]
+#[inline(always)]
+#[cfg(all(target_arch = "arm", target_feature = "v7", target_endian = "little"))]
+pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
+    armv7::validate_utf8_compat(input)
+}
+
 // aarch64 implementation
 
 #[cfg(target_arch = "aarch64")]
@@ -57,6 +78,7 @@ pub(super) use wasm32::validate_utf8_compat;
     target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "aarch64",
+    all(target_arch = "arm", target_feature = "v7", target_endian = "little"),
     target_arch = "wasm32"
 )))]
 pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
@@ -65,6 +87,7 @@ pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
     target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "aarch64",
+    all(target_arch = "arm", target_feature = "v7", target_endian = "little"),
     target_arch = "wasm32"
 )))]
 pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;

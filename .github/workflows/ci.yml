@@ -138,7 +138,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
-          targets: "aarch64-apple-darwin aarch64-unknown-linux-gnu"
+          targets: "aarch64-apple-darwin aarch64-unknown-linux-gnu armv7-unknown-linux-gnueabihf"
           components: "llvm-tools-preview"
         if: ${{ matrix.toolchain != '1.38.0' }}
       - name: Check aarch64 inlining
@@ -150,6 +150,13 @@ jobs:
             ./check-inlining.sh $target expected-methods-aarch64-neon.txt "--features public_imp"
           done
         if: ${{ matrix.toolchain != '1.38.0' }}
+      - name: Check armv7 neon inlining
+        run: |
+          ./check-inlining.sh armv7-unknown-linux-gnueabihf expected-methods-armv7-std.txt "--features armv7_neon"
+          ./check-inlining.sh armv7-unknown-linux-gnueabihf expected-methods-armv7-std.txt "--features armv7_neon,public_imp"
+          RUSTFLAGS="-C target-feature=+neon" ./check-inlining.sh armv7-unknown-linux-gnueabihf expected-methods-armv7-neon.txt "--features armv7_neon"
+          RUSTFLAGS="-C target-feature=+neon" ./check-inlining.sh armv7-unknown-linux-gnueabihf expected-methods-armv7-neon.txt "--no-default-features --features armv7_neon"
+        if: ${{ matrix.toolchain == 'nightly' }}
 
   test-doc:
     runs-on: ubuntu-latest
@@ -189,3 +196,23 @@ jobs:
         run: cargo clippy --all-targets --all-features
       - name: Clippy - all features disabled
         run: cargo clippy --all-targets --no-default-features
+
+  clippy_check_arm:
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: "-D warnings"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+          targets: "thumbv7neon-unknown-linux-gnueabihf, armv7-unknown-linux-gnueabihf, armv7-linux-androideabi"
+      - name: Run Clippy
+        run: |
+          for target in thumbv7neon-unknown-linux-gnueabihf armv7-unknown-linux-gnueabihf armv7-linux-androideabi; do
+            cargo clippy --target $target --all-targets
+            cargo clippy --target $target --all-targets --all-features
+            cargo clippy --target $target --all-targets --no-default-features
+            cargo clippy --target $target --all-targets --no-default-features --features armv7_neon
+            cargo clippy --target $target --all-targets --no-default-features --features armv7_neon,public_imp
+          done
