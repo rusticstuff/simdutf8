@@ -535,11 +535,10 @@ where
         if idx < len {
             let mut tmpbuf = TempSimdChunk::new();
             unsafe {
-                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                    input.as_ptr().add(idx),
-                    tmpbuf.0.as_mut_ptr(),
-                    len - idx,
-                );
+                input
+                    .as_ptr()
+                    .add(idx)
+                    .copy_to_nonoverlapping(tmpbuf.0.as_mut_ptr(), len - idx);
             }
             let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
             algorithm.check_utf8(&simd_input);
