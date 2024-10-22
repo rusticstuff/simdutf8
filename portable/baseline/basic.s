@@ -10,7 +10,6 @@ Lfunc_begin4:
 	.cfi_def_cfa w29, 16
 	.cfi_offset w30, -8
 	.cfi_offset w29, -16
-	.cfi_remember_state
 	sub x9, sp, #144
 	and sp, x9, #0xffffffffffffffe0
 	mov x8, x0
