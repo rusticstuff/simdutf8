@@ -1,5 +1,5 @@
 .DS_Store
-Cargo.lock
+/Cargo.lock
 /target
 /.vscode
 /.idea
