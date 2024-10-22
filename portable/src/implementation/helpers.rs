@@ -38,44 +38,13 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
 }
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
-#[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neon
+#[inline]
 pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-    mut src: *const u8,
-    mut dest: *mut u8,
-    mut len: usize,
+    src: *const u8,
+    dest: *mut u8,
+    len: usize,
 ) {
-    // This gets properly auto-vectorized on AVX 2 and SSE 4.2.
-    // Needs to be forced because otherwise it is not inlined on armv7 neon.
-    #[inline(always)]
-    #[expect(clippy::inline_always)]
-    unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
-        dest.cast::<u64>()
-            .write_unaligned(src.cast::<u64>().read_unaligned());
-        *src = src.offset(8);
-        *dest = dest.offset(8);
-    }
-    if len >= 32 {
-        memcpy_u64(&mut src, &mut dest);
-        memcpy_u64(&mut src, &mut dest);
-        memcpy_u64(&mut src, &mut dest);
-        memcpy_u64(&mut src, &mut dest);
-        len -= 32;
-    }
-    if len >= 16 {
-        memcpy_u64(&mut src, &mut dest);
-        memcpy_u64(&mut src, &mut dest);
-        len -= 16;
-    }
-    if len >= 8 {
-        memcpy_u64(&mut src, &mut dest);
-        len -= 8;
-    }
-    while len > 0 {
-        *dest = *src;
-        src = src.offset(1);
-        dest = dest.offset(1);
-        len -= 1;
-    }
+    src.copy_to_nonoverlapping(dest, len);
 }
 
 pub(crate) const SIMD_CHUNK_SIZE: usize = 64;
