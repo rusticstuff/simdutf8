@@ -507,7 +507,6 @@ where
     /// This function is inherently unsafe because it is compiled with SIMD extensions
     /// enabled. Make sure that the CPU supports it before calling.
     ///
-
     #[inline]
     pub unsafe fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8Error> {
         use crate::implementation::helpers::SIMD_CHUNK_SIZE;
@@ -517,7 +516,7 @@ where
         let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
         while idx < iter_lim {
-            let simd_input = SimdInput::<N, O>::new(input.as_ptr().add(idx as usize));
+            let simd_input = SimdInput::<N, O>::new(input.as_ptr().add(idx));
             idx += SIMD_CHUNK_SIZE;
             if !simd_input.is_ascii() {
                 algorithm.check_block(simd_input);
@@ -526,7 +525,7 @@ where
         }
 
         while idx < iter_lim {
-            let input = SimdInput::<N, O>::new(input.as_ptr().add(idx as usize));
+            let input = SimdInput::<N, O>::new(input.as_ptr().add(idx));
             algorithm.check_utf8(input);
             idx += SIMD_CHUNK_SIZE;
         }
