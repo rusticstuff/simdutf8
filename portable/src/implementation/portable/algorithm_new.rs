@@ -471,7 +471,7 @@ where
     }
 
     #[inline]
-    unsafe fn check_utf8(&mut self, input: SimdInput<N, O>) {
+    unsafe fn check_utf8(&mut self, input: &SimdInput<N, O>) {
         if input.is_ascii() {
             self.check_incomplete_pending();
         } else {
@@ -480,7 +480,7 @@ where
     }
 
     #[inline]
-    unsafe fn check_block(&mut self, input: SimdInput<N, O>) {
+    unsafe fn check_block(&mut self, input: &SimdInput<N, O>) {
         // WORKAROUND
         // necessary because the for loop is not unrolled on ARM64
         if input.vals.len() == 2 {
@@ -519,14 +519,14 @@ where
             let simd_input = SimdInput::<N, O>::new(input.as_ptr().add(idx));
             idx += SIMD_CHUNK_SIZE;
             if !simd_input.is_ascii() {
-                algorithm.check_block(simd_input);
+                algorithm.check_block(&simd_input);
                 break;
             }
         }
 
         while idx < iter_lim {
             let input = SimdInput::<N, O>::new(input.as_ptr().add(idx));
-            algorithm.check_utf8(input);
+            algorithm.check_utf8(&input);
             idx += SIMD_CHUNK_SIZE;
         }
 
@@ -538,7 +538,7 @@ where
                 len - idx,
             );
             let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
-            algorithm.check_utf8(simd_input);
+            algorithm.check_utf8(&simd_input);
         }
         algorithm.check_incomplete_pending();
         if algorithm.has_error() {
