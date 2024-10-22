@@ -25,7 +25,7 @@ pub(crate) struct TempSimdChunk(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 #[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunk {
     #[expect(clippy::inline_always)]
-    #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
+    #[inline(always)] // FIXME needs to be forced because otherwise it is not inlined on armv7 neo
     pub(crate) const fn new() -> Self {
         Self([0; SIMD_CHUNK_SIZE])
     }
@@ -62,7 +62,7 @@ impl SimdInputTrait for SimdInput<16, 4> {
 
     #[inline]
     unsafe fn is_ascii(&self) -> bool {
-        (self.vals[0] | self.vals[1]).is_ascii()
+        (self.vals[0] | self.vals[1] | self.vals[2] | self.vals[3]).is_ascii()
     }
 }
 
@@ -78,6 +78,7 @@ where
 trait SimdU8Value<const N: usize>
 where
     LaneCount<N>: SupportedLaneCount,
+    Self: Copy,
 {
     #[expect(clippy::too_many_arguments)]
     fn from_32_cut_off_leading(
