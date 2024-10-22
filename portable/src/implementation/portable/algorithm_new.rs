@@ -512,7 +512,7 @@ where
     pub unsafe fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8Error> {
         use crate::implementation::helpers::SIMD_CHUNK_SIZE;
         let len = input.len();
-        let mut algorithm = Utf8CheckAlgorithm::<N, O>::new();
+        let mut algorithm = Self::new();
         let mut idx: usize = 0;
         let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
