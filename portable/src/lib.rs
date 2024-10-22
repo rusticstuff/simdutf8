@@ -26,7 +26,7 @@
 //! Use [`basic::from_utf8()`] as a drop-in replacement for `std::str::from_utf8()`.
 //!
 //! ```rust
-//! use simdutf8::basic::from_utf8;
+//! use simdutf8_portable::basic::from_utf8;
 //!
 //! println!("{}", from_utf8(b"I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!").unwrap());
 //! ```
@@ -35,7 +35,7 @@
 //! instead.
 //!
 //! ```rust
-//! use simdutf8::compat::from_utf8;
+//! use simdutf8_portable::compat::from_utf8;
 //!
 //! let err = from_utf8(b"I \xE2\x9D\xA4\xEF\xB8 UTF-8!").unwrap_err();
 //! assert_eq!(err.valid_up_to(), 5);
