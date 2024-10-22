@@ -41,7 +41,7 @@ where
 
 trait SimdInputTrait {
     fn new(ptr: *const u8) -> Self;
-
+    fn new_partial(ptr: *const u8, len: usize) -> Self;
     fn is_ascii(&self) -> bool;
 }
 
@@ -60,6 +60,15 @@ impl SimdInputTrait for SimdInput<16, 4> {
                 ],
             }
         }
+    }
+
+    #[inline]
+    fn new_partial(ptr: *const u8, len: usize) -> Self {
+        let mut tmpbuf = TempSimdChunk::new();
+        unsafe {
+            ptr.copy_to_nonoverlapping(tmpbuf.0.as_mut_ptr(), len);
+        }
+        Self::new(tmpbuf.0.as_ptr())
     }
 
     #[inline]
@@ -533,14 +542,7 @@ where
         }
 
         if idx < len {
-            let mut tmpbuf = TempSimdChunk::new();
-            unsafe {
-                input
-                    .as_ptr()
-                    .add(idx)
-                    .copy_to_nonoverlapping(tmpbuf.0.as_mut_ptr(), len - idx);
-            }
-            let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
+            let simd_input = unsafe { SimdInput::new_partial(input.as_ptr().add(idx), len - idx) };
             algorithm.check_utf8(&simd_input);
         }
         algorithm.check_incomplete_pending();
