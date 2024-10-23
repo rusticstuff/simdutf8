@@ -1,7 +1,8 @@
+use core::{hint::assert_unchecked, ptr::slice_from_raw_parts, slice};
 use std::simd::{
     cmp::SimdPartialOrd,
     num::{SimdInt, SimdUint},
-    simd_swizzle, u8x16, LaneCount, Simd, SupportedLaneCount,
+    simd_swizzle, u8x16, LaneCount, Mask, Simd, SupportedLaneCount,
 };
 
 use crate::{basic, implementation::helpers::SIMD_CHUNK_SIZE};
@@ -64,17 +65,103 @@ impl SimdInputTrait for SimdInput<16, 4> {
 
     #[inline]
     fn new_partial(ptr: *const u8, len: usize) -> Self {
-        let mut tmpbuf = TempSimdChunk::new();
-        unsafe {
-            ptr.copy_to_nonoverlapping(tmpbuf.0.as_mut_ptr(), len);
+        let mut slice = unsafe { slice::from_raw_parts(ptr, len) };
+        let val0 = load_masked(slice);
+        let val1 = if slice.len() > 16 {
+            slice = &slice[16..];
+            load_masked(slice)
+        } else {
+            u8x16::default()
+        };
+        let val2 = if slice.len() > 16 {
+            slice = &slice[16..];
+            load_masked(slice)
+        } else {
+            u8x16::default()
+        };
+        let val3 = if slice.len() > 16 {
+            slice = &slice[16..];
+            load_masked(slice)
+        } else {
+            u8x16::default()
+        };
+        Self {
+            vals: [val0, val1, val2, val3],
         }
-        Self::new(tmpbuf.0.as_ptr())
     }
 
     #[inline]
     fn is_ascii(&self) -> bool {
         (self.vals[0] | self.vals[1] | self.vals[2] | self.vals[3]).is_ascii()
     }
+}
+
+#[inline(never)]
+fn load_masked(slice: &[u8]) -> Simd<u8, 16> {
+    let mut val = u8x16::default();
+    if slice.len() > 0 {
+        val[0] = slice[0];
+        if slice.len() > 1 {
+            val[1] = slice[1];
+            if slice.len() > 2 {
+                val[2] = slice[2];
+                if slice.len() > 3 {
+                    val[3] = slice[3];
+                    if slice.len() > 4 {
+                        val[4] = slice[4];
+                        if slice.len() > 5 {
+                            val[5] = slice[5];
+                            if slice.len() > 6 {
+                                val[6] = slice[6];
+                                if slice.len() > 7 {
+                                    val[7] = slice[7];
+                                    if slice.len() > 8 {
+                                        val[8] = slice[8];
+                                        if slice.len() > 9 {
+                                            val[9] = slice[9];
+                                            if slice.len() > 10 {
+                                                val[10] = slice[10];
+                                                if slice.len() > 11 {
+                                                    val[11] = slice[11];
+                                                    if slice.len() > 12 {
+                                                        val[12] = slice[12];
+                                                        if slice.len() > 13 {
+                                                            val[13] = slice[13];
+                                                            if slice.len() > 14 {
+                                                                val[14] = slice[14];
+                                                                if slice.len() > 15 {
+                                                                    val[15] = slice[15];
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    val
+    // for i in 0..slice.len().min(16) {
+    //     val[i] = slice[i];
+    // }
+    // val
+    //
+    // unsafe {
+    //     u8x16::load_select_unchecked(
+    //         slice,
+    //         Mask::from_bitmask((1u64 << slice.len()) - 1),
+    //         u8x16::default(),
+    //     )
+    // }
+    //
+    // u8x16::load_or_default(slice)
 }
 
 struct Utf8CheckAlgorithm<const N: usize, const O: usize>
