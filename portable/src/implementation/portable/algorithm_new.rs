@@ -64,30 +64,56 @@ impl SimdInputTrait for SimdInput<16, 4> {
     }
 
     #[inline]
-    fn new_partial(ptr: *const u8, len: usize) -> Self {
+    fn new_partial(ptr: *const u8, mut len: usize) -> Self {
+        unsafe {
+            assert_unchecked(len < 64);
+        }
         let mut slice = unsafe { slice::from_raw_parts(ptr, len) };
-        let val0 = load_masked(slice);
-        let val1 = if slice.len() > 16 {
-            slice = &slice[16..];
-            load_masked(slice)
-        } else {
-            u8x16::default()
-        };
-        let val2 = if slice.len() > 16 {
-            slice = &slice[16..];
-            load_masked(slice)
-        } else {
-            u8x16::default()
-        };
-        let val3 = if slice.len() > 16 {
-            slice = &slice[16..];
-            load_masked(slice)
-        } else {
-            u8x16::default()
-        };
+        let val0 = load_masked_opt(slice);
+        slice = &slice[slice.len().min(16)..];
+        let val1 = load_masked_opt(slice);
+        slice = &slice[slice.len().min(16)..];
+        let val2 = load_masked_opt(slice);
+        slice = &slice[slice.len().min(16)..];
+        let val3 = load_masked_opt(slice);
         Self {
             vals: [val0, val1, val2, val3],
         }
+
+        // let mut vals = [Simd::<u8, 16>::default(); 4];
+        // let mut i = 0;
+        // while len > 16 {
+        //     vals[i] = unsafe { ptr.cast::<u8x16>().read_unaligned() };
+        //     i += 1;
+        //     len -= 16;
+        // }
+        // if len > 0 {
+        //     vals[i] = u8x16::load_or_default(unsafe { slice::from_raw_parts(ptr, len) });
+        // }
+        // Self { vals }
+        // let mut slice = unsafe { slice::from_raw_parts(ptr, len) };
+        // let val0 = load_masked(slice);
+        // let val1 = if slice.len() > 16 {
+        //     slice = &slice[16..];
+        //     load_masked(slice)
+        // } else {
+        //     u8x16::default()
+        // };
+        // let val2 = if slice.len() > 16 {
+        //     slice = &slice[16..];
+        //     load_masked(slice)
+        // } else {
+        //     u8x16::default()
+        // };
+        // let val3 = if slice.len() > 16 {
+        //     slice = &slice[16..];
+        //     load_masked(slice)
+        // } else {
+        //     u8x16::default()
+        // };
+        // Self {
+        //     vals: [val0, val1, val2, val3],
+        // }
     }
 
     #[inline]
@@ -96,7 +122,17 @@ impl SimdInputTrait for SimdInput<16, 4> {
     }
 }
 
-#[inline(never)]
+fn load_masked_opt(slice: &[u8]) -> Simd<u8, 16> {
+    if slice.is_empty() {
+        u8x16::splat(0)
+    } else if slice.len() > 15 {
+        unsafe { slice.as_ptr().cast::<u8x16>().read_unaligned() }
+    } else {
+        load_masked(slice)
+    }
+}
+
+#[inline]
 fn load_masked(slice: &[u8]) -> Simd<u8, 16> {
     let mut val = u8x16::default();
     if slice.len() > 0 {
@@ -148,6 +184,8 @@ fn load_masked(slice: &[u8]) -> Simd<u8, 16> {
         }
     }
     val
+    //
+    // let mut val = u8x16::default();
     // for i in 0..slice.len().min(16) {
     //     val[i] = slice[i];
     // }
