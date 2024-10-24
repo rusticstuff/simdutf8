@@ -70,11 +70,20 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
         memcpy_u64(&mut src, &mut dest);
         len -= 8;
     }
-    while len > 0 {
+    if len >= 4 {
+        dest.cast::<u32>()
+            .write_unaligned(src.cast::<u32>().read_unaligned());
+        src = src.offset(4);
+        dest = dest.offset(4);
+    }
+    if len >= 2 {
+        dest.cast::<u16>()
+            .write_unaligned(src.cast::<u16>().read_unaligned());
+        src = src.offset(2);
+        dest = dest.offset(2);
+    }
+    if len == 1 {
         *dest = *src;
-        src = src.offset(1);
-        dest = dest.offset(1);
-        len -= 1;
     }
 }
 
