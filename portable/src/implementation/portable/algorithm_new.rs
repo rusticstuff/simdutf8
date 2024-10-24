@@ -1,8 +1,8 @@
-use core::{hint::assert_unchecked, ptr::slice_from_raw_parts, slice};
+use core::{hint::assert_unchecked, slice};
 use std::simd::{
     cmp::SimdPartialOrd,
     num::{SimdInt, SimdUint},
-    simd_swizzle, u8x16, LaneCount, Mask, Simd, SupportedLaneCount,
+    simd_swizzle, u8x16, LaneCount, Simd, SupportedLaneCount,
 };
 
 use crate::{basic, implementation::helpers::SIMD_CHUNK_SIZE};
