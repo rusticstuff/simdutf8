@@ -219,7 +219,7 @@ macro_rules! algorithm_simd {
             let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
             while idx < iter_lim {
-                let simd_input = SimdInput::new(input.as_ptr().add(idx as usize));
+                let simd_input = SimdInput::new(input.as_ptr().add(idx));
                 idx += SIMD_CHUNK_SIZE;
                 if !simd_input.is_ascii() {
                     algorithm.check_block(simd_input);
@@ -231,7 +231,7 @@ macro_rules! algorithm_simd {
                 if PREFETCH {
                     simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
                 }
-                let input = SimdInput::new(input.as_ptr().add(idx as usize));
+                let input = SimdInput::new(input.as_ptr().add(idx));
                 algorithm.check_utf8(input);
                 idx += SIMD_CHUNK_SIZE;
             }
@@ -286,7 +286,7 @@ macro_rules! algorithm_simd {
             'outer: loop {
                 if only_ascii {
                     while idx < iter_lim {
-                        let simd_input = SimdInput::new(input.as_ptr().add(idx as usize));
+                        let simd_input = SimdInput::new(input.as_ptr().add(idx));
                         if !simd_input.is_ascii() {
                             algorithm.check_block(simd_input);
                             if algorithm.has_error() {
@@ -304,7 +304,7 @@ macro_rules! algorithm_simd {
                         if PREFETCH {
                             simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
                         }
-                        let simd_input = SimdInput::new(input.as_ptr().add(idx as usize));
+                        let simd_input = SimdInput::new(input.as_ptr().add(idx));
                         if simd_input.is_ascii() {
                             algorithm.check_incomplete_pending();
                             if algorithm.has_error() {
@@ -407,7 +407,7 @@ macro_rules! algorithm_simd {
                 let mut idx: usize = 0;
                 let iter_lim = len - (len % SIMD_CHUNK_SIZE);
                 while idx < iter_lim {
-                    let input = SimdInput::new(input.as_ptr().add(idx as usize));
+                    let input = SimdInput::new(input.as_ptr().add(idx));
                     self.algorithm.check_utf8(input);
                     idx += SIMD_CHUNK_SIZE;
                 }
