@@ -1,3 +1,5 @@
+use core::hint::unreachable_unchecked;
+
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 
 /// Uses core::str::from_utf8 to validate that the subslice
@@ -25,6 +27,16 @@ pub(crate) unsafe fn validate_utf8_at_offset(
     }
 }
 
+/// Necessary tor 1.38 compatibility
+#[inline]
+unsafe fn unwrap_err_unchecked<O, E>(r: Result<O, E>) -> E {
+    match r {
+        // SAFETY: the safety contract must be upheld by the caller.
+        Ok(_) => unsafe { unreachable_unchecked() },
+        Err(e) => e,
+    }
+}
+
 #[cold]
 #[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
@@ -45,7 +57,7 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
             .map_or(failing_block_pos, |i| failing_block_pos - i)
     };
     // SAFETY: safe because the SIMD UTF-8 validation found an error and offset is in bounds.
-    unsafe { validate_utf8_at_offset(input, offset).unwrap_err_unchecked() }
+    unsafe { unwrap_err_unchecked(validate_utf8_at_offset(input, offset)) }
 }
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
