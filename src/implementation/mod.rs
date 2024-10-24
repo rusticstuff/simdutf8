@@ -108,5 +108,6 @@ pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), crate::ba
 
 #[inline]
 pub(crate) fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
-    helpers::validate_utf8_at_offset(input, 0)
+    // SAFETY: 0 is always in bounds
+    unsafe { helpers::validate_utf8_at_offset(input, 0) }
 }
