@@ -1,4 +1,3 @@
-use core::{hint::assert_unchecked, slice};
 use std::simd::{
     cmp::SimdPartialOrd,
     num::{SimdInt, SimdUint},
@@ -43,46 +42,37 @@ where
 }
 
 trait SimdInputTrait {
-    fn new(ptr: *const u8) -> Self;
-    fn is_ascii(&self) -> bool;
-    fn new_partial_masked_load(ptr: *const u8, len: usize) -> Self;
-    fn new_partial_copy(ptr: *const u8, len: usize) -> Self;
-    fn new_partial(ptr: *const u8, len: usize) -> Self
+    fn new(ptr: &[u8]) -> Self;
+    fn new_partial_masked_load(slice: &[u8]) -> Self;
+    fn new_partial_copy(slice: &[u8]) -> Self;
+    fn new_partial(slice: &[u8]) -> Self
     where
         Self: Sized,
     {
         if HAS_FAST_MASKED_LOAD {
-            Self::new_partial_masked_load(ptr, len)
+            Self::new_partial_masked_load(slice)
         } else {
-            Self::new_partial_copy(ptr, len)
+            Self::new_partial_copy(slice)
         }
     }
+    fn is_ascii(&self) -> bool;
 }
 
 impl SimdInputTrait for SimdInput<16, 4> {
     #[inline]
-    fn new(ptr: *const u8) -> Self {
-        #[expect(clippy::cast_ptr_alignment)]
-        let ptr = ptr.cast::<u8x16>();
-        unsafe {
-            Self {
-                vals: [
-                    ptr.read_unaligned(),
-                    ptr.add(1).read_unaligned(),
-                    ptr.add(2).read_unaligned(),
-                    ptr.add(3).read_unaligned(),
-                ],
-            }
+    fn new(s: &[u8]) -> Self {
+        Self {
+            vals: [
+                u8x16::from_slice(&s[..16]),
+                u8x16::from_slice(&s[16..32]),
+                u8x16::from_slice(&s[32..48]),
+                u8x16::from_slice(&s[48..64]),
+            ],
         }
     }
 
     #[inline]
-    fn new_partial_masked_load(ptr: *const u8, len: usize) -> Self {
-        unsafe {
-            assert_unchecked(len > 0);
-            assert_unchecked(len < 64);
-        }
-        let mut slice = unsafe { slice::from_raw_parts(ptr, len) };
+    fn new_partial_masked_load(mut slice: &[u8]) -> Self {
         let val0 = load_masked_opt(slice);
         slice = &slice[slice.len().min(16)..];
         if slice.is_empty() {
@@ -111,12 +101,10 @@ impl SimdInputTrait for SimdInput<16, 4> {
     }
 
     #[inline]
-    fn new_partial_copy(ptr: *const u8, len: usize) -> Self {
+    fn new_partial_copy(slice: &[u8]) -> Self {
         let mut buf = [0; 64];
-        unsafe {
-            ptr.copy_to_nonoverlapping(buf.as_mut_ptr(), len);
-        }
-        Self::new(buf.as_ptr())
+        buf[..slice.len()].copy_from_slice(slice);
+        Self::new(&buf)
     }
 
     #[inline]
@@ -128,7 +116,7 @@ impl SimdInputTrait for SimdInput<16, 4> {
 #[inline]
 fn load_masked_opt(slice: &[u8]) -> Simd<u8, 16> {
     if slice.len() > 15 {
-        unsafe { slice.as_ptr().cast::<u8x16>().read_unaligned() }
+        u8x16::from_slice(&slice[..16])
     } else {
         u8x16::load_or_default(slice)
     }
@@ -552,19 +540,15 @@ where
         // WORKAROUND
         // necessary because the for loop is not unrolled on ARM64
         if input.vals.len() == 2 {
-            unsafe {
-                self.check_bytes(*input.vals.as_ptr());
-                self.check_bytes(*input.vals.as_ptr().add(1));
-                self.incomplete = Self::is_incomplete(*input.vals.as_ptr().add(1));
-            }
+            self.check_bytes(input.vals[0]);
+            self.check_bytes(input.vals[1]);
+            self.incomplete = Self::is_incomplete(input.vals[1]);
         } else if input.vals.len() == 4 {
-            unsafe {
-                self.check_bytes(*input.vals.as_ptr());
-                self.check_bytes(*input.vals.as_ptr().add(1));
-                self.check_bytes(*input.vals.as_ptr().add(2));
-                self.check_bytes(*input.vals.as_ptr().add(3));
-                self.incomplete = Self::is_incomplete(*input.vals.as_ptr().add(3));
-            }
+            self.check_bytes(input.vals[0]);
+            self.check_bytes(input.vals[1]);
+            self.check_bytes(input.vals[2]);
+            self.check_bytes(input.vals[3]);
+            self.incomplete = Self::is_incomplete(input.vals[3]);
         } else {
             panic!("Unsupported number of chunks");
         }
@@ -578,28 +562,22 @@ where
     #[inline]
     pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8Error> {
         use crate::implementation::helpers::SIMD_CHUNK_SIZE;
-        let len = input.len();
         let mut algorithm = Self::new();
-        let mut idx: usize = 0;
-        let iter_lim = len - (len % SIMD_CHUNK_SIZE);
-
-        while idx < iter_lim {
-            let simd_input = unsafe { SimdInput::<N, O>::new(input.as_ptr().add(idx)) };
-            idx += SIMD_CHUNK_SIZE;
+        let mut chunks = input.chunks_exact(SIMD_CHUNK_SIZE);
+        for chunk in chunks.by_ref() {
+            let simd_input = SimdInput::<N, O>::new(chunk);
             if !simd_input.is_ascii() {
                 algorithm.check_block(&simd_input);
                 break;
             }
         }
-
-        while idx < iter_lim {
-            let input = unsafe { SimdInput::<N, O>::new(input.as_ptr().add(idx)) };
-            algorithm.check_utf8(&input);
-            idx += SIMD_CHUNK_SIZE;
+        for chunk in chunks.by_ref() {
+            let simd_input = SimdInput::<N, O>::new(chunk);
+            algorithm.check_utf8(&simd_input);
         }
-
-        if idx < len {
-            let simd_input = unsafe { SimdInput::new_partial(input.as_ptr().add(idx), len - idx) };
+        let rem = chunks.remainder();
+        if !rem.is_ascii() {
+            let simd_input = SimdInput::<N, O>::new_partial(rem);
             algorithm.check_utf8(&simd_input);
         }
         algorithm.check_incomplete_pending();
