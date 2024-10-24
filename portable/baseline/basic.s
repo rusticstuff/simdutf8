@@ -119,7 +119,7 @@ Lloh31:
 	ldr q16, [x10, lCPI4_3@PAGEOFF]
 	uqsub.16b v19, v7, v16
 	cmp x11, x9
-	b.hs LBB4_14
+	b.hs LBB4_12
 	mov x10, x11
 	b LBB4_6
 LBB4_5:
@@ -221,7 +221,7 @@ LBB4_8:
 	movi.2d v24, #0000000000000000
 LBB4_9:
 	subs x2, x1, x10
-	b.ls LBB4_13
+	b.ls LBB4_14
 LBB4_10:
 	stp q24, q17, [sp, #16]
 	movi.2d v0, #0000000000000000
@@ -231,7 +231,6 @@ LBB4_10:
 	add x0, sp, #64
 	add x1, x8, x10
 	bl _memcpy
-	ldr q6, [sp, #32]
 	ldp q3, q2, [sp, #64]
 	ldp q1, q0, [sp, #96]
 	orr.16b v4, v2, v3
@@ -239,8 +238,18 @@ LBB4_10:
 	orr.16b v4, v4, v5
 	umaxv.16b b4, v4
 	fmov w8, s4
-	mov.16b v4, v6
-	tbz w8, #7, LBB4_12
+	tbnz w8, #7, LBB4_13
+	ldp q17, q23, [sp, #32]
+	orr.16b v23, v17, v23
+	b LBB4_14
+LBB4_12:
+	mov.16b v17, v19
+	mov.16b v24, v7
+	mov x10, x11
+	subs x2, x1, x11
+	b.hi LBB4_10
+	b LBB4_14
+LBB4_13:
 	ldr q19, [sp, #16]
 	ext.16b v4, v19, v3, #15
 	ushr.16b v5, v4, #4
@@ -322,19 +331,17 @@ Lloh37:
 	orr.16b v1, v1, v6
 	and.16b v1, v1, v17
 	eor.16b v1, v5, v1
-	orr.16b v3, v3, v4
+	orr.16b v3, v4, v3
 	orr.16b v1, v2, v1
-	orr.16b v6, v3, v1
+	orr.16b v1, v3, v1
+	ldr q23, [sp, #48]
+	orr.16b v23, v1, v23
 Lloh38:
 	adrp x8, lCPI4_3@PAGE
 Lloh39:
 	ldr q1, [x8, lCPI4_3@PAGEOFF]
-	uqsub.16b v4, v0, v1
-LBB4_12:
-	ldr q23, [sp, #48]
-	orr.16b v23, v6, v23
-	mov.16b v17, v4
-LBB4_13:
+	uqsub.16b v17, v0, v1
+LBB4_14:
 	orr.16b v0, v17, v23
 	umaxv.16b b0, v0
 	fmov w8, s0
@@ -347,14 +354,6 @@ LBB4_13:
 	.cfi_restore w30
 	.cfi_restore w29
 	ret
-LBB4_14:
-	.cfi_restore_state
-	mov.16b v17, v19
-	mov.16b v24, v7
-	mov x10, x11
-	subs x2, x1, x11
-	b.hi LBB4_10
-	b LBB4_13
 	.loh AdrpLdr	Lloh30, Lloh31
 	.loh AdrpAdrp	Lloh28, Lloh30
 	.loh AdrpLdr	Lloh28, Lloh29
