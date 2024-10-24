@@ -110,6 +110,7 @@ impl SimdInputTrait for SimdInput<16, 4> {
         }
     }
 
+    #[inline]
     fn new_partial_copy(ptr: *const u8, len: usize) -> Self {
         let mut buf = [0; 64];
         unsafe {
@@ -124,6 +125,7 @@ impl SimdInputTrait for SimdInput<16, 4> {
     }
 }
 
+#[inline]
 fn load_masked_opt(slice: &[u8]) -> Simd<u8, 16> {
     if slice.len() > 15 {
         unsafe { slice.as_ptr().cast::<u8x16>().read_unaligned() }
