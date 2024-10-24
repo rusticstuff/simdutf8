@@ -1,6 +1,8 @@
 use criterion::{measurement::Measurement, BenchmarkGroup, BenchmarkId, Criterion, Throughput};
 use simdutf8::basic::from_utf8 as basic_from_utf8;
 use simdutf8::compat::from_utf8 as compat_from_utf8;
+use simdutf8_portable::basic::from_utf8 as basic_from_utf8_portable;
+use simdutf8_portable::compat::from_utf8 as compat_from_utf8_portable;
 
 use std::str::from_utf8 as std_from_utf8;
 
@@ -29,6 +31,8 @@ pub enum BenchFn {
     Basic,
     BasicNoInline,
     Compat,
+    BasicPortable,
+    CompatPortable,
     Std,
 
     #[cfg(feature = "simdjson")]
@@ -189,6 +193,24 @@ fn bench_input<M: Measurement>(
                 &input,
                 |b, &slice| {
                     b.iter(|| assert_eq!(compat_from_utf8(slice).is_ok(), expected_ok));
+                },
+            );
+        }
+        BenchFn::BasicPortable => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                &input,
+                |b, &slice| {
+                    b.iter(|| assert_eq!(basic_from_utf8_portable(slice).is_ok(), expected_ok));
+                },
+            );
+        }
+        BenchFn::CompatPortable => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                &input,
+                |b, &slice| {
+                    b.iter(|| assert_eq!(compat_from_utf8_portable(slice).is_ok(), expected_ok));
                 },
             );
         }
