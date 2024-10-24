@@ -5,7 +5,7 @@ type Utf8ErrorCompat = crate::compat::Utf8Error;
 ///
 /// # Safety
 /// Caller has to ensure that `offset` is in bounds.
-
+///
 #[inline]
 #[flexpect::e(clippy::cast_possible_truncation)]
 pub(crate) unsafe fn validate_utf8_at_offset(
