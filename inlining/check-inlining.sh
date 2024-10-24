@@ -19,4 +19,7 @@ else
     cut_arg=20
 fi
 inline_ignore_pattern='__aeabi_unwind_cpp_pr0|drop_in_place|core::str::converts::from_utf8|std_detect::detect::|::fmt::|^\$x\.|^<T as core::convert::From<T>>::from$|^core::result::Result<T,E>::map_err$'
+if [[ $target == *wasm* ]]; then
+    inline_ignore_pattern="$inline_ignore_pattern|ct_function_table|pointe|r::converts::from_utf8|t::Formatter::write_str|t::write"
+fi
 echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev "$inline_ignore_pattern" | sort | diff -u $expected_fns -
