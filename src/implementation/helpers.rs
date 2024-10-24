@@ -1,9 +1,21 @@
+use core::hint::unreachable_unchecked;
+
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 
+/// Uses core::str::from_utf8 to validate that the subslice
+/// starting at `offset` is valid UTF-8.
+///
+/// # Safety
+/// Caller has to ensure that `offset` is in bounds.
+///
 #[inline]
 #[flexpect::e(clippy::cast_possible_truncation)]
-pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
-    match core::str::from_utf8(&input[offset..]) {
+pub(crate) unsafe fn validate_utf8_at_offset(
+    input: &[u8],
+    offset: usize,
+) -> Result<(), Utf8ErrorCompat> {
+    let input = input.get_unchecked(offset..);
+    match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
         Err(err) => Err(Utf8ErrorCompat {
             valid_up_to: err.valid_up_to() + offset,
@@ -15,8 +27,17 @@ pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(),
     }
 }
 
+/// Necessary tor 1.38 compatibility
+#[inline]
+unsafe fn unwrap_err_unchecked<O, E>(r: Result<O, E>) -> E {
+    match r {
+        // SAFETY: the safety contract must be upheld by the caller.
+        Ok(_) => unreachable_unchecked(),
+        Err(e) => e,
+    }
+}
+
 #[cold]
-#[flexpect::e(clippy::unwrap_used)]
 #[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     let offset = if failing_block_pos == 0 {
@@ -29,12 +50,14 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
         // three bytes are all continuation bytes then the previous block ends with a four byte
         // UTF-8 codepoint, is thus complete and valid UTF-8. We start the check with the
         // current block in that case.
+        //
+        // SAFETY: safe because failing_block_pos is in bounds.
         (1..=3)
-            .find(|i| input[failing_block_pos - i] >> 6 != 0b10)
+            .find(|i| *(unsafe { input.get_unchecked(failing_block_pos - i) }) >> 6 != 0b10)
             .map_or(failing_block_pos, |i| failing_block_pos - i)
     };
-    // UNWRAP: safe because the SIMD UTF-8 validation found an error
-    validate_utf8_at_offset(input, offset).unwrap_err()
+    // SAFETY: safe because the SIMD UTF-8 validation found an error and offset is in bounds.
+    unsafe { unwrap_err_unchecked(validate_utf8_at_offset(input, offset)) }
 }
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
@@ -70,11 +93,22 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
         memcpy_u64(&mut src, &mut dest);
         len -= 8;
     }
-    while len > 0 {
+    if len >= 4 {
+        dest.cast::<u32>()
+            .write_unaligned(src.cast::<u32>().read_unaligned());
+        src = src.offset(4);
+        dest = dest.offset(4);
+        len -= 4;
+    }
+    if len >= 2 {
+        dest.cast::<u16>()
+            .write_unaligned(src.cast::<u16>().read_unaligned());
+        src = src.offset(2);
+        dest = dest.offset(2);
+        len -= 2;
+    }
+    if len == 1 {
         *dest = *src;
-        src = src.offset(1);
-        dest = dest.offset(1);
-        len -= 1;
     }
 }
 
