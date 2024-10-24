@@ -66,15 +66,31 @@ impl SimdInputTrait for SimdInput<16, 4> {
     #[inline]
     fn new_partial(ptr: *const u8, mut len: usize) -> Self {
         unsafe {
+            assert_unchecked(len > 0);
             assert_unchecked(len < 64);
         }
         let mut slice = unsafe { slice::from_raw_parts(ptr, len) };
         let val0 = load_masked_opt(slice);
         slice = &slice[slice.len().min(16)..];
+        if slice.is_empty() {
+            return Self {
+                vals: [val0, u8x16::default(), u8x16::default(), u8x16::default()],
+            };
+        }
         let val1 = load_masked_opt(slice);
         slice = &slice[slice.len().min(16)..];
+        if slice.is_empty() {
+            return Self {
+                vals: [val0, val1, u8x16::default(), u8x16::default()],
+            };
+        }
         let val2 = load_masked_opt(slice);
         slice = &slice[slice.len().min(16)..];
+        if slice.is_empty() {
+            return Self {
+                vals: [val0, val1, val2, u8x16::default()],
+            };
+        }
         let val3 = load_masked_opt(slice);
         Self {
             vals: [val0, val1, val2, val3],
@@ -123,9 +139,7 @@ impl SimdInputTrait for SimdInput<16, 4> {
 }
 
 fn load_masked_opt(slice: &[u8]) -> Simd<u8, 16> {
-    if slice.is_empty() {
-        u8x16::splat(0)
-    } else if slice.len() > 15 {
+    if slice.len() > 15 {
         unsafe { slice.as_ptr().cast::<u8x16>().read_unaligned() }
     } else {
         load_masked(slice)
