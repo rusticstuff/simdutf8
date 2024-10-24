@@ -1,6 +1,6 @@
-#![deny(warnings)]
+#![warn(warnings)]
 #![warn(unused_extern_crates)]
-#![deny(
+#![warn(
     clippy::all,
     clippy::unwrap_used,
     clippy::unnecessary_unwrap,
@@ -15,8 +15,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(
     all(feature = "aarch64_neon", target_arch = "aarch64"),
-    feature(stdsimd),
-    feature(asm)
+    feature(stdarch_aarch64_prefetch)
 )]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from

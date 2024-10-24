@@ -6,6 +6,7 @@ use core::arch::aarch64::{
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
+use core::arch::asm;
 
 // aarch64 SIMD primitives
 

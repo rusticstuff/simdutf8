@@ -182,7 +182,6 @@ macro_rules! algorithm_simd {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(unconditional_panic)] // does not panic because len is checked
-            #[allow(const_err)] // the same, but for Rust 1.38.0
             unsafe fn check_block(&mut self, input: SimdInput) {
                 // WORKAROUND
                 // necessary because the for loop is not unrolled on ARM64
@@ -208,7 +207,6 @@ macro_rules! algorithm_simd {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(unconditional_panic)] // does not panic because len is checked
-            #[allow(const_err)] // the same, but for Rust 1.38.0
             unsafe fn check_remainder(&mut self, mut input: *const u8, len: usize) {
                 const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
                 let orig_len = len;
@@ -245,7 +243,6 @@ macro_rules! algorithm_simd {
             #[cfg_attr(not(target_arch="aarch64"), target_feature(enable = $feat))]
             #[inline]
             #[allow(unconditional_panic)] // does not panic because len is checked
-            #[allow(const_err)] // the same, but for Rust 1.38.0
             unsafe fn check_remainder_ascii(&mut self, mut input: *const u8, mut len: usize) {
                 const SIMD_SIZE: usize = core::mem::size_of::<SimdU8Value>();
 
