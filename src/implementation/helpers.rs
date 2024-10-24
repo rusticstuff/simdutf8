@@ -1,9 +1,19 @@
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 
+/// Uses core::str::from_utf8 to validate that the subslice
+/// starting at `offset` is valid UTF-8.
+///
+/// # Safety
+/// Caller has to ensure that `offset` is in bounds.
+
 #[inline]
 #[flexpect::e(clippy::cast_possible_truncation)]
-pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
-    match core::str::from_utf8(&input[offset..]) {
+pub(crate) unsafe fn validate_utf8_at_offset(
+    input: &[u8],
+    offset: usize,
+) -> Result<(), Utf8ErrorCompat> {
+    let input = input.get_unchecked(offset..);
+    match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
         Err(err) => Err(Utf8ErrorCompat {
             valid_up_to: err.valid_up_to() + offset,
@@ -16,7 +26,6 @@ pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(),
 }
 
 #[cold]
-#[flexpect::e(clippy::unwrap_used)]
 #[allow(dead_code)] // only used if there is a SIMD implementation
 pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
     let offset = if failing_block_pos == 0 {
@@ -29,12 +38,14 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
         // three bytes are all continuation bytes then the previous block ends with a four byte
         // UTF-8 codepoint, is thus complete and valid UTF-8. We start the check with the
         // current block in that case.
+        //
+        // SAFETY: safe because failing_block_pos is in bounds.
         (1..=3)
-            .find(|i| input[failing_block_pos - i] >> 6 != 0b10)
+            .find(|i| unsafe { input.get_unchecked(failing_block_pos - i) } >> 6 != 0b10)
             .map_or(failing_block_pos, |i| failing_block_pos - i)
     };
-    // UNWRAP: safe because the SIMD UTF-8 validation found an error
-    validate_utf8_at_offset(input, offset).unwrap_err()
+    // SAFETY: safe because the SIMD UTF-8 validation found an error and offset is in bounds.
+    unsafe { validate_utf8_at_offset(input, offset).unwrap_err_unchecked() }
 }
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
