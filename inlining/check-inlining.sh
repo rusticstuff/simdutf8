@@ -18,5 +18,5 @@ else
     pattern=" (t|T|U) "
     cut_arg=20
 fi
-inline_ignore_pattern='drop_in_place|core::str::converts::from_utf8|::fmt::|^\$x\.|^<T as core::convert::From<T>>::from$|^core::result::Result<T,E>::map_err$'
+inline_ignore_pattern='drop_in_place|core::str::converts::from_utf8|std_detect::detect::|::fmt::|^\$x\.|^<T as core::convert::From<T>>::from$|^core::result::Result<T,E>::map_err$'
 echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev "$inline_ignore_pattern" | sort | diff -u $expected_fns -
