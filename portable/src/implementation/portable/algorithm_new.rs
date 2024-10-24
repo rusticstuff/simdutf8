@@ -18,7 +18,7 @@ const HAS_FAST_REDUCE_MAX: bool = true;
 )))]
 const HAS_FAST_REDUCE_MAX: bool = false;
 
-const HAS_FAST_MASKED_LOAD: bool = false;
+const HAS_FAST_MASKED_LOAD: bool = false; // FIXME avx512, avx2 (?)
 
 #[repr(C, align(32))]
 #[allow(dead_code)] // only used if a 128-bit SIMD implementation is used
@@ -61,6 +61,7 @@ trait SimdInputTrait {
 impl SimdInputTrait for SimdInput<16, 4> {
     #[inline]
     fn new(s: &[u8]) -> Self {
+        assert!(s.len() == 64);
         Self {
             vals: [
                 u8x16::from_slice(&s[..16]),
