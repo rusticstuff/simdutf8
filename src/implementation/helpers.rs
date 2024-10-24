@@ -32,7 +32,7 @@ pub(crate) unsafe fn validate_utf8_at_offset(
 unsafe fn unwrap_err_unchecked<O, E>(r: Result<O, E>) -> E {
     match r {
         // SAFETY: the safety contract must be upheld by the caller.
-        Ok(_) => unsafe { unreachable_unchecked() },
+        Ok(_) => unreachable_unchecked(),
         Err(e) => e,
     }
 }
@@ -53,7 +53,7 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
         //
         // SAFETY: safe because failing_block_pos is in bounds.
         (1..=3)
-            .find(|i| unsafe { input.get_unchecked(failing_block_pos - i) } >> 6 != 0b10)
+            .find(|i| *(unsafe { input.get_unchecked(failing_block_pos - i) }) >> 6 != 0b10)
             .map_or(failing_block_pos, |i| failing_block_pos - i)
     };
     // SAFETY: safe because the SIMD UTF-8 validation found an error and offset is in bounds.
