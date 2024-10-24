@@ -33,4 +33,4 @@ inline_ignore_pattern=\
 if [[ $target == *wasm* ]]; then
     inline_ignore_pattern="$inline_ignore_pattern|ct_function_table|pointer|r::converts::from_utf8|t::Formatter::write_str|t::write"
 fi
-echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev "$inline_ignore_pattern" | sort | diff -u $expected_fns -
+echo "$nm_output" | rustfilt | egrep "$pattern" | cut -c "$cut_arg"- | grep -Ev "$inline_ignore_pattern" | sort -u | diff -u $expected_fns -
