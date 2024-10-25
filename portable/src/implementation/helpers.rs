@@ -37,16 +37,6 @@ pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8Er
     validate_utf8_at_offset(input, offset).unwrap_err()
 }
 
-#[allow(dead_code)] // only used if there is a SIMD implementation
-#[inline]
-pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-    src: *const u8,
-    dest: *mut u8,
-    len: usize,
-) {
-    src.copy_to_nonoverlapping(dest, len);
-}
-
 pub(crate) const SIMD_CHUNK_SIZE: usize = 64;
 
 #[repr(C, align(32))]

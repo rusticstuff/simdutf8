@@ -69,76 +69,56 @@ mod public_imp {
     #[allow(unused_variables)] // nothing to do if not SIMD implementation is available
     pub(super) fn test_valid(input: &[u8]) {
         #[cfg(feature = "public_imp")]
-        unsafe {
-            assert!(simdutf8_portable::basic::imp::portable::simd128::validate_utf8(input).is_ok());
-            assert!(
-                simdutf8_portable::compat::imp::portable::simd128::validate_utf8(input).is_ok()
-            );
+        {
+            assert!(simdutf8_portable::basic::imp::v128::validate_utf8(input).is_ok());
+            assert!(simdutf8_portable::compat::imp::v128::validate_utf8(input).is_ok());
 
-            test_streaming::<simdutf8_portable::basic::imp::portable::simd128::Utf8ValidatorImp>(
+            test_streaming::<simdutf8_portable::basic::imp::v128::Utf8ValidatorImp>(input, true);
+            test_chunked_streaming::<simdutf8_portable::basic::imp::v128::ChunkedUtf8ValidatorImp>(
                 input, true,
             );
-            test_chunked_streaming::<
-                simdutf8_portable::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
-            >(input, true);
 
-            assert!(simdutf8_portable::basic::imp::portable::simd256::validate_utf8(input).is_ok());
-            assert!(
-                simdutf8_portable::compat::imp::portable::simd256::validate_utf8(input).is_ok()
-            );
+            assert!(simdutf8_portable::basic::imp::v256::validate_utf8(input).is_ok());
+            assert!(simdutf8_portable::compat::imp::v256::validate_utf8(input).is_ok());
 
-            test_streaming::<simdutf8_portable::basic::imp::portable::simd256::Utf8ValidatorImp>(
+            test_streaming::<simdutf8_portable::basic::imp::v256::Utf8ValidatorImp>(input, true);
+            test_chunked_streaming::<simdutf8_portable::basic::imp::v256::ChunkedUtf8ValidatorImp>(
                 input, true,
             );
-            test_chunked_streaming::<
-                simdutf8_portable::basic::imp::portable::simd256::ChunkedUtf8ValidatorImp,
-            >(input, true);
         }
     }
 
     #[allow(unused_variables)] // nothing to do if not SIMD implementation is available
     pub(super) fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
         #[cfg(feature = "public_imp")]
-        unsafe {
-            assert!(
-                simdutf8_portable::basic::imp::portable::simd128::validate_utf8(input).is_err()
-            );
-            let err = simdutf8_portable::compat::imp::portable::simd128::validate_utf8(input)
-                .unwrap_err();
+        {
+            assert!(simdutf8_portable::basic::imp::v128::validate_utf8(input).is_err());
+            let err = simdutf8_portable::compat::imp::v128::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
 
-            test_streaming::<simdutf8_portable::basic::imp::portable::simd128::Utf8ValidatorImp>(
+            test_streaming::<simdutf8_portable::basic::imp::v128::Utf8ValidatorImp>(input, false);
+            test_chunked_streaming::<simdutf8_portable::basic::imp::v128::ChunkedUtf8ValidatorImp>(
                 input, false,
             );
-            test_chunked_streaming::<
-                simdutf8_portable::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
-            >(input, false);
 
-            assert!(
-                simdutf8_portable::basic::imp::portable::simd256::validate_utf8(input).is_err()
-            );
-            let err = simdutf8_portable::compat::imp::portable::simd256::validate_utf8(input)
-                .unwrap_err();
+            assert!(simdutf8_portable::basic::imp::v256::validate_utf8(input).is_err());
+            let err = simdutf8_portable::compat::imp::v256::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
 
-            test_streaming::<simdutf8_portable::basic::imp::portable::simd256::Utf8ValidatorImp>(
+            test_streaming::<simdutf8_portable::basic::imp::v256::Utf8ValidatorImp>(input, false);
+            test_chunked_streaming::<simdutf8_portable::basic::imp::v256::ChunkedUtf8ValidatorImp>(
                 input, false,
             );
-            test_chunked_streaming::<
-                simdutf8_portable::basic::imp::portable::simd256::ChunkedUtf8ValidatorImp,
-            >(input, false);
         }
     }
 
     #[allow(unused)] // not used if not SIMD implementation is available
     fn test_streaming<T: simdutf8_portable::basic::imp::Utf8Validator>(input: &[u8], ok: bool) {
-        unsafe {
-            let mut validator = T::new();
-            validator.update(input);
-            assert_eq!(validator.finalize().is_ok(), ok);
-        }
+        let mut validator = T::new();
+        validator.update(input);
+        assert_eq!(validator.finalize().is_ok(), ok);
         for i in [64, 128, 256, 1024, 65536, 1, 2, 3, 36, 99].iter() {
             test_streaming_blocks::<T>(input, *i, ok)
         }
@@ -150,13 +130,11 @@ mod public_imp {
         block_size: usize,
         ok: bool,
     ) {
-        unsafe {
-            let mut validator = T::new();
-            for chunk in input.chunks(block_size) {
-                validator.update(chunk);
-            }
-            assert_eq!(validator.finalize().is_ok(), ok);
+        let mut validator = T::new();
+        for chunk in input.chunks(block_size) {
+            validator.update(chunk);
         }
+        assert_eq!(validator.finalize().is_ok(), ok);
     }
 
     #[allow(unused)] // not used if not SIMD implementation is available
@@ -177,21 +155,19 @@ mod public_imp {
         chunk_size: usize,
         ok: bool,
     ) {
-        unsafe {
-            let mut validator = T::new();
-            let mut chunks = input.chunks_exact(chunk_size);
-            for chunk in &mut chunks {
-                validator.update_from_chunks(chunk);
-            }
-            assert_eq!(validator.finalize(Some(chunks.remainder())).is_ok(), ok);
+        let mut validator = T::new();
+        let mut chunks = input.chunks_exact(chunk_size);
+        for chunk in &mut chunks {
+            validator.update_from_chunks(chunk);
         }
+        assert_eq!(validator.finalize(Some(chunks.remainder())).is_ok(), ok);
     }
 
     #[test]
     #[should_panic]
     fn test_neon_chunked_panic() {
         test_chunked_streaming_with_chunk_size::<
-            simdutf8_portable::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
+            simdutf8_portable::basic::imp::v128::ChunkedUtf8ValidatorImp,
         >(b"abcd", 1, true);
     }
 }

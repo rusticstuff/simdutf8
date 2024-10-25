@@ -115,7 +115,7 @@ pub mod imp {
         /// This implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not available.
         #[must_use]
-        unsafe fn new() -> Self
+        fn new() -> Self
         where
             Self: Sized;
 
@@ -124,7 +124,7 @@ pub mod imp {
         /// # Safety
         /// This implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not available.
-        unsafe fn update(&mut self, input: &[u8]);
+        fn update(&mut self, input: &[u8]);
 
         /// Finishes the validation and returns `Ok(())` if the input was valid UTF-8.
         ///
@@ -135,7 +135,7 @@ pub mod imp {
         /// # Safety
         /// This implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not available.
-        unsafe fn finalize(self) -> core::result::Result<(), basic::Utf8Error>;
+        fn finalize(self) -> core::result::Result<(), basic::Utf8Error>;
     }
 
     /// Like [`Utf8Validator`] this low-level API is for streaming validation of UTF-8 data.
@@ -162,7 +162,7 @@ pub mod imp {
         /// This implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not available.
         #[must_use]
-        unsafe fn new() -> Self
+        fn new() -> Self
         where
             Self: Sized;
 
@@ -174,7 +174,7 @@ pub mod imp {
         /// # Safety
         /// This implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not available.
-        unsafe fn update_from_chunks(&mut self, input: &[u8]);
+        fn update_from_chunks(&mut self, input: &[u8]);
 
         /// Updates the validator with remaining input if any. There is no restriction on the
         /// data provided.
@@ -188,26 +188,26 @@ pub mod imp {
         /// # Safety
         /// This implementation requires CPU SIMD features specified by the module it resides in.
         /// It is undefined behavior to call it if the required CPU features are not available.
-        unsafe fn finalize(
+        fn finalize(
             self,
             remaining_input: core::option::Option<&[u8]>,
         ) -> core::result::Result<(), basic::Utf8Error>;
     }
 
-    /// Includes the portable SIMD implementations.
-    pub mod portable {
-        /// Includes the validation implementation using 128-bit portable SIMD.
-        pub mod simd128 {
-            pub use crate::implementation::portable::simd128::validate_utf8_basic as validate_utf8;
-            pub use crate::implementation::portable::simd128::ChunkedUtf8ValidatorImp;
-            pub use crate::implementation::portable::simd128::Utf8ValidatorImp;
-        }
+    /// Best for current target
+    pub use v128 as auto;
 
-        /// Includes the validation implementation using 256-bit portable SIMD.
-        pub mod simd256 {
-            pub use crate::implementation::portable::simd256::validate_utf8_basic as validate_utf8;
-            pub use crate::implementation::portable::simd256::ChunkedUtf8ValidatorImp;
-            pub use crate::implementation::portable::simd256::Utf8ValidatorImp;
-        }
+    /// Includes the validation implementation using 128-bit portable SIMD.
+    pub mod v128 {
+        pub use crate::implementation::simd::v128::validate_utf8_basic as validate_utf8;
+        pub use crate::implementation::simd::v128::ChunkedUtf8ValidatorImp;
+        pub use crate::implementation::simd::v128::Utf8ValidatorImp;
+    }
+
+    /// Includes the validation implementation using 256-bit portable SIMD.
+    pub mod v256 {
+        pub use crate::implementation::simd::v256::validate_utf8_basic as validate_utf8;
+        pub use crate::implementation::simd::v256::ChunkedUtf8ValidatorImp;
+        pub use crate::implementation::simd::v256::Utf8ValidatorImp;
     }
 }

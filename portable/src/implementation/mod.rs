@@ -1,12 +1,12 @@
 //! Contains UTF-8 validation implementations.
 
-pub(crate) mod helpers;
+#![forbid(unsafe_code)]
 
-// UTF-8 validation function types
-pub(crate) mod portable;
+pub(crate) mod helpers;
+pub(crate) mod simd;
 
 #[inline]
-pub(crate) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+pub(crate) fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     if input.len() < helpers::SIMD_CHUNK_SIZE {
         return validate_utf8_basic_fallback(input);
     }
@@ -15,15 +15,15 @@ pub(crate) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basi
 }
 
 #[inline(never)]
-unsafe fn validate_utf8_basic_simd(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+fn validate_utf8_basic_simd(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     #[cfg(not(feature = "simd256"))]
-    return portable::algorithm_safe::validate_utf8_basic(input);
+    return simd::v128::validate_utf8_basic(input);
     #[cfg(feature = "simd256")]
-    return portable::simd256::validate_utf8_basic(input);
+    return simd::v256::validate_utf8_basic(input);
 }
 
 #[inline]
-pub(crate) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
+pub(crate) fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
     if input.len() < helpers::SIMD_CHUNK_SIZE {
         return validate_utf8_compat_fallback(input);
     }
@@ -31,11 +31,11 @@ pub(crate) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
     validate_utf8_compat_simd(input)
 }
 
-unsafe fn validate_utf8_compat_simd(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
+fn validate_utf8_compat_simd(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
     #[cfg(not(feature = "simd256"))]
-    return portable::algorithm_safe::validate_utf8_compat(input);
+    return simd::v128::validate_utf8_compat(input);
     #[cfg(feature = "simd256")]
-    return portable::simd256::validate_utf8_compat(input);
+    return simd::v256::validate_utf8_compat(input);
 }
 
 // fallback method implementations
