@@ -1,5 +1,3 @@
-#cargo-features = ["edition2024"] # TODO
-
 [package]
 name = "simdutf8-portable"
 version = "0.1.0"

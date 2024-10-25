@@ -670,7 +670,7 @@ pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8
 #[inline]
 pub fn validate_utf8_compat(input: &[u8]) -> core::result::Result<(), compat::Utf8Error> {
     Utf8CheckAlgorithm::<16, 4>::validate_utf8_compat_simd0(input)
-        .map_err(|idx| crate::implementation::helpers::get_compat_error(input, idx))
+        .map_err(|idx| super::get_compat_error(input, idx))
 }
 
 /// Low-level implementation of the [`basic::imp::Utf8Validator`] trait.
