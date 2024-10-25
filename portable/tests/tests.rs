@@ -68,155 +68,72 @@ mod public_imp {
 
     #[allow(unused_variables)] // nothing to do if not SIMD implementation is available
     pub(super) fn test_valid(input: &[u8]) {
-        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-            #[cfg(target_feature = "avx2")]
-            unsafe {
-                assert!(simdutf8::basic::imp::x86::avx2::validate_utf8(input).is_ok());
-                assert!(simdutf8::compat::imp::x86::avx2::validate_utf8(input).is_ok());
-
-                test_streaming::<simdutf8::basic::imp::x86::avx2::Utf8ValidatorImp>(input, true);
-                test_chunked_streaming::<simdutf8::basic::imp::x86::avx2::ChunkedUtf8ValidatorImp>(
-                    input, true,
-                );
-            }
-
-            #[cfg(target_feature = "sse4.2")]
-            unsafe {
-                assert!(simdutf8::basic::imp::x86::sse42::validate_utf8(input).is_ok());
-                assert!(simdutf8::compat::imp::x86::sse42::validate_utf8(input).is_ok());
-
-                test_streaming::<simdutf8::basic::imp::x86::sse42::Utf8ValidatorImp>(input, true);
-                test_chunked_streaming::<simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp>(
-                    input, true,
-                );
-            }
-        }
-        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        #[cfg(feature = "public_imp")]
         unsafe {
-            assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_ok());
-            assert!(simdutf8::compat::imp::aarch64::neon::validate_utf8(input).is_ok());
-
-            test_streaming::<simdutf8::basic::imp::aarch64::neon::Utf8ValidatorImp>(input, true);
-            test_chunked_streaming::<simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp>(
-                input, true,
+            assert!(simdutf8_portable::basic::imp::portable::simd128::validate_utf8(input).is_ok());
+            assert!(
+                simdutf8_portable::compat::imp::portable::simd128::validate_utf8(input).is_ok()
             );
-        }
-        #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
-        unsafe {
-            assert!(simdutf8::basic::imp::wasm32::simd128::validate_utf8(input).is_ok());
-            assert!(simdutf8::compat::imp::wasm32::simd128::validate_utf8(input).is_ok());
 
-            test_streaming::<simdutf8::basic::imp::wasm32::simd128::Utf8ValidatorImp>(input, true);
-            test_chunked_streaming::<simdutf8::basic::imp::wasm32::simd128::ChunkedUtf8ValidatorImp>(
-                input, true,
-            );
-        }
-        #[cfg(feature = "portable_public_imp")]
-        unsafe {
-            assert!(simdutf8::basic::imp::portable::simd128::validate_utf8(input).is_ok());
-            assert!(simdutf8::compat::imp::portable::simd128::validate_utf8(input).is_ok());
-
-            test_streaming::<simdutf8::basic::imp::portable::simd128::Utf8ValidatorImp>(
+            test_streaming::<simdutf8_portable::basic::imp::portable::simd128::Utf8ValidatorImp>(
                 input, true,
             );
             test_chunked_streaming::<
-                simdutf8::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
+                simdutf8_portable::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
             >(input, true);
 
-            assert!(simdutf8::basic::imp::portable::simd256::validate_utf8(input).is_ok());
-            assert!(simdutf8::compat::imp::portable::simd256::validate_utf8(input).is_ok());
+            assert!(simdutf8_portable::basic::imp::portable::simd256::validate_utf8(input).is_ok());
+            assert!(
+                simdutf8_portable::compat::imp::portable::simd256::validate_utf8(input).is_ok()
+            );
 
-            test_streaming::<simdutf8::basic::imp::portable::simd256::Utf8ValidatorImp>(
+            test_streaming::<simdutf8_portable::basic::imp::portable::simd256::Utf8ValidatorImp>(
                 input, true,
             );
             test_chunked_streaming::<
-                simdutf8::basic::imp::portable::simd256::ChunkedUtf8ValidatorImp,
+                simdutf8_portable::basic::imp::portable::simd256::ChunkedUtf8ValidatorImp,
             >(input, true);
         }
     }
 
     #[allow(unused_variables)] // nothing to do if not SIMD implementation is available
     pub(super) fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
-        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-            #[cfg(target_feature = "avx2")]
-            unsafe {
-                assert!(simdutf8::basic::imp::x86::avx2::validate_utf8(input).is_err());
-                let err = simdutf8::compat::imp::x86::avx2::validate_utf8(input).unwrap_err();
-                assert_eq!(err.valid_up_to(), valid_up_to);
-                assert_eq!(err.error_len(), error_len);
-
-                test_streaming::<simdutf8::basic::imp::x86::avx2::Utf8ValidatorImp>(input, false);
-                test_chunked_streaming::<simdutf8::basic::imp::x86::avx2::ChunkedUtf8ValidatorImp>(
-                    input, false,
-                );
-            }
-            #[cfg(target_feature = "sse4.2")]
-            unsafe {
-                assert!(simdutf8::basic::imp::x86::sse42::validate_utf8(input).is_err());
-                let err = simdutf8::compat::imp::x86::sse42::validate_utf8(input).unwrap_err();
-                assert_eq!(err.valid_up_to(), valid_up_to);
-                assert_eq!(err.error_len(), error_len);
-
-                test_streaming::<simdutf8::basic::imp::x86::sse42::Utf8ValidatorImp>(input, false);
-                test_chunked_streaming::<simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp>(
-                    input, false,
-                );
-            }
-        }
-        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        #[cfg(feature = "public_imp")]
         unsafe {
-            assert!(simdutf8::basic::imp::aarch64::neon::validate_utf8(input).is_err());
-            let err = simdutf8::compat::imp::aarch64::neon::validate_utf8(input).unwrap_err();
-            assert_eq!(err.valid_up_to(), valid_up_to);
-            assert_eq!(err.error_len(), error_len);
-
-            test_streaming::<simdutf8::basic::imp::aarch64::neon::Utf8ValidatorImp>(input, false);
-            test_chunked_streaming::<simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp>(
-                input, false,
+            assert!(
+                simdutf8_portable::basic::imp::portable::simd128::validate_utf8(input).is_err()
             );
-        }
-        #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
-        unsafe {
-            assert!(simdutf8::basic::imp::wasm32::simd128::validate_utf8(input).is_err());
-            let err = simdutf8::compat::imp::wasm32::simd128::validate_utf8(input).unwrap_err();
+            let err = simdutf8_portable::compat::imp::portable::simd128::validate_utf8(input)
+                .unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
 
-            test_streaming::<simdutf8::basic::imp::wasm32::simd128::Utf8ValidatorImp>(input, false);
-            test_chunked_streaming::<simdutf8::basic::imp::wasm32::simd128::ChunkedUtf8ValidatorImp>(
-                input, false,
-            );
-        }
-        #[cfg(feature = "portable_public_imp")]
-        unsafe {
-            assert!(simdutf8::basic::imp::portable::simd128::validate_utf8(input).is_err());
-            let err = simdutf8::compat::imp::portable::simd128::validate_utf8(input).unwrap_err();
-            assert_eq!(err.valid_up_to(), valid_up_to);
-            assert_eq!(err.error_len(), error_len);
-
-            test_streaming::<simdutf8::basic::imp::portable::simd128::Utf8ValidatorImp>(
+            test_streaming::<simdutf8_portable::basic::imp::portable::simd128::Utf8ValidatorImp>(
                 input, false,
             );
             test_chunked_streaming::<
-                simdutf8::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
+                simdutf8_portable::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
             >(input, false);
 
-            assert!(simdutf8::basic::imp::portable::simd256::validate_utf8(input).is_err());
-            let err = simdutf8::compat::imp::portable::simd256::validate_utf8(input).unwrap_err();
+            assert!(
+                simdutf8_portable::basic::imp::portable::simd256::validate_utf8(input).is_err()
+            );
+            let err = simdutf8_portable::compat::imp::portable::simd256::validate_utf8(input)
+                .unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
             assert_eq!(err.error_len(), error_len);
 
-            test_streaming::<simdutf8::basic::imp::portable::simd256::Utf8ValidatorImp>(
+            test_streaming::<simdutf8_portable::basic::imp::portable::simd256::Utf8ValidatorImp>(
                 input, false,
             );
             test_chunked_streaming::<
-                simdutf8::basic::imp::portable::simd256::ChunkedUtf8ValidatorImp,
+                simdutf8_portable::basic::imp::portable::simd256::ChunkedUtf8ValidatorImp,
             >(input, false);
         }
     }
 
     #[allow(unused)] // not used if not SIMD implementation is available
-    fn test_streaming<T: simdutf8::basic::imp::Utf8Validator>(input: &[u8], ok: bool) {
+    fn test_streaming<T: simdutf8_portable::basic::imp::Utf8Validator>(input: &[u8], ok: bool) {
         unsafe {
             let mut validator = T::new();
             validator.update(input);
@@ -228,7 +145,7 @@ mod public_imp {
     }
 
     #[allow(unused)] // not used if not SIMD implementation is available
-    fn test_streaming_blocks<T: simdutf8::basic::imp::Utf8Validator>(
+    fn test_streaming_blocks<T: simdutf8_portable::basic::imp::Utf8Validator>(
         input: &[u8],
         block_size: usize,
         ok: bool,
@@ -243,7 +160,7 @@ mod public_imp {
     }
 
     #[allow(unused)] // not used if not SIMD implementation is available
-    fn test_chunked_streaming<T: simdutf8::basic::imp::ChunkedUtf8Validator>(
+    fn test_chunked_streaming<T: simdutf8_portable::basic::imp::ChunkedUtf8Validator>(
         input: &[u8],
         ok: bool,
     ) {
@@ -253,7 +170,9 @@ mod public_imp {
     }
 
     #[allow(unused)] // not used if not SIMD implementation is available
-    fn test_chunked_streaming_with_chunk_size<T: simdutf8::basic::imp::ChunkedUtf8Validator>(
+    fn test_chunked_streaming_with_chunk_size<
+        T: simdutf8_portable::basic::imp::ChunkedUtf8Validator,
+    >(
         input: &[u8],
         chunk_size: usize,
         ok: bool,
@@ -270,46 +189,9 @@ mod public_imp {
 
     #[test]
     #[should_panic]
-    #[cfg(all(
-        any(target_arch = "x86", target_arch = "x86_64"),
-        target_feature = "avx2"
-    ))]
-    fn test_avx2_chunked_panic() {
-        test_chunked_streaming_with_chunk_size::<
-            simdutf8::basic::imp::x86::avx2::ChunkedUtf8ValidatorImp,
-        >(b"abcd", 1, true);
-    }
-
-    #[test]
-    #[should_panic]
-    #[cfg(all(
-        any(target_arch = "x86", target_arch = "x86_64"),
-        target_feature = "sse4.2"
-    ))]
-    fn test_sse42_chunked_panic() {
-        test_chunked_streaming_with_chunk_size::<
-            simdutf8::basic::imp::x86::sse42::ChunkedUtf8ValidatorImp,
-        >(b"abcd", 1, true);
-    }
-
-    #[test]
-    #[should_panic]
-    #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
     fn test_neon_chunked_panic() {
         test_chunked_streaming_with_chunk_size::<
-            simdutf8::basic::imp::aarch64::neon::ChunkedUtf8ValidatorImp,
-        >(b"abcd", 1, true);
-    }
-
-    // the test runner will ignore this test probably due to limitations of panic handling/threading
-    // of that target--keeping this here so that when it can be tested properly, it will
-    // FIXME: remove this comment once this works properly.
-    #[test]
-    #[should_panic]
-    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
-    fn test_simd128_chunked_panic() {
-        test_chunked_streaming_with_chunk_size::<
-            simdutf8::basic::imp::wasm32::simd128::ChunkedUtf8ValidatorImp,
+            simdutf8_portable::basic::imp::portable::simd128::ChunkedUtf8ValidatorImp,
         >(b"abcd", 1, true);
     }
 }

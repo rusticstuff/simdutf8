@@ -102,6 +102,7 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 /// Allows direct access to the platform-specific unsafe validation implementations.
 #[cfg(feature = "public_imp")]
 pub mod imp {
+    /// FIXME: add docs
     pub mod portable {
         /// Includes the validation implementation for 128-bit portable SIMD.
         pub mod simd128 {
