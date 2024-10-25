@@ -5,7 +5,7 @@ use core::simd::{
 };
 use std::simd::u8x32;
 
-use crate::{basic, compat};
+use crate::basic;
 
 pub(crate) const SIMD_CHUNK_SIZE: usize = 64;
 
@@ -199,6 +199,7 @@ trait Lookup16 {
 trait SimdU8Value<const N: usize>
 where
     LaneCount<N>: SupportedLaneCount,
+    Self: Copy,
 {
     #[expect(clippy::too_many_arguments)]
     fn from_32_cut_off_leading(
