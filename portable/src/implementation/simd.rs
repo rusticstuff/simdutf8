@@ -4,7 +4,9 @@ use std::simd::{
     simd_swizzle, u8x16, LaneCount, Simd, SupportedLaneCount,
 };
 
-use crate::{basic, compat, implementation::helpers::SIMD_CHUNK_SIZE};
+use crate::{basic, compat};
+
+pub(crate) const SIMD_CHUNK_SIZE: usize = 64;
 
 #[cfg(all(
     any(target_arch = "aarch64", target_arch = "arm"),
@@ -562,7 +564,6 @@ where
     ///
     #[inline]
     pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8Error> {
-        use crate::implementation::helpers::SIMD_CHUNK_SIZE;
         let mut algorithm = Self::new();
         let mut chunks = input.chunks_exact(SIMD_CHUNK_SIZE);
         for chunk in chunks.by_ref() {
@@ -593,7 +594,6 @@ where
     #[inline]
     #[expect(clippy::redundant_else)] // more readable
     fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
-        use crate::implementation::helpers::SIMD_CHUNK_SIZE;
         let mut algorithm = Self::new();
         let mut idx = 0;
         let mut chunks = input.chunks_exact(SIMD_CHUNK_SIZE);
@@ -709,7 +709,6 @@ impl basic::imp::Utf8Validator for Utf8ValidatorImp {
 
     #[inline]
     fn update(&mut self, mut input: &[u8]) {
-        use crate::implementation::helpers::SIMD_CHUNK_SIZE;
         if input.is_empty() {
             return;
         }
@@ -779,8 +778,6 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
 
     #[inline]
     fn update_from_chunks(&mut self, input: &[u8]) {
-        use crate::implementation::helpers::SIMD_CHUNK_SIZE;
-
         assert!(
             input.len() % SIMD_CHUNK_SIZE == 0,
             "Input size must be a multiple of 64."
@@ -796,8 +793,6 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
         mut self,
         remaining_input: core::option::Option<&[u8]>,
     ) -> core::result::Result<(), basic::Utf8Error> {
-        use crate::implementation::helpers::SIMD_CHUNK_SIZE;
-
         if let Some(mut remaining_input) = remaining_input {
             if !remaining_input.is_empty() {
                 let len = remaining_input.len();

@@ -7,7 +7,7 @@ pub(crate) mod simd;
 
 #[inline]
 pub(crate) fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
-    if input.len() < helpers::SIMD_CHUNK_SIZE {
+    if input.len() < simd::SIMD_CHUNK_SIZE {
         return validate_utf8_basic_fallback(input);
     }
 
@@ -24,7 +24,7 @@ fn validate_utf8_basic_simd(input: &[u8]) -> Result<(), crate::basic::Utf8Error>
 
 #[inline]
 pub(crate) fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
-    if input.len() < helpers::SIMD_CHUNK_SIZE {
+    if input.len() < simd::SIMD_CHUNK_SIZE {
         return validate_utf8_compat_fallback(input);
     }
 
