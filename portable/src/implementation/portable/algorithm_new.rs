@@ -214,7 +214,9 @@ where
         v15: u8,
     ) -> Self;
 
-    fn prev1(self, prev: Self) -> Self; // FIXME: generic?
+    // const generics would be more awkward and verbose with the current
+    // portable SIMD swizzle implementation and compiler limitations.
+    fn prev1(self, prev: Self) -> Self;
     fn prev2(self, prev: Self) -> Self;
     fn prev3(self, prev: Self) -> Self;
 
@@ -323,7 +325,6 @@ impl SimdU8Value<16> for u8x16 {
         )
     }
 
-    // ugly but prev<N> requires const generics
     #[inline]
     fn prev2(self, prev: Self) -> Self {
         simd_swizzle!(
@@ -333,7 +334,6 @@ impl SimdU8Value<16> for u8x16 {
         )
     }
 
-    // ugly but prev<N> requires const generics
     #[inline]
     fn prev3(self, prev: Self) -> Self {
         simd_swizzle!(
