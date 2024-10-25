@@ -33,7 +33,9 @@ fn validate_utf8_compat_simd(input: &[u8]) -> Result<(), crate::compat::Utf8Erro
 
 // fallback method implementations
 #[inline]
-pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+pub(crate) const fn validate_utf8_basic_fallback(
+    input: &[u8],
+) -> Result<(), crate::basic::Utf8Error> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
         Err(_) => Err(crate::basic::Utf8Error {}),

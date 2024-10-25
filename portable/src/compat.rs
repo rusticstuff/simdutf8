@@ -32,7 +32,7 @@ impl Utf8Error {
     /// ...
     #[inline]
     #[must_use]
-    pub fn valid_up_to(&self) -> usize {
+    pub const fn valid_up_to(&self) -> usize {
         self.valid_up_to
     }
 

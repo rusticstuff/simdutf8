@@ -471,6 +471,7 @@ impl SimdU8Value<32> for u8x32 {
 
     #[inline]
     fn prev1(self, prev: Self) -> Self {
+        // FIXME? this is more than we actually need. Not sure if AVX2 support this
         simd_swizzle!(
             self,
             prev,
