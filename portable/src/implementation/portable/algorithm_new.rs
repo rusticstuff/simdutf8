@@ -4,7 +4,7 @@ use std::simd::{
     simd_swizzle, u8x16, LaneCount, Simd, SupportedLaneCount,
 };
 
-use crate::{basic, implementation::helpers::SIMD_CHUNK_SIZE};
+use crate::{basic, compat, implementation::helpers::SIMD_CHUNK_SIZE};
 
 #[cfg(all(
     any(target_arch = "aarch64", target_arch = "arm"),
@@ -578,6 +578,7 @@ where
         }
         let rem = chunks.remainder();
         if !rem.is_ascii() {
+            // FIXME: simd???
             let simd_input = SimdInput::<N, O>::new_partial(rem);
             algorithm.check_utf8(&simd_input);
         }
@@ -588,9 +589,87 @@ where
             Ok(())
         }
     }
+
+    #[inline]
+    #[expect(clippy::redundant_else)] // more readable
+    fn validate_utf8_compat_simd0(input: &[u8]) -> core::result::Result<(), usize> {
+        use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+        let mut algorithm = Self::new();
+        let mut idx = 0;
+        let mut chunks = input.chunks_exact(SIMD_CHUNK_SIZE);
+        let mut only_ascii = true;
+
+        'outer: loop {
+            if only_ascii {
+                while let Some(chunk) = chunks.next() {
+                    let simd_input = SimdInput::new(chunk);
+                    if !simd_input.is_ascii() {
+                        algorithm.check_block(&simd_input);
+                        if algorithm.has_error() {
+                            return Err(idx);
+                        } else {
+                            only_ascii = false;
+                            idx += SIMD_CHUNK_SIZE;
+                            continue 'outer;
+                        }
+                    }
+                    idx += SIMD_CHUNK_SIZE;
+                }
+            } else {
+                while let Some(chunk) = chunks.next() {
+                    let simd_input = SimdInput::new(chunk);
+                    if simd_input.is_ascii() {
+                        algorithm.check_incomplete_pending();
+                        if algorithm.has_error() {
+                            return Err(idx);
+                        } else {
+                            // we are in pure ASCII territory again
+                            only_ascii = true;
+                            idx += SIMD_CHUNK_SIZE;
+                            continue 'outer;
+                        }
+                    } else {
+                        algorithm.check_block(&simd_input);
+                        if algorithm.has_error() {
+                            return Err(idx);
+                        }
+                    }
+                    idx += SIMD_CHUNK_SIZE;
+                }
+            }
+            break;
+        }
+        let rem = chunks.remainder();
+        if !rem.is_ascii() {
+            // FIXME: simd???
+            let simd_input = SimdInput::<N, O>::new_partial(rem);
+            algorithm.check_utf8(&simd_input);
+        }
+        algorithm.check_incomplete_pending();
+        if algorithm.has_error() {
+            Err(idx)
+        } else {
+            Ok(())
+        }
+    }
 }
 
 #[inline]
 pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8Error> {
     Utf8CheckAlgorithm::<16, 4>::validate_utf8_basic(input)
+}
+
+/// Validation implementation for CPUs supporting the SIMD extension (see module).
+///
+/// # Errors
+/// Returns [`compat::Utf8Error`] with detailed error information on failure.
+///
+/// # Safety
+/// This function is inherently unsafe because it is compiled with SIMD extensions
+/// enabled. Make sure that the CPU supports it before calling.
+///
+#[inline]
+pub fn validate_utf8_compat(input: &[u8]) -> core::result::Result<(), compat::Utf8Error> {
+    Utf8CheckAlgorithm::<16, 4>::validate_utf8_compat_simd0(input)
+        .map_err(|idx| crate::implementation::helpers::get_compat_error(input, idx))
 }
