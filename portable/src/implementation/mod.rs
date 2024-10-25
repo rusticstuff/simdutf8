@@ -37,7 +37,7 @@ pub(crate) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::com
 
 unsafe fn validate_utf8_compat_simd(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
     #[cfg(not(feature = "simd256"))]
-    return portable::simd128::validate_utf8_compat(input);
+    return portable::algorithm_new::validate_utf8_compat(input);
     #[cfg(feature = "simd256")]
     return portable::simd256::validate_utf8_compat(input);
 }
