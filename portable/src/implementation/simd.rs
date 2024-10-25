@@ -1,9 +1,9 @@
+use core::simd::u8x32;
 use core::simd::{
     cmp::SimdPartialOrd,
     num::{SimdInt, SimdUint},
     simd_swizzle, u8x16, LaneCount, Simd, SupportedLaneCount,
 };
-use std::simd::u8x32;
 
 use crate::basic;
 
