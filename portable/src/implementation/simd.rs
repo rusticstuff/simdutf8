@@ -199,8 +199,6 @@ trait Lookup16 {
 trait SimdU8Value<const N: usize>
 where
     LaneCount<N>: SupportedLaneCount,
-    Self: Copy,
-    Self: Lookup16,
 {
     #[expect(clippy::too_many_arguments)]
     fn from_32_cut_off_leading(
@@ -961,7 +959,7 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
     }
 }
 
-pub(crate) use v256 as auto; // FIXME: select based on target feature
+pub(crate) use v128 as auto; // FIXME: select based on target feature
 
 pub(crate) mod v128 {
     /// Validation implementation for CPUs supporting the SIMD extension (see module).
