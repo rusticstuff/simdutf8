@@ -16,10 +16,7 @@ pub(crate) fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8
 
 #[inline(never)]
 fn validate_utf8_basic_simd(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
-    #[cfg(not(feature = "simd256"))]
-    return simd::v128::validate_utf8_basic(input);
-    #[cfg(feature = "simd256")]
-    return simd::v256::validate_utf8_basic(input);
+    simd::auto::validate_utf8_basic(input)
 }
 
 #[inline]
@@ -32,10 +29,7 @@ pub(crate) fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Ut
 }
 
 fn validate_utf8_compat_simd(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
-    #[cfg(not(feature = "simd256"))]
-    return simd::v128::validate_utf8_compat(input);
-    #[cfg(feature = "simd256")]
-    return simd::v256::validate_utf8_compat(input);
+    simd::auto::validate_utf8_compat(input)
 }
 
 // fallback method implementations

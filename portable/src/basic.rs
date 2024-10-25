@@ -195,7 +195,11 @@ pub mod imp {
     }
 
     /// Best for current target
-    pub use v128 as auto;
+    pub mod auto {
+        pub use crate::implementation::simd::auto::validate_utf8_basic as validate_utf8;
+        pub use crate::implementation::simd::auto::ChunkedUtf8ValidatorImp;
+        pub use crate::implementation::simd::auto::Utf8ValidatorImp;
+    }
 
     /// Includes the validation implementation using 128-bit portable SIMD.
     pub mod v128 {

@@ -12,6 +12,3 @@ std = [] # fixme: needed?
 
 # expose SIMD implementations in basic::imp::* and compat::imp::*
 public_imp = []
-
-# use 256-bit vectors
-simd256 = []

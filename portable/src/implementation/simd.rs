@@ -819,6 +819,8 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
     }
 }
 
+pub(crate) use v128 as auto; // FIXME: select based on target feature
+
 pub(crate) mod v128 {
     pub use super::validate_utf8_basic;
     pub use super::validate_utf8_compat;
