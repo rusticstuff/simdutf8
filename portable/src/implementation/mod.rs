@@ -1,9 +1,5 @@
 //! Contains UTF-8 validation implementations.
 
-#[macro_use]
-#[allow(unused_macros)] // only used if there is a SIMD implementation
-mod algorithm;
-
 pub(crate) mod helpers;
 
 // UTF-8 validation function types

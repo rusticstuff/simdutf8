@@ -654,6 +654,15 @@ where
     }
 }
 
+/// Validation implementation for CPUs supporting the SIMD extension (see module).
+///
+/// # Errors
+/// Returns the zero-sized [`basic::Utf8Error`] on failure.
+///
+/// # Safety
+/// This function is inherently unsafe because it is compiled with SIMD extensions
+/// enabled. Make sure that the CPU supports it before calling.
+///
 #[inline]
 pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8Error> {
     Utf8CheckAlgorithm::<16, 4>::validate_utf8_basic(input)
@@ -672,6 +681,94 @@ pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8
 pub fn validate_utf8_compat(input: &[u8]) -> core::result::Result<(), compat::Utf8Error> {
     Utf8CheckAlgorithm::<16, 4>::validate_utf8_compat_simd0(input)
         .map_err(|idx| crate::implementation::helpers::get_compat_error(input, idx))
+}
+
+/// Low-level implementation of the [`basic::imp::Utf8Validator`] trait.
+///
+/// This is implementation requires CPU SIMD features specified by the module it resides in.
+/// It is undefined behavior to call it if the required CPU features are not
+/// available.
+#[cfg(feature = "public_imp")]
+pub struct Utf8ValidatorImp {
+    algorithm: Utf8CheckAlgorithm<16, 4>,
+    incomplete_data: [u8; 64],
+    incomplete_len: usize,
+}
+
+#[cfg(feature = "public_imp")]
+impl Utf8ValidatorImp {
+    #[inline]
+    unsafe fn update_from_incomplete_data(&mut self) {
+        let simd_input = SimdInput::new(&self.incomplete_data);
+        self.algorithm.check_utf8(&simd_input);
+        self.incomplete_len = 0;
+    }
+}
+
+#[cfg(feature = "public_imp")]
+impl basic::imp::Utf8Validator for Utf8ValidatorImp {
+    #[inline]
+    #[must_use]
+    unsafe fn new() -> Self {
+        Self {
+            algorithm: Utf8CheckAlgorithm::<16, 4>::new(),
+            incomplete_data: [0; 64],
+            incomplete_len: 0,
+        }
+    }
+
+    #[inline]
+    unsafe fn update(&mut self, mut input: &[u8]) {
+        use crate::implementation::helpers::SIMD_CHUNK_SIZE;
+        if input.is_empty() {
+            return;
+        }
+        if self.incomplete_len != 0 {
+            let to_copy = core::cmp::min(SIMD_CHUNK_SIZE - self.incomplete_len, input.len());
+            self.incomplete_data
+                .as_mut_ptr()
+                .add(self.incomplete_len)
+                .copy_from_nonoverlapping(input.as_ptr(), to_copy);
+            if self.incomplete_len + to_copy == SIMD_CHUNK_SIZE {
+                self.update_from_incomplete_data();
+                input = &input[to_copy..];
+            } else {
+                self.incomplete_len += to_copy;
+                return;
+            }
+        }
+        let len = input.len();
+        let mut idx: usize = 0;
+        let iter_lim = len - (len % SIMD_CHUNK_SIZE);
+        while idx < iter_lim {
+            let input = SimdInput::new(&input[idx..idx + SIMD_CHUNK_SIZE]);
+            self.algorithm.check_utf8(&input);
+            idx += SIMD_CHUNK_SIZE;
+        }
+        if idx < len {
+            let to_copy = len - idx;
+            self.incomplete_data
+                .as_mut_ptr()
+                .copy_from_nonoverlapping(input.as_ptr().add(idx), to_copy);
+            self.incomplete_len = to_copy;
+        }
+    }
+
+    #[inline]
+    unsafe fn finalize(mut self) -> core::result::Result<(), basic::Utf8Error> {
+        if self.incomplete_len != 0 {
+            for i in &mut self.incomplete_data[self.incomplete_len..] {
+                *i = 0;
+            }
+            self.update_from_incomplete_data();
+        }
+        self.algorithm.check_incomplete_pending();
+        if self.algorithm.has_error() {
+            Err(basic::Utf8Error {})
+        } else {
+            Ok(())
+        }
+    }
 }
 
 /// Low-level implementation of the [`basic::imp::ChunkedUtf8Validator`] trait.
