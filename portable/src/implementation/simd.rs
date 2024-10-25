@@ -3,6 +3,7 @@ use core::simd::{
     num::{SimdInt, SimdUint},
     simd_swizzle, u8x16, LaneCount, Simd, SupportedLaneCount,
 };
+use std::simd::u8x32;
 
 use crate::{basic, compat};
 
@@ -20,7 +21,7 @@ const HAS_FAST_REDUCE_MAX: bool = true;
 )))]
 const HAS_FAST_REDUCE_MAX: bool = false;
 
-const HAS_FAST_MASKED_LOAD: bool = false; // FIXME avx512, avx2 (?)
+const HAS_FAST_MASKED_LOAD: bool = false; // FIXME avx512, avx2 (32-bit chunks only?)
 
 #[repr(C, align(32))]
 #[allow(dead_code)] // only used if a 128-bit SIMD implementation is used
@@ -116,12 +117,50 @@ impl SimdInputTrait for SimdInput<16, 4> {
     }
 }
 
+impl SimdInputTrait for SimdInput<32, 2> {
+    #[inline]
+    fn new(s: &[u8]) -> Self {
+        assert!(s.len() == 64);
+        Self {
+            vals: [u8x32::from_slice(&s[..32]), u8x32::from_slice(&s[32..64])],
+        }
+    }
+
+    #[inline]
+    fn new_partial_masked_load(mut slice: &[u8]) -> Self {
+        let val0 = load_masked_opt(slice);
+        slice = &slice[slice.len().min(32)..];
+        if slice.is_empty() {
+            return Self {
+                vals: [val0, u8x32::default()],
+            };
+        }
+        let val1 = load_masked_opt(slice);
+        Self { vals: [val0, val1] }
+    }
+
+    #[inline]
+    fn new_partial_copy(slice: &[u8]) -> Self {
+        let mut buf = [0; 64];
+        buf[..slice.len()].copy_from_slice(slice);
+        Self::new(&buf)
+    }
+
+    #[inline]
+    fn is_ascii(&self) -> bool {
+        (self.vals[0] | self.vals[1]).is_ascii()
+    }
+}
+
 #[inline]
-fn load_masked_opt(slice: &[u8]) -> Simd<u8, 16> {
-    if slice.len() > 15 {
-        u8x16::from_slice(&slice[..16])
+fn load_masked_opt<const N: usize>(slice: &[u8]) -> Simd<u8, N>
+where
+    LaneCount<N>: SupportedLaneCount,
+{
+    if slice.len() > N - 1 {
+        Simd::<u8, N>::from_slice(&slice[..N])
     } else {
-        u8x16::load_or_default(slice)
+        Simd::<u8, N>::load_or_default(slice)
     }
 }
 
@@ -134,10 +173,34 @@ where
     pub(crate) error: Simd<u8, N>,      // FIXME: should be a mask?
 }
 
+trait Lookup16 {
+    #[expect(clippy::too_many_arguments)]
+    fn lookup_16(
+        self,
+        v0: u8,
+        v1: u8,
+        v2: u8,
+        v3: u8,
+        v4: u8,
+        v5: u8,
+        v6: u8,
+        v7: u8,
+        v8: u8,
+        v9: u8,
+        v10: u8,
+        v11: u8,
+        v12: u8,
+        v13: u8,
+        v14: u8,
+        v15: u8,
+    ) -> Self;
+}
+
 trait SimdU8Value<const N: usize>
 where
     LaneCount<N>: SupportedLaneCount,
     Self: Copy,
+    Self: Lookup16,
 {
     #[expect(clippy::too_many_arguments)]
     fn from_32_cut_off_leading(
@@ -177,27 +240,6 @@ where
 
     #[expect(clippy::too_many_arguments)]
     fn repeat_16(
-        v0: u8,
-        v1: u8,
-        v2: u8,
-        v3: u8,
-        v4: u8,
-        v5: u8,
-        v6: u8,
-        v7: u8,
-        v8: u8,
-        v9: u8,
-        v10: u8,
-        v11: u8,
-        v12: u8,
-        v13: u8,
-        v14: u8,
-        v15: u8,
-    ) -> Self;
-
-    #[expect(clippy::too_many_arguments)]
-    fn lookup_16(
-        self,
         v0: u8,
         v1: u8,
         v2: u8,
@@ -291,6 +333,48 @@ impl SimdU8Value<16> for u8x16 {
     }
 
     #[inline]
+    fn prev1(self, prev: Self) -> Self {
+        simd_swizzle!(
+            self,
+            prev,
+            [31, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,]
+        )
+    }
+
+    #[inline]
+    fn prev2(self, prev: Self) -> Self {
+        simd_swizzle!(
+            self,
+            prev,
+            [30, 31, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,]
+        )
+    }
+
+    #[inline]
+    fn prev3(self, prev: Self) -> Self {
+        simd_swizzle!(
+            self,
+            prev,
+            [29, 30, 31, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,]
+        )
+    }
+
+    #[inline]
+    fn is_ascii(self) -> bool {
+        if HAS_FAST_REDUCE_MAX {
+            self.reduce_max() < 0b1000_0000
+        } else {
+            (self & Self::splat(0b1000_0000)) == Self::splat(0)
+        }
+    }
+}
+
+impl<const N: usize> Lookup16 for Simd<u8, N>
+where
+    Self: SimdU8Value<N>,
+    LaneCount<N>: SupportedLaneCount,
+{
+    #[inline]
     fn lookup_16(
         self,
         v0: u8,
@@ -317,13 +401,84 @@ impl SimdU8Value<16> for u8x16 {
         );
         src.swizzle_dyn(self)
     }
+}
+
+impl SimdU8Value<32> for u8x32 {
+    #[inline]
+    fn from_32_cut_off_leading(
+        v0: u8,
+        v1: u8,
+        v2: u8,
+        v3: u8,
+        v4: u8,
+        v5: u8,
+        v6: u8,
+        v7: u8,
+        v8: u8,
+        v9: u8,
+        v10: u8,
+        v11: u8,
+        v12: u8,
+        v13: u8,
+        v14: u8,
+        v15: u8,
+        v16: u8,
+        v17: u8,
+        v18: u8,
+        v19: u8,
+        v20: u8,
+        v21: u8,
+        v22: u8,
+        v23: u8,
+        v24: u8,
+        v25: u8,
+        v26: u8,
+        v27: u8,
+        v28: u8,
+        v29: u8,
+        v30: u8,
+        v31: u8,
+    ) -> Self {
+        Self::from_array([
+            v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18,
+            v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31,
+        ])
+    }
+
+    #[inline]
+    fn repeat_16(
+        v0: u8,
+        v1: u8,
+        v2: u8,
+        v3: u8,
+        v4: u8,
+        v5: u8,
+        v6: u8,
+        v7: u8,
+        v8: u8,
+        v9: u8,
+        v10: u8,
+        v11: u8,
+        v12: u8,
+        v13: u8,
+        v14: u8,
+        v15: u8,
+    ) -> Self {
+        Self::from_array([
+            v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v0, v1, v2, v3,
+            v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
+        ])
+    }
 
     #[inline]
     fn prev1(self, prev: Self) -> Self {
         simd_swizzle!(
             self,
             prev,
-            [31, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,]
+            [
+                63, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+                22, 23, 24, 25, 26, 27, 28, 29, 30
+            ]
         )
     }
 
@@ -332,7 +487,10 @@ impl SimdU8Value<16> for u8x16 {
         simd_swizzle!(
             self,
             prev,
-            [30, 31, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,]
+            [
+                62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                21, 22, 23, 24, 25, 26, 27, 28, 29
+            ]
         )
     }
 
@@ -341,7 +499,10 @@ impl SimdU8Value<16> for u8x16 {
         simd_swizzle!(
             self,
             prev,
-            [29, 30, 31, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,]
+            [
+                61, 62, 63, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+                20, 21, 22, 23, 24, 25, 26, 27, 28,
+            ]
         )
     }
 
@@ -654,25 +815,6 @@ where
     }
 }
 
-/// Validation implementation for CPUs supporting the SIMD extension (see module).
-///
-/// # Errors
-/// Returns the zero-sized [`basic::Utf8Error`] on failure.
-#[inline]
-pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), basic::Utf8Error> {
-    Utf8CheckAlgorithm::<16, 4>::validate_utf8_basic(input)
-}
-
-/// Validation implementation for CPUs supporting the SIMD extension (see module).
-///
-/// # Errors
-/// Returns [`compat::Utf8Error`] with detailed error information on failure.
-#[inline]
-pub fn validate_utf8_compat(input: &[u8]) -> core::result::Result<(), compat::Utf8Error> {
-    Utf8CheckAlgorithm::<16, 4>::validate_utf8_compat_simd0(input)
-        .map_err(|idx| super::get_compat_error(input, idx))
-}
-
 /// Low-level implementation of the [`basic::imp::Utf8Validator`] trait.
 ///
 /// This is implementation requires CPU SIMD features specified by the module it resides in.
@@ -819,11 +961,30 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
     }
 }
 
-pub(crate) use v128 as auto; // FIXME: select based on target feature
+pub(crate) use v256 as auto; // FIXME: select based on target feature
 
 pub(crate) mod v128 {
-    pub use super::validate_utf8_basic;
-    pub use super::validate_utf8_compat;
+    /// Validation implementation for CPUs supporting the SIMD extension (see module).
+    ///
+    /// # Errors
+    /// Returns the zero-sized [`basic::Utf8Error`] on failure.
+    #[inline]
+    pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), crate::basic::Utf8Error> {
+        super::Utf8CheckAlgorithm::<16, 4>::validate_utf8_basic(input)
+    }
+
+    /// Validation implementation for CPUs supporting the SIMD extension (see module).
+    ///
+    /// # Errors
+    /// Returns [`compat::Utf8Error`] with detailed error information on failure.
+    #[inline]
+    pub fn validate_utf8_compat(
+        input: &[u8],
+    ) -> core::result::Result<(), crate::compat::Utf8Error> {
+        super::Utf8CheckAlgorithm::<16, 4>::validate_utf8_compat_simd0(input)
+            .map_err(|idx| crate::implementation::get_compat_error(input, idx))
+    }
+
     #[cfg(feature = "public_imp")]
     pub use super::ChunkedUtf8ValidatorImp;
     #[cfg(feature = "public_imp")]
@@ -831,8 +992,27 @@ pub(crate) mod v128 {
 }
 
 pub(crate) mod v256 {
-    pub use super::validate_utf8_basic;
-    pub use super::validate_utf8_compat;
+    /// Validation implementation for CPUs supporting the SIMD extension (see module).
+    ///
+    /// # Errors
+    /// Returns the zero-sized [`basic::Utf8Error`] on failure.
+    #[inline]
+    pub fn validate_utf8_basic(input: &[u8]) -> core::result::Result<(), crate::basic::Utf8Error> {
+        super::Utf8CheckAlgorithm::<32, 2>::validate_utf8_basic(input)
+    }
+
+    /// Validation implementation for CPUs supporting the SIMD extension (see module).
+    ///
+    /// # Errors
+    /// Returns [`compat::Utf8Error`] with detailed error information on failure.
+    #[inline]
+    pub fn validate_utf8_compat(
+        input: &[u8],
+    ) -> core::result::Result<(), crate::compat::Utf8Error> {
+        super::Utf8CheckAlgorithm::<32, 2>::validate_utf8_compat_simd0(input)
+            .map_err(|idx| crate::implementation::get_compat_error(input, idx))
+    }
+
     #[cfg(feature = "public_imp")]
     pub use super::ChunkedUtf8ValidatorImp;
     #[cfg(feature = "public_imp")]
