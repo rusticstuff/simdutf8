@@ -601,7 +601,7 @@ where
 
         'outer: loop {
             if only_ascii {
-                while let Some(chunk) = chunks.next() {
+                for chunk in chunks.by_ref() {
                     let simd_input = SimdInput::new(chunk);
                     if !simd_input.is_ascii() {
                         algorithm.check_block(&simd_input);
@@ -616,7 +616,7 @@ where
                     idx += SIMD_CHUNK_SIZE;
                 }
             } else {
-                while let Some(chunk) = chunks.next() {
+                for chunk in chunks.by_ref() {
                     let simd_input = SimdInput::new(chunk);
                     if simd_input.is_ascii() {
                         algorithm.check_incomplete_pending();
