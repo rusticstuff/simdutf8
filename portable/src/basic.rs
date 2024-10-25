@@ -22,8 +22,7 @@ impl core::fmt::Display for Utf8Error {
     }
 }
 
-#[cfg(feature = "std")]
-impl std::error::Error for Utf8Error {}
+impl core::error::Error for Utf8Error {}
 
 /// Analogue to [`std::str::from_utf8()`].
 ///

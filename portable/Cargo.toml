@@ -8,7 +8,7 @@ edition = "2021"
 [features]
 default = ["std"]
 
-std = [] # fixme: needed?
+std = []
 
 # expose SIMD implementations in basic::imp::* and compat::imp::*
 public_imp = []

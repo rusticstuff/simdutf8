@@ -1,4 +1,4 @@
-use std::simd::{
+use core::simd::{
     cmp::SimdPartialOrd,
     num::{SimdInt, SimdUint},
     simd_swizzle, u8x16, LaneCount, Simd, SupportedLaneCount,
