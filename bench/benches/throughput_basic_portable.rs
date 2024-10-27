@@ -1,3 +1,3 @@
 use simdutf8_bench::define_throughput_benchmark;
 
-define_throughput_benchmark!(BenchFn::Basic);
+define_throughput_benchmark!(BenchFn::BasicPortable);
