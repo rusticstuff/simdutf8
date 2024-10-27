@@ -961,7 +961,17 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
     }
 }
 
+#[cfg(not(all(
+    any(target_arch = "x86_64", target_arch = "x86"),
+    target_feature = "avx2"
+)))]
 pub(crate) use v128 as auto; // FIXME: select based on target feature
+
+#[cfg(all(
+    any(target_arch = "x86_64", target_arch = "x86"),
+    target_feature = "avx2"
+))]
+pub(crate) use v256 as auto; // FIXME: select based on target feature
 
 pub(crate) mod v128 {
     /// Validation implementation for CPUs supporting the SIMD extension (see module).
