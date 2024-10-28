@@ -48,6 +48,7 @@ trait SimdInputTrait {
     fn new(ptr: &[u8]) -> Self;
     fn new_partial_masked_load(slice: &[u8]) -> Self;
     fn new_partial_copy(slice: &[u8]) -> Self;
+    #[inline]
     fn new_partial(slice: &[u8]) -> Self
     where
         Self: Sized,
