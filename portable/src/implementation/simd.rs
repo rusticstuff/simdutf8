@@ -740,8 +740,7 @@ where
             algorithm.check_utf8(&simd_input);
         }
         let rem = chunks.remainder();
-        if !rem.is_ascii() {
-            // FIXME: simd???
+        if !rem.is_empty() {
             let simd_input = SimdInput::<N, O>::new_partial(rem);
             algorithm.check_utf8(&simd_input);
         }
