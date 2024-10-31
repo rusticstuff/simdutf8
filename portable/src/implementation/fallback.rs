@@ -70,12 +70,7 @@ impl Utf8ValidatorImp {
                 }
             };
             let rem_input = input.len() - e.valid_up_to() - 1;
-            if rem_input >= self.expected_cont_bytes as usize {
-                // too many continuation bytes so they are not valid
-                self.err = true;
-                return;
-            }
-            for i in 0..rem_input {
+            for i in 0..rem_input.min(self.expected_cont_bytes as usize) {
                 if input[e.valid_up_to() + i + 1] & 0b1100_0000 != 0b1000_0000 {
                     // not a continuation byte
                     self.err = true;
@@ -83,6 +78,7 @@ impl Utf8ValidatorImp {
                 }
                 self.expected_cont_bytes -= 1;
             }
+            debug_assert!(self.expected_cont_bytes != 0); // otherwise from_utf8 would not have errored
         }
     }
 
