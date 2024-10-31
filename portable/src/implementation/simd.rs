@@ -23,19 +23,6 @@ const HAS_FAST_REDUCE_MAX: bool = false;
 
 const HAS_FAST_MASKED_LOAD: bool = false; // FIXME avx512, avx2 (32-bit chunks only?)
 
-#[repr(C, align(32))]
-#[allow(dead_code)] // only used if a 128-bit SIMD implementation is used
-pub(crate) struct TempSimdChunk(pub(crate) [u8; SIMD_CHUNK_SIZE]);
-
-#[allow(dead_code)] // only used if there is a SIMD implementation
-impl TempSimdChunk {
-    #[expect(clippy::inline_always)]
-    #[inline(always)] // FIXME needs to be forced because otherwise it is not inlined on armv7 neo
-    pub(crate) const fn new() -> Self {
-        Self([0; SIMD_CHUNK_SIZE])
-    }
-}
-
 #[repr(C)]
 struct SimdInput<const N: usize, const O: usize>
 where
@@ -944,9 +931,7 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
                 let rem = len - chunks_lim;
                 if rem > 0 {
                     remaining_input = &remaining_input[chunks_lim..];
-                    let mut tmpbuf = TempSimdChunk::new();
-                    tmpbuf.0[..remaining_input.len()].copy_from_slice(remaining_input);
-                    let simd_input = SimdInput::new(&tmpbuf.0);
+                    let simd_input = SimdInput::new_partial(remaining_input);
                     self.algorithm.check_utf8(&simd_input);
                 }
             }
