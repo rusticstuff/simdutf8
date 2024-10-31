@@ -10,3 +10,9 @@ std = []
 
 # expose SIMD implementations in basic::imp::* and compat::imp::*
 public_imp = []
+force_fallback = []
+force_simd128 = []
+force_simd256 = []
+
+[dependencies]
+cfg-if = "1.0.0"

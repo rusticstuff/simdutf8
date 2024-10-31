@@ -193,11 +193,25 @@ pub mod imp {
         ) -> core::result::Result<(), basic::Utf8Error>;
     }
 
-    /// Best for current target
+    /// Best for current target as defined by compile-time arch and target features. If no fast
+    /// SIMD implementation is available, the scalar implementation from the standard library is
+    /// used as a fallback.
+    ///
+    /// However, the crate feature `force_nonsimd` forces the fallback implementation, `force_simd128`
+    /// forces the 128-bit SIMD implementation and `force_simd256` forces the 256-bit SIMD implementation,
+    /// in order of precedence.
+    ///
     pub mod auto {
-        pub use crate::implementation::simd::auto::validate_utf8_basic as validate_utf8;
-        pub use crate::implementation::simd::auto::ChunkedUtf8ValidatorImp;
-        pub use crate::implementation::simd::auto::Utf8ValidatorImp;
+        pub use crate::implementation::auto::validate_utf8_basic as validate_utf8;
+        pub use crate::implementation::auto::ChunkedUtf8ValidatorImp;
+        pub use crate::implementation::auto::Utf8ValidatorImp;
+    }
+
+    /// Includes the scalar fallback implementation using 128-bit portable SIMD.
+    pub mod fallback {
+        pub use crate::implementation::fallback::validate_utf8_basic as validate_utf8;
+        pub use crate::implementation::fallback::ChunkedUtf8ValidatorImp;
+        pub use crate::implementation::fallback::Utf8ValidatorImp;
     }
 
     /// Includes the validation implementation using 128-bit portable SIMD.

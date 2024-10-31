@@ -101,8 +101,22 @@ pub fn from_utf8_mut(input: &mut [u8]) -> Result<&mut str, Utf8Error> {
 /// Allows direct access to the platform-specific unsafe validation implementations.
 #[cfg(feature = "public_imp")]
 pub mod imp {
-    /// Best for current target FIXME: 256-bit support
-    pub use v128 as auto;
+    /// Best for current target as defined by compile-time arch and target features. If no fast
+    /// SIMD implementation is available, the scalar implementation from the standard library is
+    /// used as a fallback.
+    ///
+    /// However, the crate feature `force_nonsimd` forces the fallback implementation, `force_simd128`
+    /// forces the 128-bit SIMD implementation and `force_simd256` forces the 256-bit SIMD implementation,
+    /// in order of precedence.
+    ///
+    pub mod auto {
+        pub use crate::implementation::auto::validate_utf8_compat as validate_utf8;
+    }
+
+    /// Includes the scalar fallback implementation using 128-bit portable SIMD.
+    pub mod fallback {
+        pub use crate::implementation::fallback::validate_utf8_compat as validate_utf8;
+    }
 
     /// Includes the validation implementation for 128-bit portable SIMD.
     pub mod v128 {

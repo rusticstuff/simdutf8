@@ -938,20 +938,30 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
     }
 }
 
-#[cfg(not(all(
-    any(target_arch = "x86_64", target_arch = "x86"),
-    target_feature = "avx2"
-)))]
-pub(crate) use v128 as auto; // FIXME: select based on target feature
-
-#[cfg(all(
-    any(target_arch = "x86_64", target_arch = "x86"),
-    target_feature = "avx2"
-))]
-pub(crate) use v256 as auto; // FIXME: select based on target feature
+#[cold]
+#[expect(clippy::unwrap_used)]
+#[allow(dead_code)] // only used if there is a SIMD implementation
+pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> crate::compat::Utf8Error {
+    let offset = if failing_block_pos == 0 {
+        // Error must be in this block since it is the first.
+        0
+    } else {
+        // The previous block is OK except for a possible continuation over the block boundary.
+        // We go backwards over the last three bytes of the previous block and find the
+        // last non-continuation byte as a starting point for an std validation. If the last
+        // three bytes are all continuation bytes then the previous block ends with a four byte
+        // UTF-8 codepoint, is thus complete and valid UTF-8. We start the check with the
+        // current block in that case.
+        (1..=3)
+            .find(|i| input[failing_block_pos - i] >> 6 != 0b10)
+            .map_or(failing_block_pos, |i| failing_block_pos - i)
+    };
+    // UNWRAP: safe because the SIMD UTF-8 validation found an error
+    super::validate_utf8_at_offset(input, offset).unwrap_err()
+}
 
 pub(crate) mod v128 {
-    /// Validation implementation for CPUs supporting the SIMD extension (see module).
+    /// Validation implementation using 128-bit SIMD.
     ///
     /// # Errors
     /// Returns the zero-sized [`basic::Utf8Error`] on failure.
@@ -960,7 +970,7 @@ pub(crate) mod v128 {
         super::Utf8CheckAlgorithm::<16, 4>::validate_utf8_basic(input)
     }
 
-    /// Validation implementation for CPUs supporting the SIMD extension (see module).
+    /// Validation implementation using 128-bit SIMD.
     ///
     /// # Errors
     /// Returns [`compat::Utf8Error`] with detailed error information on failure.
@@ -969,7 +979,7 @@ pub(crate) mod v128 {
         input: &[u8],
     ) -> core::result::Result<(), crate::compat::Utf8Error> {
         super::Utf8CheckAlgorithm::<16, 4>::validate_utf8_compat_simd0(input)
-            .map_err(|idx| crate::implementation::get_compat_error(input, idx))
+            .map_err(|idx| super::get_compat_error(input, idx))
     }
 
     #[cfg(feature = "public_imp")]
@@ -979,7 +989,7 @@ pub(crate) mod v128 {
 }
 
 pub(crate) mod v256 {
-    /// Validation implementation for CPUs supporting the SIMD extension (see module).
+    /// Validation implementation using 256-bit SIMD.
     ///
     /// # Errors
     /// Returns the zero-sized [`basic::Utf8Error`] on failure.
@@ -988,7 +998,7 @@ pub(crate) mod v256 {
         super::Utf8CheckAlgorithm::<32, 2>::validate_utf8_basic(input)
     }
 
-    /// Validation implementation for CPUs supporting the SIMD extension (see module).
+    /// Validation implementation using 256-bit SIMD.
     ///
     /// # Errors
     /// Returns [`compat::Utf8Error`] with detailed error information on failure.
@@ -997,7 +1007,7 @@ pub(crate) mod v256 {
         input: &[u8],
     ) -> core::result::Result<(), crate::compat::Utf8Error> {
         super::Utf8CheckAlgorithm::<32, 2>::validate_utf8_compat_simd0(input)
-            .map_err(|idx| crate::implementation::get_compat_error(input, idx))
+            .map_err(|idx| super::get_compat_error(input, idx))
     }
 
     #[cfg(feature = "public_imp")]

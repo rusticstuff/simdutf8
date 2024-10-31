@@ -2,49 +2,53 @@
 
 #![forbid(unsafe_code)]
 
+pub(crate) mod fallback;
 pub(crate) mod simd;
 
+cfg_if::cfg_if! {
+    if #[cfg(feature = "force_fallback")] {
+        pub(crate) use fallback as auto;
+    } else if #[cfg(feature = "force_simd128")] {
+            pub(crate) use simd::v128 as auto;
+    } else if #[cfg(feature = "force_simd256")] {
+        pub(crate) use simd::v256 as auto;
+
+    // known good configurations
+    } else if #[cfg(all(
+        any(target_arch = "x86_64", target_arch = "x86"),
+        target_feature = "avx2"
+    ))] {
+        pub(crate) use simd::v256 as auto;
+    } else {
+        pub(crate) use fallback as auto;
+    }
+}
+
 #[inline]
-pub(crate) fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+pub(crate) const fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     if input.len() < simd::SIMD_CHUNK_SIZE {
-        return validate_utf8_basic_fallback(input);
+        return fallback::validate_utf8_basic(input);
     }
 
     validate_utf8_basic_simd(input)
 }
 
 #[inline(never)]
-fn validate_utf8_basic_simd(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
-    simd::auto::validate_utf8_basic(input)
+const fn validate_utf8_basic_simd(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+    auto::validate_utf8_basic(input)
 }
 
 #[inline]
 pub(crate) fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
     if input.len() < simd::SIMD_CHUNK_SIZE {
-        return validate_utf8_compat_fallback(input);
+        return fallback::validate_utf8_compat(input);
     }
 
     validate_utf8_compat_simd(input)
 }
 
 fn validate_utf8_compat_simd(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
-    simd::auto::validate_utf8_compat(input)
-}
-
-// fallback method implementations
-#[inline]
-pub(crate) const fn validate_utf8_basic_fallback(
-    input: &[u8],
-) -> Result<(), crate::basic::Utf8Error> {
-    match core::str::from_utf8(input) {
-        Ok(_) => Ok(()),
-        Err(_) => Err(crate::basic::Utf8Error {}),
-    }
-}
-
-#[inline]
-pub(crate) fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
-    validate_utf8_at_offset(input, 0)
+    auto::validate_utf8_compat(input)
 }
 
 type Utf8ErrorCompat = crate::compat::Utf8Error;
@@ -62,26 +66,4 @@ pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(),
             }),
         }),
     }
-}
-
-#[cold]
-#[expect(clippy::unwrap_used)]
-#[allow(dead_code)] // only used if there is a SIMD implementation
-pub(crate) fn get_compat_error(input: &[u8], failing_block_pos: usize) -> Utf8ErrorCompat {
-    let offset = if failing_block_pos == 0 {
-        // Error must be in this block since it is the first.
-        0
-    } else {
-        // The previous block is OK except for a possible continuation over the block boundary.
-        // We go backwards over the last three bytes of the previous block and find the
-        // last non-continuation byte as a starting point for an std validation. If the last
-        // three bytes are all continuation bytes then the previous block ends with a four byte
-        // UTF-8 codepoint, is thus complete and valid UTF-8. We start the check with the
-        // current block in that case.
-        (1..=3)
-            .find(|i| input[failing_block_pos - i] >> 6 != 0b10)
-            .map_or(failing_block_pos, |i| failing_block_pos - i)
-    };
-    // UNWRAP: safe because the SIMD UTF-8 validation found an error
-    validate_utf8_at_offset(input, offset).unwrap_err()
 }

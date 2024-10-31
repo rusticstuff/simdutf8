@@ -70,6 +70,16 @@ mod public_imp {
     pub(super) fn test_valid(input: &[u8]) {
         #[cfg(feature = "public_imp")]
         {
+            assert!(simdutf8_portable::basic::imp::fallback::validate_utf8(input).is_ok());
+            assert!(simdutf8_portable::compat::imp::fallback::validate_utf8(input).is_ok());
+
+            test_streaming::<simdutf8_portable::basic::imp::fallback::Utf8ValidatorImp>(
+                input, true,
+            );
+            test_chunked_streaming::<
+                simdutf8_portable::basic::imp::fallback::ChunkedUtf8ValidatorImp,
+            >(input, true);
+
             assert!(simdutf8_portable::basic::imp::v128::validate_utf8(input).is_ok());
             assert!(simdutf8_portable::compat::imp::v128::validate_utf8(input).is_ok());
 
@@ -92,6 +102,18 @@ mod public_imp {
     pub(super) fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
         #[cfg(feature = "public_imp")]
         {
+            assert!(simdutf8_portable::basic::imp::fallback::validate_utf8(input).is_err());
+            let err = simdutf8_portable::compat::imp::fallback::validate_utf8(input).unwrap_err();
+            assert_eq!(err.valid_up_to(), valid_up_to);
+            assert_eq!(err.error_len(), error_len);
+
+            test_streaming::<simdutf8_portable::basic::imp::fallback::Utf8ValidatorImp>(
+                input, false,
+            );
+            test_chunked_streaming::<
+                simdutf8_portable::basic::imp::fallback::ChunkedUtf8ValidatorImp,
+            >(input, false);
+
             assert!(simdutf8_portable::basic::imp::v128::validate_utf8(input).is_err());
             let err = simdutf8_portable::compat::imp::v128::validate_utf8(input).unwrap_err();
             assert_eq!(err.valid_up_to(), valid_up_to);
@@ -168,6 +190,9 @@ mod public_imp {
     fn test_neon_chunked_panic() {
         test_chunked_streaming_with_chunk_size::<
             simdutf8_portable::basic::imp::v128::ChunkedUtf8ValidatorImp,
+        >(b"abcd", 1, true);
+        test_chunked_streaming_with_chunk_size::<
+            simdutf8_portable::basic::imp::v256::ChunkedUtf8ValidatorImp,
         >(b"abcd", 1, true);
     }
 }
