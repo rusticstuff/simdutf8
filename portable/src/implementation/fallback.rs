@@ -30,8 +30,6 @@ pub struct Utf8ValidatorImp {
     err: bool,
 }
 
-use core::panic;
-
 #[cfg(feature = "public_imp")]
 pub use Utf8ValidatorImp as ChunkedUtf8ValidatorImp;
 
