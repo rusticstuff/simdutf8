@@ -21,7 +21,7 @@ const HAS_FAST_REDUCE_MAX: bool = true;
 )))]
 const HAS_FAST_REDUCE_MAX: bool = false;
 
-const HAS_FAST_MASKED_LOAD: bool = false; // FIXME avx512, avx2 (32-bit chunks only?)
+const HAS_FAST_MASKED_LOAD: bool = false; // FIXME avx512
 
 #[repr(C)]
 struct SimdInput<const N: usize, const O: usize>
