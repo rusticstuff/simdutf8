@@ -69,16 +69,17 @@ impl Utf8ValidatorImp {
                     return;
                 }
             };
-            let rem_input = input.len() - e.valid_up_to() - 1;
-            for i in 0..rem_input.min(self.expected_cont_bytes as usize) {
-                if input[e.valid_up_to() + i + 1] & 0b1100_0000 != 0b1000_0000 {
+            let rem_input = &input[e.valid_up_to() + 1..];
+            let rem_input = &rem_input[0..rem_input.len().min(self.expected_cont_bytes as usize)];
+            for b in rem_input {
+                if b & 0b1100_0000 != 0b1000_0000 {
                     // not a continuation byte
                     self.err = true;
                     return;
                 }
                 self.expected_cont_bytes -= 1;
             }
-            debug_assert!(self.expected_cont_bytes != 0); // otherwise from_utf8 would not have errored
+            debug_assert!(self.expected_cont_bytes > 0); // otherwise from_utf8 would not have errored
         }
     }
 
