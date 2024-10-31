@@ -921,17 +921,15 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
         mut self,
         remaining_input: core::option::Option<&[u8]>,
     ) -> core::result::Result<(), basic::Utf8Error> {
-        if let Some(mut remaining_input) = remaining_input {
+        if let Some(remaining_input) = remaining_input {
             if !remaining_input.is_empty() {
-                let len = remaining_input.len();
-                let chunks_lim = len - (len % SIMD_CHUNK_SIZE);
-                if chunks_lim > 0 {
-                    self.update_from_chunks(&remaining_input[..chunks_lim]);
+                let mut chunks = remaining_input.chunks_exact(SIMD_CHUNK_SIZE);
+                for chunk in &mut chunks {
+                    let input = SimdInput::new(chunk);
+                    self.algorithm.check_utf8(&input);
                 }
-                let rem = len - chunks_lim;
-                if rem > 0 {
-                    remaining_input = &remaining_input[chunks_lim..];
-                    let simd_input = SimdInput::new_partial(remaining_input);
+                if !chunks.remainder().is_empty() {
+                    let simd_input = SimdInput::new_partial(chunks.remainder());
                     self.algorithm.check_utf8(&simd_input);
                 }
             }
