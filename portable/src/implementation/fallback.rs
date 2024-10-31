@@ -26,8 +26,7 @@ pub fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Utf8Error
 /// available.
 #[cfg(feature = "public_imp")]
 pub struct Utf8ValidatorImp {
-    incomplete_data: [u8; 4],
-    incomplete_len: u8,
+    expected_cont_bytes: u8,
     err: bool,
 }
 
@@ -39,65 +38,59 @@ pub use Utf8ValidatorImp as ChunkedUtf8ValidatorImp;
 #[cfg(feature = "public_imp")]
 impl Utf8ValidatorImp {
     #[inline]
-    #[expect(clippy::cast_possible_truncation)]
     fn update(&mut self, mut input: &[u8]) {
         if self.err {
             return;
         }
-        if self.incomplete_len > 0 {
-            let total_bytes_needed: usize = match self.incomplete_data[0] {
-                0..0b1000_0000 => {
-                    panic!("ASCII data should never be incomplete");
-                }
-                0b1000_0000..0b1100_0000 => {
-                    // first byte cannot be a continuation byte
+        if self.expected_cont_bytes > 0 {
+            let to_check = (self.expected_cont_bytes as usize).min(input.len());
+            for b in &input[..to_check] {
+                if b & 0b1100_0000 != 0b1000_0000 {
+                    // not a continuation byte
                     self.err = true;
                     return;
                 }
-                0b1100_0000..0b1110_0000 => 2,
-                0b1110_0000..0b1111_0000 => 3,
-                0b1111_0000..0b1111_1000 => 4,
+                self.expected_cont_bytes -= 1;
+            }
+            if self.expected_cont_bytes > 0 {
+                // not enough continuation bytes
+                return;
+            }
+            input = &input[to_check..];
+        }
+        if let Err(e) = core::str::from_utf8(input) {
+            // cannot wrap, since there is at least one byte left which is not valid UTF-8
+            // by itself
+            self.expected_cont_bytes = match input[e.valid_up_to()] {
+                0b1100_0000..0b1110_0000 => 1,
+                0b1110_0000..0b1111_0000 => 2,
+                0b1111_0000..0b1111_1000 => 3,
                 _ => {
                     // invalid byte for starting sequence
                     self.err = true;
                     return;
                 }
             };
-            if self.incomplete_len as usize >= total_bytes_needed {
-                // actually errored on previous update
+            let rem_input = input.len() - e.valid_up_to() - 1;
+            if rem_input >= self.expected_cont_bytes as usize {
+                // too many continuation bytes so they are not valid
                 self.err = true;
                 return;
             }
-            let bytes_needed = total_bytes_needed - self.incomplete_len as usize;
-            let to_copy = core::cmp::min(bytes_needed, input.len());
-            self.incomplete_data
-                [self.incomplete_len as usize..self.incomplete_len as usize + to_copy]
-                .copy_from_slice(&input[..to_copy]);
-            if to_copy < bytes_needed {
-                self.incomplete_len += to_copy as u8;
-                return;
+            for i in 0..rem_input {
+                if input[e.valid_up_to() + i + 1] & 0b1100_0000 != 0b1000_0000 {
+                    // not a continuation byte
+                    self.err = true;
+                    return;
+                }
+                self.expected_cont_bytes -= 1;
             }
-            if core::str::from_utf8(&self.incomplete_data[..total_bytes_needed]).is_err() {
-                self.err = true;
-                return;
-            }
-            self.incomplete_len = 0;
-            input = &input[to_copy..];
-        }
-        if let Err(e) = core::str::from_utf8(input) {
-            if input.len() - e.valid_up_to() > 3 {
-                self.err = true;
-                return;
-            }
-            self.incomplete_len = (input.len() - e.valid_up_to()) as u8;
-            self.incomplete_data[..self.incomplete_len as usize]
-                .copy_from_slice(&input[e.valid_up_to()..]);
         }
     }
 
     #[inline]
     const fn finalize(self) -> core::result::Result<(), crate::basic::Utf8Error> {
-        if self.err || self.incomplete_len > 0 {
+        if self.err || self.expected_cont_bytes > 0 {
             Err(crate::basic::Utf8Error {})
         } else {
             Ok(())
@@ -111,8 +104,7 @@ impl crate::basic::imp::Utf8Validator for Utf8ValidatorImp {
     #[must_use]
     fn new() -> Self {
         Self {
-            incomplete_data: [0; 4],
-            incomplete_len: 0,
+            expected_cont_bytes: 0,
             err: false,
         }
     }
@@ -137,8 +129,7 @@ impl crate::basic::imp::ChunkedUtf8Validator for Utf8ValidatorImp {
     #[must_use]
     fn new() -> Self {
         Self {
-            incomplete_data: [0; 4],
-            incomplete_len: 0,
+            expected_cont_bytes: 0,
             err: false,
         }
     }
