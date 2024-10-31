@@ -852,27 +852,22 @@ impl basic::imp::Utf8Validator for Utf8ValidatorImp {
                 return;
             }
         }
-        let len = input.len();
-        let mut idx: usize = 0;
-        let iter_lim = len - (len % SIMD_CHUNK_SIZE);
-        while idx < iter_lim {
-            let input = SimdInput::new(&input[idx..idx + SIMD_CHUNK_SIZE]);
+        // no incomplete data, check chunks
+        let mut chunks = input.chunks_exact(SIMD_CHUNK_SIZE);
+        for chunk in &mut chunks {
+            let input = SimdInput::new(chunk);
             self.algorithm.check_utf8(&input);
-            idx += SIMD_CHUNK_SIZE;
         }
-        if idx < len {
-            let to_copy = len - idx;
-            self.incomplete_data[..to_copy].copy_from_slice(&input[idx..idx + to_copy]);
-            self.incomplete_len = to_copy;
+        if !chunks.remainder().is_empty() {
+            self.incomplete_data[..chunks.remainder().len()].copy_from_slice(chunks.remainder());
+            self.incomplete_len = chunks.remainder().len();
         }
     }
 
     #[inline]
     fn finalize(mut self) -> core::result::Result<(), basic::Utf8Error> {
         if self.incomplete_len != 0 {
-            for i in &mut self.incomplete_data[self.incomplete_len..] {
-                *i = 0;
-            }
+            self.incomplete_data[self.incomplete_len..].fill(0);
             self.update_from_incomplete_data();
         }
         self.algorithm.check_incomplete_pending();
