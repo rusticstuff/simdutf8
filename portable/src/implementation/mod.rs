@@ -12,7 +12,6 @@ cfg_if::cfg_if! {
             pub(crate) use simd::v128 as auto;
     } else if #[cfg(feature = "force_simd256")] {
         pub(crate) use simd::v256 as auto;
-
     // known good configurations
     } else if #[cfg(all(
         any(target_arch = "x86_64", target_arch = "x86"),
