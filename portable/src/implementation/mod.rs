@@ -18,13 +18,29 @@ cfg_if::cfg_if! {
         target_feature = "avx2"
     ))] {
         pub(crate) use simd::v256 as auto;
+    } else if #[cfg(all(
+        any(target_arch = "x86_64", target_arch = "x86"),
+        target_feature = "sse4.2"
+    ))] {
+        pub(crate) use simd::v128 as auto;
+    } else if #[cfg(all(
+        target_arch = "aarch64",
+        target_feature = "neon"
+    ))] {
+        pub(crate) use simd::v128 as auto;
+    } else if #[cfg(all(
+        target_arch = "arm",
+        target_feature = "v7",
+        target_endian = "little"
+    ))] {
+        pub(crate) use simd::v128 as auto;
     } else {
         pub(crate) use fallback as auto;
     }
 }
 
 #[inline]
-pub(crate) const fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+pub(crate) fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     if input.len() < simd::SIMD_CHUNK_SIZE {
         return fallback::validate_utf8_basic(input);
     }
@@ -33,7 +49,8 @@ pub(crate) const fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic
 }
 
 #[inline(never)]
-const fn validate_utf8_basic_simd(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+#[allow(clippy::missing_const_for_fn)]
+fn validate_utf8_basic_simd(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     auto::validate_utf8_basic(input)
 }
 
