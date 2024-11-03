@@ -54,7 +54,7 @@ type Utf8ErrorCompat = crate::compat::Utf8Error;
 
 #[inline]
 #[expect(clippy::cast_possible_truncation)]
-pub(crate) fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
+fn validate_utf8_at_offset(input: &[u8], offset: usize) -> Result<(), Utf8ErrorCompat> {
     match core::str::from_utf8(&input[offset..]) {
         Ok(_) => Ok(()),
         Err(err) => Err(Utf8ErrorCompat {
