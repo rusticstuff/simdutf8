@@ -157,8 +157,8 @@ where
     LaneCount<N>: SupportedLaneCount,
 {
     pub(crate) prev: Simd<u8, N>,
-    pub(crate) incomplete: Simd<u8, N>, // FIXME: should be a mask?
-    pub(crate) error: Simd<u8, N>,      // FIXME: should be a mask?
+    pub(crate) incomplete: Simd<u8, N>, // FIXME: could be a mask?
+    pub(crate) error: Simd<u8, N>,      // FIXME: could be a mask?
 }
 
 trait Lookup16 {
@@ -723,8 +723,7 @@ where
             }
         }
         for chunk in chunks.by_ref() {
-            let simd_input = SimdInput::<N, O>::new(chunk);
-            algorithm.check_utf8(&simd_input);
+            algorithm.check_utf8(&SimdInput::<N, O>::new(chunk));
         }
         let rem = chunks.remainder();
         if !rem.is_empty() {
