@@ -138,11 +138,12 @@ fn get_valid_slice_of_len_or_more_aligned(
 fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_fn: BenchFn) {
     let mut group = c.benchmark_group(name);
     for i in [1, 8, 64, 512, 4096, 65536, 131072].iter() {
+        let i = i + 33;
         let alignment = Alignment {
             boundary: 64,
             offset: 8, // 8 is the default alignment on 64-bit, so this is what can be expected worst-case
         };
-        let (vec, offset) = get_valid_slice_of_len_or_more_aligned(bytes, *i, alignment);
+        let (vec, offset) = get_valid_slice_of_len_or_more_aligned(bytes, i, alignment);
         let slice = &vec[offset..];
         assert_eq!(
             (slice.as_ptr() as usize) % alignment.boundary,
