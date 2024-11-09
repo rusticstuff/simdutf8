@@ -3,6 +3,8 @@
 #![forbid(unsafe_code)]
 
 pub(crate) mod fallback;
+
+#[allow(unused)]
 pub(crate) mod simd;
 
 cfg_if::cfg_if! {
@@ -30,8 +32,9 @@ cfg_if::cfg_if! {
         pub(crate) use simd::v128 as auto;
     } else if #[cfg(all(
         target_arch = "arm",
+        target_endian = "little",
         target_feature = "v7",
-        target_endian = "little"
+        target_feature = "neon"
     ))] {
         pub(crate) use simd::v128 as auto;
     } else {
