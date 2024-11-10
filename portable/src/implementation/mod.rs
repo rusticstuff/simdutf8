@@ -37,6 +37,11 @@ cfg_if::cfg_if! {
         target_feature = "neon"
     ))] {
         pub(crate) use simd::v128 as auto;
+    } else if #[cfg(all(
+        target_arch = "wasm32",
+        target_feature = "simd128"
+    ))] {
+        pub(crate) use simd::v128 as auto;
     } else {
         pub(crate) use fallback as auto;
     }
