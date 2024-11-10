@@ -12,27 +12,38 @@ are the same as in the [simdutf8](https://crates.io/crates/simdutf8) crate.
 ## Features
 
 - no unsafe code (`#[forbid(unsafe_code)]`) in the implementation
-- `auto` module which selects the best implementation for known-good targets at compile-time
+- `auto` module which selects the best implemetation for known-good targets at compile-time
   including falling back to a scalar implementation if a fast SIMD implementation is not possible.
 - new platforms need no new code as long as they are supported by `core::simd`.
 - `no_std` support
-- fast out of the box for `aarch64` and `wasm32` targets
+- fast out of the box for targets which have SIMD features enabled by default such as `aarch64`
 - `force_simd256`, `force_simd128` and `force_fallback` crate features to force a specific
   implementation at compile-time
 - supports 128-bit and 256-bit SIMD
-- There are no unnecessary bounds checks in the compiled code (as of nightly-xx)
+- There are no unnecessary bounds checks in the compiled code, functions are properly inlined and
+  loops properly unrolled (as of nightly-xx)
 
 ## Limitations
 
 - uses memcpy because of forbid(unsafe), see https://github.com/llvm/llvm-project/issues/87440
-- Zero-overhead abstractions are not so zero-overhead
-- target-feature
+- target-feature required
 - no runtime implementation selection
 - slower
   - memcpy calls
 - swizzle_dyn
-  - slow on uncommon targets
+  - slow on non-special-cased targets
   - requires -Zbuild-std for sse4.2, avx2 support if not part of the target architecture
+
+## Architecture notes
+
+| Architecture | [Platforms](https://doc.rust-lang.org/nightly/rustc/platform-support.html) | Performance     | Notes                                                                                                                                                                                                                                         |
+| ------------ | -------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| aarch64      | all                                                                        | xx% of simdutf8 | works out of the box                                                                                                                                                                                                                          |
+| x86_64       | all                                                                        | xx% of simdutf8 | requires `-Zbuild-std` and `RUSTFLAGS="-C target-feature=+avx2"` or `RUSTFLAGS="-C target-feature=+sse4.2"`                                                                                                                                   |
+| wasm32       | all                                                                        | (not tested)    | requires `-Zbuild-std` and `RUSTFLAGS="-C target-feature=+simd128"`                                                                                                                                                                           |
+| armv7        | thumbv7neon&#x2011;\*                                                      | (not tested)    | works out of the box                                                                                                                                                                                                                          |
+| armv7        | others                                                                     | (not tested)    | requires `-Zbuild-std` and `RUSTFLAGS="-C target-feature=+neon"`                                                                                                                                                                              |
+| other        | ...                                                                        | bad             | falls back to `core::str::from_utf8` unless `forcesimd128` or `forcesimd256` are used. Check [`swizzle_dyn` support](https://github.com/rust-lang/rust/blob/master/library/portable-simd/crates/core_simd/src/swizzle_dyn.rs) before forcing. |
 
 ## Quick start
 
