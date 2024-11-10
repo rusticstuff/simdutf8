@@ -10,7 +10,7 @@
 #![allow(clippy::missing_const_for_fn)] // not necessary most of the times
 #![deny(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(
     all(target_arch = "aarch64", feature = "aarch64_neon_prefetch"),
     feature(stdarch_aarch64_prefetch)
