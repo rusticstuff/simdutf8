@@ -9,7 +9,7 @@
 #![expect(clippy::redundant_pub_crate)] // check is broken (see e.g. https://github.com/rust-lang/rust-clippy/issues/5369)
 #![deny(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![feature(doc_auto_cfg)]
 #![feature(portable_simd)]
 
 //! Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
