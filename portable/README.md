@@ -4,26 +4,28 @@
 
 # simdutf8-portable – Fast UTF-8 validation using `core::simd` (portable SIMD)
 
-Fast API-compatible UTF-8 validation for Rust using the experimental architecture-independan
+Fast API-compatible UTF-8 validation for Rust using the experimental architecture-independant
 [`core::simd`](https://doc.rust-lang.org/core/simd/index.html) (portable SIMD) module from the
 standard library. An up-to-date nightly Rust compiler is required. The API and the algorithm used
 are the same as in the [simdutf8](https://crates.io/crates/simdutf8) crate.
 
 ## Features
 
-- `#[forbid(unsafe_code)]` implementation
+- no unsafe code (`#[forbid(unsafe_code)]`) in the implementation
 - `auto` module which selects the best implementation for known-good targets at compile-time
   including falling back to a scalar implementation if a fast SIMD implementation is not possible.
-- Future-proof: The implementation is designed to be future-proof and will be updated as the
-  `core::simd` module evolves
+- new platforms need no new code as long as they are supported by `core::simd`.
 - `no_std` support
-- no unnecessary bounds checks in the compiled code (as of nightly-xx)
 - fast out of the box for `aarch64` and `wasm32` targets
-- Features to force a specific implementation at compile-time
-- Support 128-bit and 256-bit SIMD
+- `force_simd256`, `force_simd128` and `force_fallback` crate features to force a specific
+  implementation at compile-time
+- supports 128-bit and 256-bit SIMD
+- There are no unnecessary bounds checks in the compiled code (as of nightly-xx)
 
 ## Limitations
 
+- uses memcpy because of forbid(unsafe), see https://github.com/llvm/llvm-project/issues/87440
+- Zero-overhead abstractions are not so zero-overhead
 - target-feature
 - no runtime implementation selection
 - slower
