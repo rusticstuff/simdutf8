@@ -1,8 +1,9 @@
 use core::simd::u8x32;
 use core::simd::{
+    LaneCount, Simd, SupportedLaneCount,
     cmp::SimdPartialOrd,
     num::{SimdInt, SimdUint},
-    simd_swizzle, u8x16, LaneCount, Simd, SupportedLaneCount,
+    simd_swizzle, u8x16,
 };
 
 use crate::basic;
@@ -511,7 +512,7 @@ where
     SimdInput<N, O>: SimdInputTrait,
 {
     #[inline]
-    fn new() -> Self {
+    const fn new() -> Self {
         Self {
             prev: Simd::<u8, N>::splat(0),
             incomplete: Simd::<u8, N>::splat(0),

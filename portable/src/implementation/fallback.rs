@@ -96,7 +96,6 @@ impl Utf8ValidatorImp {
 #[cfg(feature = "public_imp")]
 impl crate::basic::imp::Utf8Validator for Utf8ValidatorImp {
     #[inline]
-    #[must_use]
     fn new() -> Self {
         Self {
             expected_cont_bytes: 0,
@@ -121,7 +120,6 @@ impl crate::basic::imp::Utf8Validator for Utf8ValidatorImp {
 #[cfg(feature = "public_imp")]
 impl crate::basic::imp::ChunkedUtf8Validator for Utf8ValidatorImp {
     #[inline]
-    #[must_use]
     fn new() -> Self {
         Self {
             expected_cont_bytes: 0,
