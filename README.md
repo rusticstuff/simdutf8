@@ -83,6 +83,12 @@ for the SSE 4.2 implementation.
 ### ARM64
 The SIMD implementation is used automatically since Rust 1.61.
 
+### ARMv7
+Requires a recent nightly Rust compiler. The `armv7_neon` feature needs to be enabled. The fasted implementation is selected at
+runtime using the `std::arch::is_arm_feature_detected!` macro unless the CPU target features are enabled, e.g. with
+`RUSTFLAGS="-C target-feature=+neon"`. Some targets such as `thumbv7neon-linux-androideabi` and `thumbv7neon-unknown-linux-gnueabihf`
+have NEON enabled by default.
+
 ### WASM32
 For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.
 Use `RUSTFLAGS="-C target-feature=+simd128"` to enable the WASM SIMD implementation.  WASM, at

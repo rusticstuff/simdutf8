@@ -372,7 +372,6 @@ macro_rules! algorithm_simd {
         impl basic::imp::Utf8Validator for Utf8ValidatorImp {
             $(#[$feat])*
             #[inline]
-            #[must_use]
             unsafe fn new() -> Self {
                 Self {
                     algorithm: Utf8CheckAlgorithm::<SimdU8Value>::default(),
@@ -452,7 +451,6 @@ macro_rules! algorithm_simd {
         impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
             $(#[$feat])*
             #[inline]
-            #[must_use]
             unsafe fn new() -> Self {
                 Self {
                     algorithm: Utf8CheckAlgorithm::<SimdU8Value>::default(),
