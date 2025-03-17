@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "simdutf8",
+    "simdutf8/portable",
+    "simdutf8/bench"
+]
