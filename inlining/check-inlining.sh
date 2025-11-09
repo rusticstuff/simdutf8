@@ -7,7 +7,7 @@ build_args="${3:-}"
 cargo clean --quiet
 cargo build --quiet --release --target $target $build_args
 LLVM_NM=$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's|host: ||p')/bin/llvm-nm
-nm_output=$($LLVM_NM ../target/$target/release/libsimdutf8.rlib)
+nm_output=$($LLVM_NM "${CARGO_TARGET_DIR:-../target}/$target/release/libsimdutf8.rlib")
 if [[ $target == *darwin* ]]; then
     pattern=" (t|T|U) _"
     cut_arg=21

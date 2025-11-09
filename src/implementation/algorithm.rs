@@ -268,8 +268,10 @@ macro_rules! algorithm_simd {
         pub unsafe fn validate_utf8_compat(
             input: &[u8],
         ) -> core::result::Result<(), compat::Utf8Error> {
-            validate_utf8_compat_simd0(input)
-                .map_err(|idx| crate::implementation::helpers::get_compat_error(input, idx))
+            match validate_utf8_compat_simd0(input) {
+                Ok(()) => Ok(()),
+                Err(idx) => Err(crate::implementation::helpers::get_compat_error(input, idx)),
+            }
         }
 
         $(#[$feat])*
