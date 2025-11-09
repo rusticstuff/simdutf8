@@ -101,7 +101,7 @@ fn bench_late_error<M: Measurement>(c: &mut Criterion<M>, bench_fn: BenchFn) {
 }
 
 fn scale_to_one_mib(input: &[u8]) -> Vec<u8> {
-    input.repeat((1024 * 1024 + input.len() - 1) / input.len())
+    input.repeat((1024_usize * 1024).div_ceil(input.len()))
 }
 
 fn get_valid_slice_of_len_or_more(s: &[u8], len: usize) -> &[u8] {
