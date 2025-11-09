@@ -2,7 +2,7 @@ use core::hint::unreachable_unchecked;
 
 type Utf8ErrorCompat = crate::compat::Utf8Error;
 
-/// Uses core::str::from_utf8 to validate that the subslice
+/// Uses `core::str::from_utf8` to validate that the subslice
 /// starting at `offset` is valid UTF-8.
 ///
 /// # Safety
