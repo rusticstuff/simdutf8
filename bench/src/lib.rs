@@ -1,6 +1,8 @@
 use criterion::{measurement::Measurement, BenchmarkGroup, BenchmarkId, Criterion, Throughput};
 use simdutf8::basic::from_utf8 as basic_from_utf8;
 use simdutf8::compat::from_utf8 as compat_from_utf8;
+use simdutf8_portable::basic::from_utf8 as basic_from_utf8_portable;
+use simdutf8_portable::compat::from_utf8 as compat_from_utf8_portable;
 
 use std::str::from_utf8 as std_from_utf8;
 
@@ -29,6 +31,8 @@ pub enum BenchFn {
     Basic,
     BasicNoInline,
     Compat,
+    BasicPortable,
+    CompatPortable,
     Std,
 
     #[cfg(feature = "simdjson")]
@@ -134,11 +138,12 @@ fn get_valid_slice_of_len_or_more_aligned(
 fn bench<M: Measurement>(c: &mut Criterion<M>, name: &str, bytes: &[u8], bench_fn: BenchFn) {
     let mut group = c.benchmark_group(name);
     for i in [1, 8, 64, 512, 4096, 65536, 131072].iter() {
+        let i = i + 33;
         let alignment = Alignment {
             boundary: 64,
             offset: 8, // 8 is the default alignment on 64-bit, so this is what can be expected worst-case
         };
-        let (vec, offset) = get_valid_slice_of_len_or_more_aligned(bytes, *i, alignment);
+        let (vec, offset) = get_valid_slice_of_len_or_more_aligned(bytes, i, alignment);
         let slice = &vec[offset..];
         assert_eq!(
             (slice.as_ptr() as usize) % alignment.boundary,
@@ -189,6 +194,24 @@ fn bench_input<M: Measurement>(
                 &input,
                 |b, &slice| {
                     b.iter(|| assert_eq!(compat_from_utf8(slice).is_ok(), expected_ok));
+                },
+            );
+        }
+        BenchFn::BasicPortable => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                &input,
+                |b, &slice| {
+                    b.iter(|| assert_eq!(basic_from_utf8_portable(slice).is_ok(), expected_ok));
+                },
+            );
+        }
+        BenchFn::CompatPortable => {
+            group.bench_with_input(
+                BenchmarkId::from_parameter(format!("{:06}", input.len())),
+                &input,
+                |b, &slice| {
+                    b.iter(|| assert_eq!(compat_from_utf8_portable(slice).is_ok(), expected_ok));
                 },
             );
         }
