@@ -11,11 +11,10 @@ fn get_cpp_link_stdlib() -> Option<String> {
         let target = env::var("TARGET").unwrap();
         if target.contains("msvc") {
             None
-        } else if target.contains("apple") {
-            Some("c++".to_string())
-        } else if target.contains("freebsd") {
-            Some("c++".to_string())
-        } else if target.contains("openbsd") {
+        } else if target.contains("apple")
+            || target.contains("freebsd")
+            || target.contains("openbsd")
+        {
             Some("c++".to_string())
         } else {
             Some("stdc++".to_string())
@@ -31,7 +30,7 @@ fn main() {
 
     eprintln!("download");
     assert!(Command::new("curl")
-        .args(&["-L", "-o", "simdjson.tar.gz", &download_url])
+        .args(["-L", "-o", "simdjson.tar.gz", &download_url])
         .current_dir(&out_path)
         .status()
         .unwrap()
@@ -40,7 +39,7 @@ fn main() {
 
     eprintln!("extracting");
     Command::new("tar")
-        .args(&["xzf", "simdjson.tar.gz"])
+        .args(["xzf", "simdjson.tar.gz"])
         .current_dir(&out_path)
         .status()
         .unwrap();

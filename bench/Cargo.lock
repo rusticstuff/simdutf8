@@ -817,9 +817,9 @@ dependencies = [
 
 [[package]]
 name = "flexpect"
-version = "0.0.4"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bcf7841d06c34459c13046b8f4917cd6132e2fcf0bb5216aa793070b016741d"
+checksum = "91463e4ffff882636c3bf769011bd013857c57c9485cd0e8f3be0cace23ef7db"
 dependencies = [
  "rustversion",
 ]
