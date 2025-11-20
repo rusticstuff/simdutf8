@@ -139,8 +139,21 @@ impl TempSimdChunkA16 {
 #[allow(dead_code)] // only used if a 256-bit SIMD implementation is used
 pub(crate) struct TempSimdChunkA32(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
+#[repr(C, align(64))]
+#[allow(dead_code)] // only used if a 256-bit SIMD implementation is used
+pub(crate) struct TempSimdChunkA64(pub(crate) [u8; SIMD_CHUNK_SIZE]);
+
 #[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunkA32 {
+    #[flexpect::e(clippy::inline_always)]
+    #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
+    pub(crate) const fn new() -> Self {
+        Self([0; SIMD_CHUNK_SIZE])
+    }
+}
+
+#[allow(dead_code)] // only used if there is a SIMD implementation
+impl TempSimdChunkA64 {
     #[flexpect::e(clippy::inline_always)]
     #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
     pub(crate) const fn new() -> Self {
