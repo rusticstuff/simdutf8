@@ -182,7 +182,10 @@ macro_rules! algorithm_simd {
             unsafe fn check_block(&mut self, input: SimdInput) {
                 // WORKAROUND
                 // necessary because the for loop is not unrolled on ARM64
-                if input.vals.len() == 2 {
+                if input.vals.len() == 1 {
+                    self.check_bytes(*input.vals.as_ptr());
+                    self.incomplete = Self::is_incomplete(*input.vals.as_ptr());
+                } else if input.vals.len() == 2 {
                     self.check_bytes(*input.vals.as_ptr());
                     self.check_bytes(*input.vals.as_ptr().add(1));
                     self.incomplete = Self::is_incomplete(*input.vals.as_ptr().add(1));
@@ -569,6 +572,33 @@ macro_rules! simd_input_256_bit {
             #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 self.vals[0].or(self.vals[1]).is_ascii()
+            }
+        }
+    };
+}
+
+macro_rules! simd_input_512_bit {
+    ($(#[$feat:meta])*) => {
+        #[repr(C)]
+        struct SimdInput {
+            vals: [SimdU8Value; 1],
+        }
+
+        impl SimdInput {
+            $(#[$feat])*
+            #[inline]
+            unsafe fn new(ptr: *const u8) -> Self {
+                Self {
+                    vals: [
+                        SimdU8Value::load_from(ptr),
+                    ],
+                }
+            }
+
+            $(#[$feat])*
+            #[inline]
+            unsafe fn is_ascii(&self) -> bool {
+                self.vals[0].is_ascii()
             }
         }
     };
