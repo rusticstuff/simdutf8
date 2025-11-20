@@ -7,5 +7,5 @@ edition = "2018"
 publish = false
 
 [build-dependencies]
-bindgen = "0.54.0"
-cmake = "0.1.44"
+bindgen = "0.72.1"
+cmake = "0.1.54"

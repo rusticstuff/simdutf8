@@ -23,7 +23,7 @@ fn get_cpp_link_stdlib() -> Option<String> {
 }
 
 fn main() {
-    let version = "0.9.2";
+    let version = "4.2.2";
     let download_url =
         "https://github.com/simdjson/simdjson/archive/refs/tags/v".to_owned() + version + ".tar.gz";
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -54,7 +54,6 @@ fn main() {
         // .define("CMAKE_C_COMPILER", "clang")
         // .define("CMAKE_CXX_COMPILER", "gcc")
         // .define("CMAKE_C_COMPILER", "gcc")
-        .uses_cxx11()
         .build();
     eprintln!("building done");
 
@@ -67,14 +66,14 @@ fn main() {
 
     eprintln!("bindings");
     let bindings = bindgen::Builder::default()
-        .clang_args(&[
+        .clang_args([
             "-xc++",
             "-std=c++17",
             &("-I".to_owned() + &simdjson_dir + "/include"),
         ])
         .header(&(simdjson_dir.to_owned() + "/include/simdjson/implementation.h"))
-        .whitelist_function("simdjson::validate_utf8")
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .allowlist_function("simdjson::validate_utf8")
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()
         .expect("unable to generate bindings");
     eprintln!("bindings done");
