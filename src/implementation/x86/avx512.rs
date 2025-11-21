@@ -1,11 +1,10 @@
 //! Contains the x86-64 AVX512 UTF-8 validation implementation.
 
 use core::arch::x86_64::{
-    __m512i, _mm512_alignr_epi8, _mm512_and_si512, _mm512_cmpgt_epi8_mask, _mm512_loadu_si512,
-    _mm512_maskz_abs_epi8, _mm512_maskz_loadu_epi8, _mm512_or_si512, _mm512_permutex2var_epi64,
-    _mm512_set1_epi8, _mm512_set_epi64, _mm512_setzero_si512, _mm512_shuffle_epi8,
-    _mm512_srli_epi16, _mm512_subs_epu8, _mm512_test_epi8_mask, _mm512_xor_si512, _mm_prefetch,
-    _MM_HINT_T0,
+    __m512i, _mm512_alignr_epi8, _mm512_and_si512, _mm512_loadu_si512, _mm512_maskz_loadu_epi8,
+    _mm512_or_si512, _mm512_permutex2var_epi64, _mm512_set1_epi8, _mm512_set_epi64,
+    _mm512_setzero_si512, _mm512_shuffle_epi8, _mm512_srli_epi16, _mm512_subs_epu8,
+    _mm512_test_epi8_mask, _mm512_xor_si512, _mm_prefetch, _MM_HINT_T0,
 };
 use core::arch::x86_64::{_mm512_movepi8_mask, _mm512_set_epi8};
 
@@ -224,16 +223,6 @@ impl SimdU8Value {
         ));
     }
 
-    #[flexpect::e(clippy::cast_possible_wrap)]
-    #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
-    #[inline]
-    unsafe fn signed_gt(self, other: Self) -> Self {
-        Self::from(_mm512_maskz_abs_epi8(
-            _mm512_cmpgt_epi8_mask(self.0, other.0),
-            _mm512_set1_epi8(0x80u8 as i8),
-        ))
-    }
-
     #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
     #[inline]
     unsafe fn any_bit_set(self) -> bool {
@@ -258,12 +247,9 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
     #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0b1110_0000 - 1));
-        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0b1111_0000 - 1));
-
-        is_third_byte
-            .or(is_fourth_byte)
-            .signed_gt(SimdU8Value::splat0())
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
+        is_third_byte.or(is_fourth_byte)
     }
 }
 
