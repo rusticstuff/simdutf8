@@ -240,13 +240,7 @@ macro_rules! algorithm_simd {
             }
 
             if idx < len {
-                let mut tmpbuf = TempSimdChunk::new();
-                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                    input.as_ptr().add(idx),
-                    tmpbuf.0.as_mut_ptr(),
-                    len - idx,
-                );
-                let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
+                let simd_input = SimdInput::new_partial(input.as_ptr().add(idx), len-idx);
                 algorithm.check_utf8(simd_input);
             }
             algorithm.check_incomplete_pending();
@@ -332,14 +326,7 @@ macro_rules! algorithm_simd {
                 break;
             }
             if idx < len {
-                let mut tmpbuf = TempSimdChunk::new();
-                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
-                    input.as_ptr().add(idx),
-                    tmpbuf.0.as_mut_ptr(),
-                    len - idx,
-                );
-                let simd_input = SimdInput::new(tmpbuf.0.as_ptr());
-
+                let simd_input = SimdInput::new_partial(input.as_ptr().add(idx), len-idx);
                 algorithm.check_utf8(simd_input);
             }
             algorithm.check_incomplete_pending();
@@ -539,6 +526,18 @@ macro_rules! simd_input_128_bit {
 
             $(#[$feat])*
             #[inline]
+            unsafe fn new_partial(ptr: *const u8, len: usize) -> Self {
+                let mut tmpbuf = TempSimdChunk::new();
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                    ptr,
+                    tmpbuf.0.as_mut_ptr(),
+                    len,
+                );
+                Self::new(tmpbuf.0.as_ptr())
+            }
+
+            $(#[$feat])*
+            #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 let r1 = self.vals[0].or(self.vals[1]);
                 let r2 = self.vals[2].or(self.vals[3]);
@@ -570,6 +569,18 @@ macro_rules! simd_input_256_bit {
 
             $(#[$feat])*
             #[inline]
+            unsafe fn new_partial(ptr: *const u8, len: usize) -> Self {
+                let mut tmpbuf = TempSimdChunk::new();
+                crate::implementation::helpers::memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
+                    ptr,
+                    tmpbuf.0.as_mut_ptr(),
+                    len,
+                );
+                Self::new(tmpbuf.0.as_ptr())
+            }
+
+            $(#[$feat])*
+            #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 self.vals[0].or(self.vals[1]).is_ascii()
             }
@@ -591,6 +602,17 @@ macro_rules! simd_input_512_bit {
                 Self {
                     vals: [
                         SimdU8Value::load_from(ptr),
+                    ],
+                }
+            }
+
+
+            $(#[$feat])*
+            #[inline]
+            unsafe fn new_partial(ptr: *const u8, len: usize) -> Self {
+                Self {
+                    vals: [
+                        SimdU8Value::load_from_partial(ptr, len),
                     ],
                 }
             }
