@@ -1,6 +1,10 @@
 #[cfg(any(feature = "std", feature = "public_imp", target_feature = "avx2"))]
 pub(crate) mod avx2;
 
+// TODO: require actually necessary AVX-512 features
+#[cfg(any(feature = "std", feature = "public_imp", target_feature = "avx2"))]
+pub(crate) mod avx512;
+
 #[cfg(any(
     feature = "public_imp",
     all(feature = "std", not(target_feature = "avx2")),
@@ -28,7 +32,14 @@ pub(crate) unsafe fn validate_utf8_basic(
 
     #[inline]
     fn get_fastest_available_implementation_basic() -> ValidateUtf8Fn {
-        if std::is_x86_feature_detected!("avx2") {
+        // Test for avx512vbmi2 to make sure we have a newer CPU with a non-throttling AVX-512 implementation
+        if std::is_x86_feature_detected!("avx512f")
+            && std::is_x86_feature_detected!("avx512bw")
+            && std::is_x86_feature_detected!("avx512vbmi")
+            && std::is_x86_feature_detected!("avx512vbmi2")
+        {
+            avx512::validate_utf8_basic
+        } else if std::is_x86_feature_detected!("avx2") {
             avx2::validate_utf8_basic
         } else if std::is_x86_feature_detected!("sse4.2") {
             sse42::validate_utf8_basic
@@ -124,7 +135,13 @@ pub(crate) unsafe fn validate_utf8_compat(
 
     #[inline]
     fn get_fastest_available_implementation_compat() -> ValidateUtf8CompatFn {
-        if std::is_x86_feature_detected!("avx2") {
+        if std::is_x86_feature_detected!("avx512f")
+            && std::is_x86_feature_detected!("avx512bw")
+            && std::is_x86_feature_detected!("avx512vbmi")
+            && std::is_x86_feature_detected!("avx512vbmi2")
+        {
+            avx512::validate_utf8_compat
+        } else if std::is_x86_feature_detected!("avx2") {
             avx2::validate_utf8_compat
         } else if std::is_x86_feature_detected!("sse4.2") {
             sse42::validate_utf8_compat
