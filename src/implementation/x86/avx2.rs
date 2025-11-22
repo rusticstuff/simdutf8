@@ -2,17 +2,17 @@
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
-    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
-    _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8,
-    _mm256_setr_epi8, _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16,
-    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
+    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_loadu_si256, _mm256_movemask_epi8,
+    _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8, _mm256_setr_epi8,
+    _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16, _mm256_subs_epu8,
+    _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
 };
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::{
-    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_cmpgt_epi8, _mm256_loadu_si256,
-    _mm256_movemask_epi8, _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8,
-    _mm256_setr_epi8, _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16,
-    _mm256_subs_epu8, _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
+    __m256i, _mm256_alignr_epi8, _mm256_and_si256, _mm256_loadu_si256, _mm256_movemask_epi8,
+    _mm256_or_si256, _mm256_permute2x128_si256, _mm256_set1_epi8, _mm256_setr_epi8,
+    _mm256_setzero_si256, _mm256_shuffle_epi8, _mm256_srli_epi16, _mm256_subs_epu8,
+    _mm256_testz_si256, _mm256_xor_si256, _mm_prefetch, _MM_HINT_T0,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
@@ -212,12 +212,6 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn signed_gt(self, other: Self) -> Self {
-        Self::from(_mm256_cmpgt_epi8(self.0, other.0))
-    }
-
-    #[target_feature(enable = "avx2")]
-    #[inline]
     unsafe fn any_bit_set(self) -> bool {
         _mm256_testz_si256(self.0, self.0) != 1
     }
@@ -240,12 +234,9 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
     #[target_feature(enable = "avx2")]
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0b1110_0000 - 1));
-        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0b1111_0000 - 1));
-
-        is_third_byte
-            .or(is_fourth_byte)
-            .signed_gt(SimdU8Value::splat0())
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
+        is_third_byte.or(is_fourth_byte)
     }
 }
 

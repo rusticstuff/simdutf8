@@ -1,8 +1,8 @@
 //! Contains the wasm32 UTF-8 validation implementation.
 
 use core::arch::wasm32::{
-    u8x16, u8x16_all_true, u8x16_gt, u8x16_lt, u8x16_shr, u8x16_shuffle, u8x16_splat,
-    u8x16_sub_sat, u8x16_swizzle, v128, v128_and, v128_any_true, v128_or, v128_xor,
+    u8x16, u8x16_all_true, u8x16_lt, u8x16_shr, u8x16_shuffle, u8x16_splat, u8x16_sub_sat,
+    u8x16_swizzle, v128, v128_and, v128_any_true, v128_or, v128_xor,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
@@ -227,11 +227,6 @@ impl SimdU8Value {
     }
 
     #[inline]
-    unsafe fn unsigned_gt(self, other: Self) -> Self {
-        Self::from(u8x16_gt(self.0, other.0))
-    }
-
-    #[inline]
     unsafe fn any_bit_set(self) -> bool {
         v128_any_true(self.0)
     }
@@ -254,9 +249,8 @@ impl From<v128> for SimdU8Value {
 impl Utf8CheckAlgorithm<SimdU8Value> {
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.unsigned_gt(SimdU8Value::splat(0b1110_0000 - 1));
-        let is_fourth_byte = prev3.unsigned_gt(SimdU8Value::splat(0b1111_0000 - 1));
-
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
         is_third_byte.or(is_fourth_byte)
     }
 }
