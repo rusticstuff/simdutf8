@@ -2,14 +2,14 @@
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
-    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
-    _mm_or_si128, _mm_prefetch, _mm_set1_epi8, _mm_setr_epi8, _mm_setzero_si128, _mm_shuffle_epi8,
+    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_loadu_si128, _mm_movemask_epi8, _mm_or_si128,
+    _mm_prefetch, _mm_set1_epi8, _mm_setr_epi8, _mm_setzero_si128, _mm_shuffle_epi8,
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128, _MM_HINT_T0,
 };
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::{
-    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_cmpgt_epi8, _mm_loadu_si128, _mm_movemask_epi8,
-    _mm_or_si128, _mm_prefetch, _mm_set1_epi8, _mm_setr_epi8, _mm_setzero_si128, _mm_shuffle_epi8,
+    __m128i, _mm_alignr_epi8, _mm_and_si128, _mm_loadu_si128, _mm_movemask_epi8, _mm_or_si128,
+    _mm_prefetch, _mm_set1_epi8, _mm_setr_epi8, _mm_setzero_si128, _mm_shuffle_epi8,
     _mm_srli_epi16, _mm_subs_epu8, _mm_testz_si128, _mm_xor_si128, _MM_HINT_T0,
 };
 
@@ -197,12 +197,6 @@ impl SimdU8Value {
 
     #[target_feature(enable = "sse4.2")]
     #[inline]
-    unsafe fn signed_gt(self, other: Self) -> Self {
-        Self::from(_mm_cmpgt_epi8(self.0, other.0))
-    }
-
-    #[target_feature(enable = "sse4.2")]
-    #[inline]
     unsafe fn any_bit_set(self) -> bool {
         _mm_testz_si128(self.0, self.0) != 1
     }
@@ -225,12 +219,9 @@ impl Utf8CheckAlgorithm<SimdU8Value> {
     #[target_feature(enable = "sse4.2")]
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0b1110_0000 - 1));
-        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0b1111_0000 - 1));
-
-        is_third_byte
-            .or(is_fourth_byte)
-            .signed_gt(SimdU8Value::splat0())
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
+        is_third_byte.or(is_fourth_byte)
     }
 }
 
