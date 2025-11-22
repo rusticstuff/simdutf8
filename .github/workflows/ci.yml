@@ -44,25 +44,29 @@ jobs:
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
           done
-      - name: Run with SSE4.2 + AVX2 target features
+      - name: Run with SSE4.2 + AVX2 target features, all native CPU features
         run: |
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean
             RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --no-default-features $features --all-targets --verbose
             cargo clean
             RUSTFLAGS="-D warnings -C target-feature=+avx2" cargo test --release --no-default-features $features --all-targets --verbose
+            cargo clean
+            RUSTFLAGS="-D warnings -C target-cpu=native" cargo test --release --no-default-features $features --all-targets --verbose
           done
         shell: bash
         if: ${{ matrix.os != 'macos-latest'}}
       - name: Run tests with all features on nightly
         run: cargo test --release --all-features --all-targets --verbose
         if: ${{ matrix.toolchain == 'nightly'}}
-      - name: Run test with all features and with SSE4.2 + AVX2 target features on nightly
+      - name: Run test with all features and with SSE4.2 + AVX2 target features, all native CPU features on nightly
         run: |
           cargo clean
           RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --all-features --all-targets --verbose
           cargo clean
           RUSTFLAGS="-D warnings -C target-feature=+avx2" cargo test --release --all-features --all-targets --verbose
+          cargo clean
+          RUSTFLAGS="-D warnings -C target-cpu=native" cargo test --release --all-features --all-targets --verbose
         shell: bash
         if: ${{ matrix.os != 'macos-latest' && matrix.toolchain == 'nightly' }}
 
@@ -88,24 +92,28 @@ jobs:
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
           done
-      - name: Run with SSE4.2 + AVX2 target features
+      - name: Run with SSE4.2 + AVX2 target features, all native CPU features
         run: |
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean
             RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --no-default-features $features --all-targets --verbose
             cargo clean
             RUSTFLAGS="-D warnings -C target-feature=+avx2" cargo test --release --no-default-features $features --all-targets --verbose
+            cargo clean
+            RUSTFLAGS="-D warnings -C target-cpu=native" cargo test --release --no-default-features $features --all-targets --verbose
           done
         shell: bash
       - name: Run tests with all features on nightly
         run: cargo test --release --all-features --all-targets --verbose
         if: ${{ matrix.toolchain == 'nightly'}}
-      - name: Run test with all features and with SSE4.2 + AVX2 target features on nightly
+      - name: Run test with all features and with SSE4.2 + AVX2 target features, all native CPU features on nightly
         run: |
           cargo clean
           RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --all-features --all-targets --verbose
           cargo clean
           RUSTFLAGS="-D warnings -C target-feature=+avx2" cargo test --release --all-features --all-targets --verbose
+          cargo clean
+          RUSTFLAGS="-D warnings -C target-cpu=native" cargo test --release --all-features --all-targets --verbose
         shell: bash
         if: ${{ matrix.toolchain == 'nightly' }}
 
