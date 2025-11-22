@@ -219,30 +219,20 @@ macro_rules! algorithm_simd {
             let len = input.len();
             let mut algorithm = Utf8CheckAlgorithm::<SimdU8Value>::default();
             let mut idx: usize = 0;
-            let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
-            while idx < iter_lim {
-                let simd_input = SimdInput::new(input.as_ptr().add(idx));
-                idx += SIMD_CHUNK_SIZE;
-                if !simd_input.is_ascii() {
-                    algorithm.check_block(simd_input);
-                    break;
-                }
-            }
-
-            while idx < iter_lim {
+            while idx < len {
                 if PREFETCH {
                     simd_prefetch(input.as_ptr().add(idx + SIMD_CHUNK_SIZE * 2));
                 }
-                let input = SimdInput::new(input.as_ptr().add(idx));
+                let input = if idx + 64 <= len {
+                    SimdInput::new(input.as_ptr().add(idx))
+                } else {
+                    SimdInput::new_partial(input.as_ptr().add(idx), len-idx)
+                };
                 algorithm.check_utf8(input);
                 idx += SIMD_CHUNK_SIZE;
             }
 
-            if idx < len {
-                let simd_input = SimdInput::new_partial(input.as_ptr().add(idx), len-idx);
-                algorithm.check_utf8(simd_input);
-            }
             algorithm.check_incomplete_pending();
             if algorithm.has_error() {
                 Err(basic::Utf8Error {})
