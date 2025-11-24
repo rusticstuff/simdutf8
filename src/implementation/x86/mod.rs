@@ -15,7 +15,7 @@ pub(crate) mod avx512;
 
 #[cfg(any(
     feature = "public_imp",
-    // std: avx2 is available for auto-selection if no avx512 is present
+    // std: sse 4.2 is available for auto-selection unless avx512 is selected at compile time
     all(
         feature = "std",
         not(all(
@@ -43,16 +43,16 @@ pub(crate) mod avx2;
 
 #[cfg(any(
     feature = "public_imp",
-    // std: sse 4.2 is available for auto-selection if no avx512 is present
+    // std: sse 4.2 is available for auto-selection unless avx512 or avx2 are selected at compile time
     all(
         feature = "std",
-            not(all(
+            not(any(all(
                 avx512_stable,
                 target_feature = "avx512f",
                 target_feature = "avx512bw",
                 target_feature = "avx512vbmi",
                 target_feature = "avx512vbmi2"
-            )),
+            ),all(not(avx512_stable), target_feature = "avx2"))),
     ),
     // no-std: no avx512, no avx2 -> select sse4.2
     all(
