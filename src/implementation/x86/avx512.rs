@@ -1,12 +1,22 @@
 //! Contains the x86-64 AVX512 UTF-8 validation implementation.
 
+#[cfg(target_arch = "x86")]
+use core::arch::x86::{
+    __m512i, _mm512_alignr_epi8, _mm512_and_si512, _mm512_loadu_si512, _mm512_maskz_loadu_epi8,
+    _mm512_movepi8_mask, _mm512_or_si512, _mm512_permutex2var_epi64, _mm512_set1_epi8,
+    _mm512_set_epi64, _mm512_set_epi8, _mm512_setzero_si512, _mm512_shuffle_epi8,
+    _mm512_srli_epi16, _mm512_subs_epu8, _mm512_test_epi8_mask, _mm512_xor_si512, _mm_prefetch,
+    _MM_HINT_T0,
+};
+
+#[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::{
     __m512i, _mm512_alignr_epi8, _mm512_and_si512, _mm512_loadu_si512, _mm512_maskz_loadu_epi8,
-    _mm512_or_si512, _mm512_permutex2var_epi64, _mm512_set1_epi8, _mm512_set_epi64,
-    _mm512_setzero_si512, _mm512_shuffle_epi8, _mm512_srli_epi16, _mm512_subs_epu8,
-    _mm512_test_epi8_mask, _mm512_xor_si512, _mm_prefetch, _MM_HINT_T0,
+    _mm512_movepi8_mask, _mm512_or_si512, _mm512_permutex2var_epi64, _mm512_set1_epi8,
+    _mm512_set_epi64, _mm512_set_epi8, _mm512_setzero_si512, _mm512_shuffle_epi8,
+    _mm512_srli_epi16, _mm512_subs_epu8, _mm512_test_epi8_mask, _mm512_xor_si512, _mm_prefetch,
+    _MM_HINT_T0,
 };
-use core::arch::x86_64::{_mm512_movepi8_mask, _mm512_set_epi8};
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
 
