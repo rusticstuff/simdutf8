@@ -197,6 +197,16 @@ pub mod imp {
     /// Includes the x86/x86-64 SIMD implementations.
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub mod x86 {
+        /// Includes the validation implementation for AVX 512-compatible CPUs.
+        ///
+        /// Using the provided functionality on CPUs which do not support AVX 512 is undefined
+        /// behavior and will very likely cause a crash.
+        #[cfg(avx512_stable)]
+        pub mod avx512 {
+            pub use crate::implementation::x86::avx512::validate_utf8_basic as validate_utf8;
+            pub use crate::implementation::x86::avx512::ChunkedUtf8ValidatorImp;
+            pub use crate::implementation::x86::avx512::Utf8ValidatorImp;
+        }
         /// Includes the validation implementation for AVX 2-compatible CPUs.
         ///
         /// Using the provided functionality on CPUs which do not support AVX 2 is undefined
