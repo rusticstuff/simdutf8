@@ -260,6 +260,7 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 }
 
 const PREFETCH: bool = true;
+#[cfg(feature = "public_imp")]
 use crate::implementation::helpers::TempSimdChunkA64 as TempSimdChunk;
 simd_input_512_bit!(#[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]);
 algorithm_simd!(#[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]);
