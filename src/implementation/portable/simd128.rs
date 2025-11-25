@@ -177,12 +177,6 @@ impl SimdU8Value {
     }
 
     #[inline]
-    fn unsigned_gt(self, other: Self) -> Self {
-        let gt = self.0.simd_gt(other.0).to_int();
-        Self::from(gt.cast())
-    }
-
-    #[inline]
     fn any_bit_set(self) -> bool {
         if HAS_FAST_REDUCE_MAX {
             self.0.reduce_max() != 0
@@ -211,9 +205,8 @@ impl From<u8x16> for SimdU8Value {
 impl Utf8CheckAlgorithm<SimdU8Value> {
     #[inline]
     fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.unsigned_gt(SimdU8Value::splat(0b1110_0000 - 1));
-        let is_fourth_byte = prev3.unsigned_gt(SimdU8Value::splat(0b1111_0000 - 1));
-
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
         is_third_byte.or(is_fourth_byte)
     }
 }

@@ -1,8 +1,8 @@
 //! Contains the aarch64 UTF-8 validation implementation.
 
 use core::arch::aarch64::{
-    uint8x16_t, vandq_u8, vcgtq_u8, vdupq_n_u8, veorq_u8, vextq_u8, vld1q_u8, vmaxvq_u8,
-    vmovq_n_u8, vorrq_u8, vqsubq_u8, vqtbl1q_u8, vshrq_n_u8,
+    uint8x16_t, vandq_u8, vdupq_n_u8, veorq_u8, vextq_u8, vld1q_u8, vmaxvq_u8, vmovq_n_u8,
+    vorrq_u8, vqsubq_u8, vqtbl1q_u8, vshrq_n_u8,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
@@ -186,11 +186,6 @@ impl SimdU8Value {
     }
 
     #[inline]
-    unsafe fn unsigned_gt(self, other: Self) -> Self {
-        Self::from(vcgtq_u8(self.0, other.0))
-    }
-
-    #[inline]
     unsafe fn any_bit_set(self) -> bool {
         vmaxvq_u8(self.0) != 0
     }
@@ -211,9 +206,8 @@ impl From<uint8x16_t> for SimdU8Value {
 impl Utf8CheckAlgorithm<SimdU8Value> {
     #[inline]
     unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.unsigned_gt(SimdU8Value::splat(0b1110_0000 - 1));
-        let is_fourth_byte = prev3.unsigned_gt(SimdU8Value::splat(0b1111_0000 - 1));
-
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
         is_third_byte.or(is_fourth_byte)
     }
 }
