@@ -28,7 +28,7 @@ simdutf8_wasmtime = ["wasmtime"]
 
 [dependencies]
 core_affinity = "0.8.1"
-criterion = "0.5.1"
+criterion = "0.7.0"
 simdutf8 = { version = "*", path = "..", features = ["aarch64_neon"] }
 simdjson-utf8 = { version = "*", path = "simdjson-utf8", optional = true }
 # default is cranelift which is not as performant as the llvm backend
