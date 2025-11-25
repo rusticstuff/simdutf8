@@ -638,12 +638,8 @@ where
 
     #[inline]
     fn must_be_2_3_continuation(prev2: Simd<u8, N>, prev3: Simd<u8, N>) -> Simd<u8, N> {
-        let is_third_byte = prev2
-            .simd_gt(Simd::<u8, N>::splat(0b1110_0000 - 1))
-            .to_int();
-        let is_fourth_byte = prev3
-            .simd_gt(Simd::<u8, N>::splat(0b1111_0000 - 1))
-            .to_int();
+        let is_third_byte = prev2.simd_gt(Simd::<u8, N>::splat(0xe0 - 0x80)).to_int();
+        let is_fourth_byte = prev3.simd_gt(Simd::<u8, N>::splat(0xf0 - 0x80)).to_int();
 
         (is_third_byte | is_fourth_byte).cast()
     }
