@@ -69,6 +69,23 @@ mod public_imp {
     #[allow(unused_variables)] // nothing to do if not SIMD implementation is available
     pub(super) fn test_valid(input: &[u8]) {
         if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+            #[cfg(all(
+                avx512_stable,
+                target_feature = "avx512f",
+                target_feature = "avx512bw",
+                target_feature = "avx512vbmi",
+                target_feature = "avx512vbmi2"
+            ))]
+            unsafe {
+                assert!(simdutf8::basic::imp::x86::avx512::validate_utf8(input).is_ok());
+                assert!(simdutf8::compat::imp::x86::avx512::validate_utf8(input).is_ok());
+
+                test_streaming::<simdutf8::basic::imp::x86::avx512::Utf8ValidatorImp>(input, true);
+                test_chunked_streaming::<simdutf8::basic::imp::x86::avx512::ChunkedUtf8ValidatorImp>(
+                    input, true,
+                );
+            }
+
             #[cfg(target_feature = "avx2")]
             unsafe {
                 assert!(simdutf8::basic::imp::x86::avx2::validate_utf8(input).is_ok());
@@ -138,6 +155,24 @@ mod public_imp {
     #[allow(unused_variables)] // nothing to do if not SIMD implementation is available
     pub(super) fn test_invalid(input: &[u8], valid_up_to: usize, error_len: Option<usize>) {
         if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+            #[cfg(all(
+                avx512_stable,
+                target_feature = "avx512f",
+                target_feature = "avx512bw",
+                target_feature = "avx512vbmi",
+                target_feature = "avx512vbmi2"
+            ))]
+            unsafe {
+                assert!(simdutf8::basic::imp::x86::avx512::validate_utf8(input).is_err());
+                let err = simdutf8::compat::imp::x86::avx512::validate_utf8(input).unwrap_err();
+                assert_eq!(err.valid_up_to(), valid_up_to);
+                assert_eq!(err.error_len(), error_len);
+
+                test_streaming::<simdutf8::basic::imp::x86::avx512::Utf8ValidatorImp>(input, false);
+                test_chunked_streaming::<simdutf8::basic::imp::x86::avx512::ChunkedUtf8ValidatorImp>(
+                    input, false,
+                );
+            }
             #[cfg(target_feature = "avx2")]
             unsafe {
                 assert!(simdutf8::basic::imp::x86::avx2::validate_utf8(input).is_err());
@@ -266,6 +301,24 @@ mod public_imp {
             }
             assert_eq!(validator.finalize(Some(chunks.remainder())).is_ok(), ok);
         }
+    }
+
+    #[test]
+    #[should_panic]
+    #[cfg(all(
+        any(target_arch = "x86", target_arch = "x86_64"),
+        all(
+            avx512_stable,
+            target_feature = "avx512f",
+            target_feature = "avx512bw",
+            target_feature = "avx512vbmi",
+            target_feature = "avx512vbmi2"
+        )
+    ))]
+    fn test_avx2_chunked_panic() {
+        test_chunked_streaming_with_chunk_size::<
+            simdutf8::basic::imp::x86::avx512::ChunkedUtf8ValidatorImp,
+        >(b"abcd", 1, true);
     }
 
     #[test]
