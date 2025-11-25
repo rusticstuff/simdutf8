@@ -138,11 +138,21 @@ jobs:
         run: cargo +stable install rustfilt
       - name: Check x86_64 inlining
         run: |
-          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt
-          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt "--features public_imp"
-          RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx2.txt
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx2.txt --no-default-features
           RUSTFLAGS="-C target-feature=+sse4.2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-sse42.txt --no-default-features
+      - name: Check x86_64 inlining with avx2 autoselection
+        run: |
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-old.txt
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-old.txt "--features public_imp"
+          RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx2.txt
+        if: ${{ matrix.toolchain == '1.38.0' }}
+      - name: Check x86_64 inlining with avx512 autoselection
+        run: |
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt "--features public_imp"
+          RUSTFLAGS="-C target-feature=+avx512f,+avx512bw,+avx512vbmi,+avx512vbmi2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx512.txt
+          RUSTFLAGS="-C target-feature=+avx512f,+avx512bw,+avx512vbmi,+avx512vbmi2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx512.txt --no-default-features
+        if: ${{ matrix.toolchain != '1.38.0' }}
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
