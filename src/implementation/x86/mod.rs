@@ -156,10 +156,6 @@ pub(crate) unsafe fn validate_utf8_basic(
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
-    if input.len() < super::helpers::SIMD_CHUNK_SIZE {
-        return super::validate_utf8_basic_fallback(input);
-    }
-
     validate_utf8_basic_avx512(input)
 }
 
@@ -363,10 +359,6 @@ pub(crate) unsafe fn validate_utf8_compat(
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
-    if input.len() < super::helpers::SIMD_CHUNK_SIZE {
-        return super::validate_utf8_compat_fallback(input);
-    }
-
     validate_utf8_compat_avx512(input)
 }
 
