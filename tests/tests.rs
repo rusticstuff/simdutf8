@@ -315,7 +315,7 @@ mod public_imp {
             target_feature = "avx512vbmi2"
         )
     ))]
-    fn test_avx2_chunked_panic() {
+    fn test_avx512_chunked_panic() {
         test_chunked_streaming_with_chunk_size::<
             simdutf8::basic::imp::x86::avx512::ChunkedUtf8ValidatorImp,
         >(b"abcd", 1, true);
