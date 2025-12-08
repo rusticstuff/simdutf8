@@ -99,6 +99,7 @@ pub(crate) mod portable;
 
 // fallback method implementations
 #[inline]
+#[allow(dead_code)] // unused if AVX512 is selected at compile-time
 pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
     match core::str::from_utf8(input) {
         Ok(_) => Ok(()),
@@ -107,6 +108,7 @@ pub(crate) fn validate_utf8_basic_fallback(input: &[u8]) -> Result<(), crate::ba
 }
 
 #[inline]
+#[allow(dead_code)] // unused if AVX512 is selected at compile-time
 pub(crate) fn validate_utf8_compat_fallback(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
     // SAFETY: 0 is always in bounds
     unsafe { helpers::validate_utf8_at_offset(input, 0) }

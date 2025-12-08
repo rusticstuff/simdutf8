@@ -95,14 +95,17 @@
 //! ## Implementation selection
 //!
 //! ### X86
-//! The fastest implementation is selected at runtime using the `std::is_x86_feature_detected!` macro, unless the CPU
-//! targeted by the compiler supports the fastest available implementation.
-//! So if you compile with `RUSTFLAGS="-C target-cpu=native"` on a recent x86-64 machine, the AVX 2 implementation is selected at
-//! compile-time and runtime selection is disabled.
+//! The fastest implementation is usually selected at runtime using the `std::is_x86_feature_detected!` macro. The AVX 512
+//! implementation requires Rust 1.89 or late and is only selected if the CPU support the VBMI2 features to avoid throttling
+//! happening with CPUs before Intels Ice Lake microarchitecture.
+//!
+//! If you compile with `RUSTFLAGS="-C target-cpu=native"` on a recent x86-64 machine whichs support AVX 512 with Rust 1.89 or later,
+//! the AVX 512 implementation is selected at compile-time and runtime selection is disabled.
 //!
 //! For no-std support (compiled with `--no-default-features`) the implementation is always selected at compile time based on
 //! the targeted CPU. Use `RUSTFLAGS="-C target-feature=+avx2"` for the AVX 2 implementation or `RUSTFLAGS="-C target-feature=+sse4.2"`
-//! for the SSE 4.2 implementation.
+//! for the SSE 4.2 implementation. For AVX 512 use `RUSTFLAGS="-C target-feature=+avx512f,+avx512bw,+avx512vbmi,+avx512vbmi2"` with
+//! Rust 1.89 or later.
 //!
 //! ### ARM64
 //! The SIMD implementation is used automatically since Rust 1.61.
