@@ -73,8 +73,8 @@ This comes at a slight performance penalty compared to the `basic` API even if t
 
 ### X86
 The fastest implementation is usually selected at runtime using the `std::is_x86_feature_detected!` macro. The AVX 512 
-implementation is however only selected if the CPU support the VBMI2 features to avoid throttling happening with CPUs before 
-Intels Ice Lake microarchitecture.
+implementation requires Rust 1.89 or late and is only selected if the CPU support the VBMI2 features to avoid throttling 
+happening with CPUs before Intels Ice Lake microarchitecture.
 
 If you compile with `RUSTFLAGS="-C target-cpu=native"` on a recent x86-64 machine whichs support AVX 512 with Rust 1.89 or later,
 the AVX 512 implementation is selected at compile-time and runtime selection is disabled.
