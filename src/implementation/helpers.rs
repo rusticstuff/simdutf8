@@ -140,7 +140,7 @@ impl TempSimdChunkA16 {
 pub(crate) struct TempSimdChunkA32(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
 #[repr(C, align(64))]
-#[allow(dead_code)] // only used if a 256-bit SIMD implementation is used
+#[allow(dead_code)] // only used if a 512-bit SIMD implementation is used
 pub(crate) struct TempSimdChunkA64(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
 #[allow(dead_code)] // only used if there is a SIMD implementation
