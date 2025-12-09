@@ -153,6 +153,7 @@ pub(crate) unsafe fn validate_utf8_basic(
     target_feature = "avx512vbmi",
     target_feature = "avx512vbmi2"
 ))]
+#[inline]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
@@ -187,6 +188,7 @@ unsafe fn validate_utf8_basic_avx512(
     ),
     all(target_feature = "avx2", feature = "std", not(avx512_stable))
 ))]
+#[inline]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
@@ -230,6 +232,7 @@ unsafe fn validate_utf8_basic_avx2(
     not(target_feature = "avx2"),
     target_feature = "sse4.2"
 ))]
+#[inline]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
@@ -356,6 +359,7 @@ pub(crate) unsafe fn validate_utf8_compat(
     target_feature = "avx512vbmi",
     target_feature = "avx512vbmi2"
 ))]
+#[inline]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
@@ -390,6 +394,7 @@ unsafe fn validate_utf8_compat_avx512(
     ),
     all(target_feature = "avx2", feature = "std", not(avx512_stable))
 ))]
+#[inline]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
@@ -433,6 +438,7 @@ unsafe fn validate_utf8_compat_avx2(
     not(target_feature = "avx2"),
     target_feature = "sse4.2"
 ))]
+#[inline]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
