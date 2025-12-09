@@ -24,7 +24,6 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * Selects the fastest implementation at runtime based on CPU support (on x86)
 * Falls back to the excellent std implementation if SIMD extensions are not supported
 * Written in pure Rust
-* No dependencies
 * No-std support
 
 ## Quick start
