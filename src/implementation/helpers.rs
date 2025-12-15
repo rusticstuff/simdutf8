@@ -74,8 +74,8 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
         dest.cast::<u64>()
             .write_unaligned(src.cast::<u64>().read_unaligned());
-        *src = src.offset(8);
-        *dest = dest.offset(8);
+        *src = src.add(8);
+        *dest = dest.add(8);
     }
     if len >= 32 {
         memcpy_u64(&mut src, &mut dest);
@@ -96,15 +96,15 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     if len >= 4 {
         dest.cast::<u32>()
             .write_unaligned(src.cast::<u32>().read_unaligned());
-        src = src.offset(4);
-        dest = dest.offset(4);
+        src = src.add(4);
+        dest = dest.add(4);
         len -= 4;
     }
     if len >= 2 {
         dest.cast::<u16>()
             .write_unaligned(src.cast::<u16>().read_unaligned());
-        src = src.offset(2);
-        dest = dest.offset(2);
+        src = src.add(2);
+        dest = dest.add(2);
         len -= 2;
     }
     if len == 1 {
