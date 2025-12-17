@@ -1899,8 +1899,16 @@ dependencies = [
  "criterion",
  "simdjson-utf8",
  "simdutf8 0.1.5",
+ "simdutf8-portable",
  "wasmer",
  "wasmtime",
+]
+
+[[package]]
+name = "simdutf8-portable"
+version = "0.0.1"
+dependencies = [
+ "cfg-if",
 ]
 
 [[package]]
