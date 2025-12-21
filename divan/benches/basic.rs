@@ -8,7 +8,7 @@ fn main() {
 #[divan::bench_group(min_time = Duration::from_secs(2))]
 mod bench {
     use divan::counter::BytesCount;
-    use divanbench::{Alignment, get_valid_slice_of_len_or_more_aligned, scale_to_one_mib};
+    use divanbench::{get_valid_slice_of_len_or_more_aligned, scale_to_one_mib, Alignment};
 
     #[divan::bench(name = "1-latin", args = [1, 8, 64, 512, 4096, 65536, 131072])]
     fn latin(bencher: divan::Bencher, n: usize) {
@@ -20,6 +20,15 @@ mod bench {
 
         let (vec, offset) = get_valid_slice_of_len_or_more_aligned(bytes, n, alignment);
         let slice = &vec[offset..];
+
+        // warm up
+        let start_time = std::time::Instant::now();
+        while start_time.elapsed().as_secs() < 1 {
+            for _ in 0..100000 {
+                assert!(simdutf8::basic::from_utf8(slice).is_ok());
+            }
+        }
+
         bencher
             .counter(BytesCount::of_slice(slice))
             .bench_local(|| simdutf8::basic::from_utf8(slice));
