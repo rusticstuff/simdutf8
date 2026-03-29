@@ -17,6 +17,10 @@
 )]
 #![cfg_attr(feature = "portable_public_imp", feature(portable_simd))]
 #![cfg_attr(
+    all(target_arch = "loongarch64", feature = "loongarch64_lsx"),
+    feature(stdarch_loongarch)
+)]
+#![cfg_attr(
     all(
         target_arch = "arm",
         target_feature = "v7",

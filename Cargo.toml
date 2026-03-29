@@ -38,6 +38,7 @@ aarch64_neon = []
 aarch64_neon_prefetch = []
 
 armv7_neon = []
+loongarch64_lsx = []
 
 # make the portable SIMD public implementation available (experimental, nightly only)
 portable_public_imp = ["public_imp"]

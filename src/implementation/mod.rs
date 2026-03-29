@@ -61,6 +61,27 @@ pub(super) use aarch64::validate_utf8_basic;
 #[cfg(target_arch = "aarch64")]
 pub(super) use aarch64::validate_utf8_compat;
 
+// loongarch64 implementation
+
+#[cfg(target_arch = "loongarch64")]
+pub(crate) mod loongarch64;
+
+/// Fn needed instead of re-import, otherwise not inlined in non-std case
+#[flexpect::e(clippy::inline_always)]
+#[inline(always)]
+#[cfg(target_arch = "loongarch64")]
+pub(super) unsafe fn validate_utf8_basic(input: &[u8]) -> Result<(), crate::basic::Utf8Error> {
+    loongarch64::validate_utf8_basic(input)
+}
+
+/// Fn needed instead of re-import, otherwise not inlined in non-std case
+#[flexpect::e(clippy::inline_always)]
+#[inline(always)]
+#[cfg(target_arch = "loongarch64")]
+pub(super) unsafe fn validate_utf8_compat(input: &[u8]) -> Result<(), crate::compat::Utf8Error> {
+    loongarch64::validate_utf8_compat(input)
+}
+
 // wasm32 implementation
 
 #[cfg(target_arch = "wasm32")]
@@ -79,6 +100,7 @@ pub(super) use wasm32::validate_utf8_compat;
     target_arch = "x86_64",
     target_arch = "aarch64",
     all(target_arch = "arm", target_feature = "v7", target_endian = "little"),
+    target_arch = "loongarch64",
     target_arch = "wasm32"
 )))]
 pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
@@ -88,6 +110,7 @@ pub(super) use validate_utf8_basic_fallback as validate_utf8_basic;
     target_arch = "x86_64",
     target_arch = "aarch64",
     all(target_arch = "arm", target_feature = "v7", target_endian = "little"),
+    target_arch = "loongarch64",
     target_arch = "wasm32"
 )))]
 pub(super) use validate_utf8_compat_fallback as validate_utf8_compat;

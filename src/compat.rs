@@ -146,6 +146,26 @@ pub mod imp {
         }
     }
 
+    /// Includes the loongarch64 LSX SIMD implementations.
+    #[cfg(all(feature = "loongarch64_lsx", target_arch = "loongarch64"))]
+    pub mod loongarch64 {
+        /// Includes the LASX-based validation implementation for loongarch64 LASX-compatible CPUs.
+        ///
+        /// Using the provided functionality on CPUs which do not support LASX is undefined
+        /// behavior and will very likely cause a crash.
+        pub mod lasx {
+            pub use crate::implementations::loongarch64::lasx::validate_utf8_compat as validate_utf8;
+        }
+
+        /// Includes the LSX-based validation implementation for loongarch64 LSX-compatible CPUs.
+        ///
+        /// Using the provided functionality on CPUs which do not support LSX is undefined
+        /// behavior and will very likely cause a crash.
+        pub mod lsx {
+            pub use crate::implementations::loongarch64::lsx::validate_utf8_compat as validate_utf8;
+        }
+    }
+
     /// Includes the wasm32 SIMD implementations.
     #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
     pub mod wasm32 {
