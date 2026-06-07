@@ -32,7 +32,8 @@
         target_arch = "arm",
         target_feature = "v7",
         target_endian = "little",
-        feature = "armv7_neon"
+        feature = "armv7_neon",
+        any(feature = "std", feature = "public_imp", target_feature = "neon")
     ),
     feature(stdarch_arm_neon_intrinsics)
 )]
@@ -41,7 +42,8 @@
         target_arch = "arm",
         target_feature = "v7",
         target_endian = "little",
-        feature = "armv7_neon"
+        feature = "armv7_neon",
+        any(feature = "std", feature = "public_imp", target_feature = "neon")
     ),
     feature(arm_target_feature)
 )]
