@@ -221,6 +221,15 @@ macro_rules! algorithm_simd {
             let mut idx: usize = 0;
             let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
+            while idx + 2 * SIMD_CHUNK_SIZE <= iter_lim {
+                let a = SimdInput::new(input.as_ptr().add(idx));
+                let b = SimdInput::new(input.as_ptr().add(idx + SIMD_CHUNK_SIZE));
+                if !a.or_all().or(b.or_all()).is_ascii() {
+                    break;
+                }
+                idx += 2 * SIMD_CHUNK_SIZE;
+            }
+
             while idx < iter_lim {
                 let simd_input = SimdInput::new(input.as_ptr().add(idx));
                 idx += SIMD_CHUNK_SIZE;
@@ -544,6 +553,14 @@ macro_rules! simd_input_128_bit {
                 let r = r1.or(r2);
                 r.is_ascii()
             }
+
+            $(#[$feat])*
+            #[inline]
+            unsafe fn or_all(&self) -> SimdU8Value {
+                let r1 = self.vals[0].or(self.vals[1]);
+                let r2 = self.vals[2].or(self.vals[3]);
+                r1.or(r2)
+            }
         }
     };
 }
@@ -584,6 +601,12 @@ macro_rules! simd_input_256_bit {
             unsafe fn is_ascii(&self) -> bool {
                 self.vals[0].or(self.vals[1]).is_ascii()
             }
+
+            $(#[$feat])*
+            #[inline]
+            unsafe fn or_all(&self) -> SimdU8Value {
+                self.vals[0].or(self.vals[1])
+            }
         }
     };
 }
@@ -621,6 +644,12 @@ macro_rules! simd_input_512_bit {
             #[inline]
             unsafe fn is_ascii(&self) -> bool {
                 self.vals[0].is_ascii()
+            }
+
+            $(#[$feat])*
+            #[inline]
+            unsafe fn or_all(&self) -> SimdU8Value {
+                self.vals[0]
             }
         }
     };
