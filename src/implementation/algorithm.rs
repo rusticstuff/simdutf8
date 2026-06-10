@@ -222,6 +222,10 @@ macro_rules! algorithm_simd {
             let iter_lim = len - (len % SIMD_CHUNK_SIZE);
 
             while idx + 2 * SIMD_CHUNK_SIZE <= iter_lim {
+                if PREFETCH {
+                    simd_prefetch(input.as_ptr().wrapping_add(idx + SIMD_CHUNK_SIZE * 4));
+                    simd_prefetch(input.as_ptr().wrapping_add(idx + SIMD_CHUNK_SIZE * 5));
+                }
                 let a = SimdInput::new(input.as_ptr().add(idx));
                 let b = SimdInput::new(input.as_ptr().add(idx + SIMD_CHUNK_SIZE));
                 if !a.or_all().or(b.or_all()).is_ascii() {
