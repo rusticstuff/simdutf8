@@ -123,6 +123,37 @@ jobs:
         shell: bash
         if: ${{ matrix.toolchain == 'nightly' }}
 
+  miri:
+    name: miri (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: x86-64 SSE4.2
+            os: ubuntu-latest
+            rustflags: "-C target-feature=+sse4.2"
+          - name: x86-64 AVX2
+            os: ubuntu-latest
+            rustflags: "-C target-feature=+avx2"
+          - name: aarch64 NEON
+            os: macos-latest
+            rustflags: ""
+    env:
+      RUSTFLAGS: ${{ matrix.rustflags }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: miri
+      - name: Run Miri
+        run: |
+          set -x
+          cargo miri test
+
   test-inlining:
     runs-on: ubuntu-latest
     strategy:
