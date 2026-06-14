@@ -202,7 +202,11 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 #[cfg(not(feature = "aarch64_neon_prefetch"))]
 unsafe fn simd_prefetch(_ptr: *const u8) {}
 
+#[cfg(feature = "aarch64_neon_prefetch")]
+const PREFETCH: bool = true;
+#[cfg(not(feature = "aarch64_neon_prefetch"))]
 const PREFETCH: bool = false;
+
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!();
 algorithm_simd!();
