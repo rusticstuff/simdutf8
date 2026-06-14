@@ -138,6 +138,14 @@ macro_rules! algorithm_simd {
 
             $(#[$feat])*
             #[inline]
+            unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+                let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
+                is_third_byte.or(is_fourth_byte)
+            }
+
+            $(#[$feat])*
+            #[inline]
             unsafe fn check_multibyte_lengths(
                 input: SimdU8Value,
                 prev: SimdU8Value,

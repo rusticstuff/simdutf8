@@ -203,15 +203,6 @@ impl From<uint8x16_t> for SimdU8Value {
     }
 }
 
-impl Utf8CheckAlgorithm<SimdU8Value> {
-    #[inline]
-    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
-        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
-        is_third_byte.or(is_fourth_byte)
-    }
-}
-
 #[inline]
 #[cfg(feature = "aarch64_neon_prefetch")]
 unsafe fn simd_prefetch(ptr: *const u8) {
