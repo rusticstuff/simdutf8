@@ -2,20 +2,18 @@
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::{
-    __m512i, _mm512_alignr_epi8, _mm512_and_si512, _mm512_loadu_si512, _mm512_maskz_loadu_epi8,
-    _mm512_movepi8_mask, _mm512_or_si512, _mm512_permutex2var_epi64, _mm512_set1_epi8,
-    _mm512_set_epi64, _mm512_set_epi8, _mm512_setzero_si512, _mm512_shuffle_epi8,
-    _mm512_srli_epi16, _mm512_subs_epu8, _mm512_test_epi8_mask, _mm512_xor_si512, _mm_prefetch,
-    _MM_HINT_T0,
+    __m512i, _mm512_alignr_epi8, _mm512_loadu_si512, _mm512_maskz_loadu_epi8, _mm512_movepi8_mask,
+    _mm512_or_si512, _mm512_permutex2var_epi64, _mm512_permutexvar_epi8, _mm512_set1_epi8,
+    _mm512_set_epi64, _mm512_set_epi8, _mm512_setzero_si512, _mm512_srli_epi16, _mm512_subs_epu8,
+    _mm512_ternarylogic_epi32, _mm512_test_epi8_mask, _mm_prefetch, _MM_HINT_T0,
 };
 
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::{
-    __m512i, _mm512_alignr_epi8, _mm512_and_si512, _mm512_loadu_si512, _mm512_maskz_loadu_epi8,
-    _mm512_movepi8_mask, _mm512_or_si512, _mm512_permutex2var_epi64, _mm512_set1_epi8,
-    _mm512_set_epi64, _mm512_set_epi8, _mm512_setzero_si512, _mm512_shuffle_epi8,
-    _mm512_srli_epi16, _mm512_subs_epu8, _mm512_test_epi8_mask, _mm512_xor_si512, _mm_prefetch,
-    _MM_HINT_T0,
+    __m512i, _mm512_alignr_epi8, _mm512_loadu_si512, _mm512_maskz_loadu_epi8, _mm512_movepi8_mask,
+    _mm512_or_si512, _mm512_permutex2var_epi64, _mm512_permutexvar_epi8, _mm512_set1_epi8,
+    _mm512_set_epi64, _mm512_set_epi8, _mm512_setzero_si512, _mm512_srli_epi16, _mm512_subs_epu8,
+    _mm512_ternarylogic_epi32, _mm512_test_epi8_mask, _mm_prefetch, _MM_HINT_T0,
 };
 
 use crate::implementation::helpers::Utf8CheckAlgorithm;
@@ -123,35 +121,13 @@ impl SimdU8Value {
         Self::from(res)
     }
 
-    #[flexpect::e(clippy::too_many_arguments)]
     #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
     #[inline]
-    unsafe fn lookup_16(
-        self,
-        v0: u8,
-        v1: u8,
-        v2: u8,
-        v3: u8,
-        v4: u8,
-        v5: u8,
-        v6: u8,
-        v7: u8,
-        v8: u8,
-        v9: u8,
-        v10: u8,
-        v11: u8,
-        v12: u8,
-        v13: u8,
-        v14: u8,
-        v15: u8,
-    ) -> Self {
-        Self::from(_mm512_shuffle_epi8(
-            Self::repeat_16(
-                v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
-            )
-            .0,
-            self.0,
-        ))
+    unsafe fn lookup_16(self, tbl: Self) -> Self {
+        // VPERMB (avx512vbmi) differs from other dynamic swizzle instructions in that it
+        // completely ignores the high bits of the index. Only the low 6 bits of each
+        // byte are used to select a byte from the 64-byte table.
+        Self::from(_mm512_permutexvar_epi8(self.0, tbl.0))
     }
 
     #[flexpect::e(clippy::cast_possible_wrap)]
@@ -175,27 +151,40 @@ impl SimdU8Value {
 
     #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
     #[inline]
-    unsafe fn and(self, b: Self) -> Self {
-        Self::from(_mm512_and_si512(self.0, b.0))
-    }
-
-    #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
-    #[inline]
-    unsafe fn xor(self, b: Self) -> Self {
-        Self::from(_mm512_xor_si512(self.0, b.0))
-    }
-
-    #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
-    #[inline]
     unsafe fn saturating_sub(self, b: Self) -> Self {
         Self::from(_mm512_subs_epu8(self.0, b.0))
     }
 
-    // ugly but shr<N> requires const generics
+    // For ternary ops reference see https://www.felixcloutier.com/x86/vpternlogd:vpternlogq
+
+    /// `self & b & c` fused into a single `vpternlogd`.
     #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
     #[inline]
-    unsafe fn shr4(self) -> Self {
-        Self::from(_mm512_srli_epi16(self.0, 4)).and(Self::splat(0xFF >> 4))
+    unsafe fn and3(self, b: Self, c: Self) -> Self {
+        Self::from(_mm512_ternarylogic_epi32(self.0, b.0, c.0, 0x80))
+    }
+
+    /// `(self | b) & c` fused into a single `vpternlogd`.
+    #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
+    #[inline]
+    unsafe fn or_and(self, b: Self, c: Self) -> Self {
+        Self::from(_mm512_ternarylogic_epi32(self.0, b.0, c.0, 0xA8))
+    }
+
+    /// `(self ^ b) | c` fused into a single `vpternlogd`.
+    #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
+    #[inline]
+    unsafe fn xor_or(self, b: Self, c: Self) -> Self {
+        Self::from(_mm512_ternarylogic_epi32(c.0, self.0, b.0, 0xF6))
+    }
+
+    /// CAVE: Uses 16-bit-lane shifts so the high nibble of every
+    /// other byte is polluted with the low nibble of the neighbouring byte.
+    /// This is fine for our use case since we only care about the low nibble.
+    #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
+    #[inline]
+    unsafe fn shr4_dirty(self) -> Self {
+        Self::from(_mm512_srli_epi16(self.0, 4))
     }
 
     // ugly but prev<N> requires const generics
@@ -250,6 +239,41 @@ impl From<__m512i> for SimdU8Value {
     #[inline]
     fn from(val: __m512i) -> Self {
         Self(val)
+    }
+}
+
+/// AVX-512 specializations of `check_special_cases` and `check_multibyte_lengths`.
+impl Utf8CheckAlgorithm<SimdU8Value> {
+    #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
+    #[inline]
+    unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
+        let (byte_1_high_table, byte_1_low_table, byte_2_high_table) = Self::special_case_tables();
+
+        // `lookup_16` (VPERMB) on tables where the 128-bit lanes are all identical
+        // ignores the high nibble, so the pollution by `shr4_dirty` does not matter.
+        let byte_1_high = prev1.shr4_dirty().lookup_16(byte_1_high_table);
+        // `lookup_16` (VPERMB) on tables where the 128-bit lanes are all identical
+        // ignores the high nibble, so no masking needed.
+        let byte_1_low = prev1.lookup_16(byte_1_low_table);
+        let byte_2_high = input.shr4_dirty().lookup_16(byte_2_high_table);
+
+        byte_1_high.and3(byte_1_low, byte_2_high)
+    }
+
+    #[target_feature(enable = "avx512f,avx512bw,avx512vbmi")]
+    #[inline]
+    unsafe fn check_multibyte_lengths(
+        input: SimdU8Value,
+        prev: SimdU8Value,
+        special_cases: SimdU8Value,
+        error: SimdU8Value,
+    ) -> SimdU8Value {
+        let prev2 = input.prev2(prev);
+        let prev3 = input.prev3(prev);
+        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
+        let must23_80 = is_third_byte.or_and(is_fourth_byte, SimdU8Value::splat(0x80));
+        must23_80.xor_or(special_cases, error)
     }
 }
 
