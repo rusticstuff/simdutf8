@@ -18,6 +18,7 @@ This library has been thoroughly tested with sample data as well as fuzzing and 
 * ARM64 (aarch64) SIMD is supported since Rust 1.61
 * WASM (wasm32) SIMD is supported
 * 🆕 armv7 NEON support with the `armv7_neon` feature on nightly Rust
+* 🆕 loongarch64 LSX/LASX support with the `loongarch64_lsx` feature on nightly Rust
 * x86-64: Up to 23 times faster than the std library on valid non-ASCII, up to four times faster on ASCII
 * aarch64: Up to eleven times faster than the std library on valid non-ASCII, up to four times faster on ASCII (Apple Silicon)
 * Faster than the original simdjson implementation
@@ -91,6 +92,11 @@ Requires a recent nightly Rust compiler. The `armv7_neon` feature needs to be en
 runtime using the `std::arch::is_arm_feature_detected!` macro unless the CPU target features are enabled, e.g. with
 `RUSTFLAGS="-C target-feature=+neon"`. Some targets such as `thumbv7neon-linux-androideabi` and `thumbv7neon-unknown-linux-gnueabihf`
 have NEON enabled by default.
+
+### LoongArch64
+Requires a recent nightly Rust compiler. The `loongarch64_neon` feature needs to be enabled.
+The fastest implementation is usually selected at runtime. Compiling with the `lsx` or `lasx` target features enabled
+selects the LSX/LASX implementations at compile time.
 
 ### WASM32
 For wasm32 support, the implementation is selected at compile time based on the presence of the `simd128` target feature.
