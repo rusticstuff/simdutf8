@@ -64,7 +64,18 @@ macro_rules! algorithm_simd {
 
             $(#[$feat])*
             #[inline]
-            unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
+            unsafe fn has_error(&self) -> bool {
+                self.error.any_bit_set()
+            }
+
+            /// Lookup tables used by `check_special_cases`, returns
+            /// `(byte_1_high, byte_1_low, byte_2_high)`
+            ///
+            /// In optimized builds the returned values compile to constants, which are
+            /// directly loaded into SIMD registers.
+            $(#[$feat])*
+            #[inline]
+            unsafe fn special_case_tables() -> (SimdU8Value, SimdU8Value, SimdU8Value) {
                 const TOO_SHORT: u8 = 1 << 0;
                 const TOO_LONG: u8 = 1 << 1;
                 const OVERLONG_3: u8 = 1 << 2;
@@ -76,7 +87,7 @@ macro_rules! algorithm_simd {
                 const OVERLONG_4: u8 = 1 << 6;
                 const CARRY: u8 = TOO_SHORT | TOO_LONG | TWO_CONTS;
 
-                let byte_1_high = prev1.shr4().lookup_16(
+                let byte_1_high = SimdU8Value::repeat_16(
                     TOO_LONG,
                     TOO_LONG,
                     TOO_LONG,
@@ -95,7 +106,7 @@ macro_rules! algorithm_simd {
                     TOO_SHORT | TOO_LARGE | TOO_LARGE_1000 | OVERLONG_4,
                 );
 
-                let byte_1_low = prev1.and(SimdU8Value::splat(0x0F)).lookup_16(
+                let byte_1_low = SimdU8Value::repeat_16(
                     CARRY | OVERLONG_3 | OVERLONG_2 | OVERLONG_4,
                     CARRY | OVERLONG_2,
                     CARRY,
@@ -114,7 +125,7 @@ macro_rules! algorithm_simd {
                     CARRY | TOO_LARGE | TOO_LARGE_1000,
                 );
 
-                let byte_2_high = input.shr4().lookup_16(
+                let byte_2_high = SimdU8Value::repeat_16(
                     TOO_SHORT,
                     TOO_SHORT,
                     TOO_SHORT,
@@ -133,35 +144,7 @@ macro_rules! algorithm_simd {
                     TOO_SHORT,
                 );
 
-                byte_1_high.and(byte_1_low).and(byte_2_high)
-            }
-
-            $(#[$feat])*
-            #[inline]
-            unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-                let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
-                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
-                is_third_byte.or(is_fourth_byte)
-            }
-
-            $(#[$feat])*
-            #[inline]
-            unsafe fn check_multibyte_lengths(
-                input: SimdU8Value,
-                prev: SimdU8Value,
-                special_cases: SimdU8Value,
-            ) -> SimdU8Value {
-                let prev2 = input.prev2(prev);
-                let prev3 = input.prev3(prev);
-                let must23 = Self::must_be_2_3_continuation(prev2, prev3);
-                let must23_80 = must23.and(SimdU8Value::splat(0x80));
-                must23_80.xor(special_cases)
-            }
-
-            $(#[$feat])*
-            #[inline]
-            unsafe fn has_error(&self) -> bool {
-                self.error.any_bit_set()
+                (byte_1_high, byte_1_low, byte_2_high)
             }
 
             $(#[$feat])*
@@ -169,9 +152,7 @@ macro_rules! algorithm_simd {
             unsafe fn check_bytes(&mut self, input: SimdU8Value) {
                 let prev1 = input.prev1(self.prev);
                 let sc = Self::check_special_cases(input, prev1);
-                self.error = self
-                    .error
-                    .or(Self::check_multibyte_lengths(input, self.prev, sc));
+                self.error = Self::check_multibyte_lengths(input, self.prev, sc, self.error);
                 self.prev = input;
             }
 
@@ -506,6 +487,55 @@ macro_rules! algorithm_simd {
                 } else {
                     Ok(())
                 }
+            }
+        }
+    };
+}
+
+/// Default implementations of `check_special_cases` and `check_multibyte_lengths`
+/// (and its `must_be_2_3_continuation` helper).
+///
+/// Every architecture except AVX-512 invokes this macro. AVX-512 provides its own
+/// micro-optimized versions.
+macro_rules! algorithm_simd_default_special_case_fns {
+    ($(#[$feat:meta])*) => {
+        impl Utf8CheckAlgorithm<SimdU8Value> {
+            $(#[$feat])*
+            #[inline]
+            unsafe fn check_special_cases(input: SimdU8Value, prev1: SimdU8Value) -> SimdU8Value {
+                let (byte_1_high_table, byte_1_low_table, byte_2_high_table) =
+                    Self::special_case_tables();
+
+                let byte_1_high = prev1.shr4().lookup_16(byte_1_high_table);
+                let byte_1_low = prev1.and(SimdU8Value::splat(0x0F)).lookup_16(byte_1_low_table);
+                let byte_2_high = input.shr4().lookup_16(byte_2_high_table);
+
+                byte_1_high.and(byte_1_low).and(byte_2_high)
+            }
+
+            $(#[$feat])*
+            #[inline]
+            unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
+                let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
+                let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
+                is_third_byte.or(is_fourth_byte)
+            }
+
+            // Slightly different from the original algorithm. The error is or-ed in here to allow
+            // AVX-512 ternlog optimization.
+            $(#[$feat])*
+            #[inline]
+            unsafe fn check_multibyte_lengths(
+                input: SimdU8Value,
+                prev: SimdU8Value,
+                special_cases: SimdU8Value,
+                error: SimdU8Value,
+            ) -> SimdU8Value {
+                let prev2 = input.prev2(prev);
+                let prev3 = input.prev3(prev);
+                let must23 = Self::must_be_2_3_continuation(prev2, prev3);
+                let must23_80 = must23.and(SimdU8Value::splat(0x80));
+                error.or(must23_80.xor(special_cases))
             }
         }
     };

@@ -91,33 +91,8 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[flexpect::e(clippy::too_many_arguments)]
-    unsafe fn lookup_16(
-        self,
-        v0: u8,
-        v1: u8,
-        v2: u8,
-        v3: u8,
-        v4: u8,
-        v5: u8,
-        v6: u8,
-        v7: u8,
-        v8: u8,
-        v9: u8,
-        v10: u8,
-        v11: u8,
-        v12: u8,
-        v13: u8,
-        v14: u8,
-        v15: u8,
-    ) -> Self {
-        Self::from(u8x16_swizzle(
-            Self::repeat_16(
-                v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
-            )
-            .0,
-            self.0,
-        ))
+    unsafe fn lookup_16(self, tbl: Self) -> Self {
+        Self::from(u8x16_swizzle(tbl.0, self.0))
     }
 
     #[inline]
@@ -255,3 +230,4 @@ const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!(#[target_feature(enable = "simd128")]);
 algorithm_simd!(#[target_feature(enable = "simd128")]);
+algorithm_simd_default_special_case_fns!(#[target_feature(enable = "simd128")]);

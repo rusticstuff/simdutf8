@@ -102,35 +102,10 @@ impl SimdU8Value {
         Self::from(_mm256_loadu_si256(ptr.cast::<__m256i>()))
     }
 
-    #[flexpect::e(clippy::too_many_arguments)]
     #[target_feature(enable = "avx2")]
     #[inline]
-    unsafe fn lookup_16(
-        self,
-        v0: u8,
-        v1: u8,
-        v2: u8,
-        v3: u8,
-        v4: u8,
-        v5: u8,
-        v6: u8,
-        v7: u8,
-        v8: u8,
-        v9: u8,
-        v10: u8,
-        v11: u8,
-        v12: u8,
-        v13: u8,
-        v14: u8,
-        v15: u8,
-    ) -> Self {
-        Self::from(_mm256_shuffle_epi8(
-            Self::repeat_16(
-                v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
-            )
-            .0,
-            self.0,
-        ))
+    unsafe fn lookup_16(self, tbl: Self) -> Self {
+        Self::from(_mm256_shuffle_epi8(tbl.0, self.0))
     }
 
     #[flexpect::e(clippy::cast_possible_wrap)]
@@ -240,3 +215,4 @@ const PREFETCH: bool = true;
 use crate::implementation::helpers::TempSimdChunkA32 as TempSimdChunk;
 simd_input_256_bit!(#[target_feature(enable = "avx2")]);
 algorithm_simd!(#[target_feature(enable = "avx2")]);
+algorithm_simd_default_special_case_fns!(#[target_feature(enable = "avx2")]);
