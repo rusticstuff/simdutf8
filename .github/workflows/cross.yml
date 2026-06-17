@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+  merge_group:
   schedule:
     - cron: "17 3 * * *"
 
@@ -29,6 +29,7 @@ jobs:
           args: "--no-default-features --verbose"
       - name: test with cross
         run: |
+          set -x
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             for rustflags in "-D warnings" "-D warnings -C target-feature=+avx2" "-D warnings -C target-feature=+sse4.2"; do
               cargo clean; RUSTFLAGS=$rustflags /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu $features
@@ -36,6 +37,7 @@ jobs:
           done
       - name: nightly-only test with cross
         run: |
+          set -x
           for rustflags in "-D warnings" "-D warnings -C target-feature=+avx2" "-D warnings -C target-feature=+sse4.2"; do
             cargo clean; RUSTFLAGS=$rustflags /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu --all-features
           done
@@ -57,11 +59,13 @@ jobs:
           args: "--no-default-features --verbose"
       - name: test with cross
         run: |
+          set -x
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu $features
           done
       - name: nightly-only test with cross
         run: |
+          set -x
           cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target i686-unknown-linux-gnu --all-features
         if: ${{ matrix.toolchain == 'nightly' }}
 
@@ -81,6 +85,7 @@ jobs:
           args: "--no-default-features --verbose"
       - name: test with cross
         run: |
+          set -x
           for rustflags in "-D warnings" "-D warnings -Ctarget-feature=+neon"; do
             for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
               cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target armv7-unknown-linux-gnueabihf $features
@@ -88,6 +93,7 @@ jobs:
           done
       - name: test with cross with armv7_neon enabled
         run: |
+          set -x
           for rustflags in "-D warnings" "-D warnings -Ctarget-feature=+neon"; do
             for features in "--features armv7_neon" "--features armv7_neon,std" "--features armv7_neon,public_imp" "--features armv7_neon,std,public_imp" "--all-features"; do
               cargo clean; /home/runner/work/_temp/cross +${{ matrix.toolchain }} test --no-default-features --verbose --target armv7-unknown-linux-gnueabihf $features

@@ -74,8 +74,8 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     unsafe fn memcpy_u64(src: &mut *const u8, dest: &mut *mut u8) {
         dest.cast::<u64>()
             .write_unaligned(src.cast::<u64>().read_unaligned());
-        *src = src.offset(8);
-        *dest = dest.offset(8);
+        *src = src.add(8);
+        *dest = dest.add(8);
     }
     if len >= 32 {
         memcpy_u64(&mut src, &mut dest);
@@ -96,15 +96,15 @@ pub(crate) unsafe fn memcpy_unaligned_nonoverlapping_inline_opt_lt_64(
     if len >= 4 {
         dest.cast::<u32>()
             .write_unaligned(src.cast::<u32>().read_unaligned());
-        src = src.offset(4);
-        dest = dest.offset(4);
+        src = src.add(4);
+        dest = dest.add(4);
         len -= 4;
     }
     if len >= 2 {
         dest.cast::<u16>()
             .write_unaligned(src.cast::<u16>().read_unaligned());
-        src = src.offset(2);
-        dest = dest.offset(2);
+        src = src.add(2);
+        dest = dest.add(2);
         len -= 2;
     }
     if len == 1 {
@@ -139,8 +139,21 @@ impl TempSimdChunkA16 {
 #[allow(dead_code)] // only used if a 256-bit SIMD implementation is used
 pub(crate) struct TempSimdChunkA32(pub(crate) [u8; SIMD_CHUNK_SIZE]);
 
+#[repr(C, align(64))]
+#[allow(dead_code)] // only used if a 512-bit SIMD implementation is used
+pub(crate) struct TempSimdChunkA64(pub(crate) [u8; SIMD_CHUNK_SIZE]);
+
 #[allow(dead_code)] // only used if there is a SIMD implementation
 impl TempSimdChunkA32 {
+    #[flexpect::e(clippy::inline_always)]
+    #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
+    pub(crate) const fn new() -> Self {
+        Self([0; SIMD_CHUNK_SIZE])
+    }
+}
+
+#[allow(dead_code)] // only used if there is a SIMD implementation
+impl TempSimdChunkA64 {
     #[flexpect::e(clippy::inline_always)]
     #[inline(always)] // needs to be forced because otherwise it is not inlined on armv7 neo
     pub(crate) const fn new() -> Self {

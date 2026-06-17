@@ -82,49 +82,12 @@ impl SimdU8Value {
 
     #[inline]
     unsafe fn load_from(ptr: *const u8) -> Self {
-        // WORKAROUND for https://github.com/rust-lang/stdarch/issues/1148
-        // The vld1q_u8 intrinsic is currently broken, it treats it as individual
-        // byte loads so the compiler sometimes decides it is a better to load
-        // individual bytes to "optimize" a subsequent SIMD shuffle
-        //
-        // This code forces a full 128-bit load.
-        let mut dst = core::mem::MaybeUninit::<uint8x16_t>::uninit();
-        core::ptr::copy_nonoverlapping(
-            ptr.cast::<u8>(),
-            dst.as_mut_ptr().cast::<u8>(),
-            core::mem::size_of::<uint8x16_t>(),
-        );
-        Self::from(dst.assume_init())
+        Self::from(vld1q_u8(ptr))
     }
 
     #[inline]
-    #[flexpect::e(clippy::too_many_arguments)]
-    unsafe fn lookup_16(
-        self,
-        v0: u8,
-        v1: u8,
-        v2: u8,
-        v3: u8,
-        v4: u8,
-        v5: u8,
-        v6: u8,
-        v7: u8,
-        v8: u8,
-        v9: u8,
-        v10: u8,
-        v11: u8,
-        v12: u8,
-        v13: u8,
-        v14: u8,
-        v15: u8,
-    ) -> Self {
-        Self::from(vqtbl1q_u8(
-            Self::repeat_16(
-                v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
-            )
-            .0,
-            self.0,
-        ))
+    unsafe fn lookup_16(self, tbl: Self) -> Self {
+        Self::from(vqtbl1q_u8(tbl.0, self.0))
     }
 
     #[inline]
@@ -203,15 +166,6 @@ impl From<uint8x16_t> for SimdU8Value {
     }
 }
 
-impl Utf8CheckAlgorithm<SimdU8Value> {
-    #[inline]
-    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
-        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
-        is_third_byte.or(is_fourth_byte)
-    }
-}
-
 #[inline]
 #[cfg(feature = "aarch64_neon_prefetch")]
 unsafe fn simd_prefetch(ptr: *const u8) {
@@ -223,7 +177,12 @@ unsafe fn simd_prefetch(ptr: *const u8) {
 #[cfg(not(feature = "aarch64_neon_prefetch"))]
 unsafe fn simd_prefetch(_ptr: *const u8) {}
 
+#[cfg(feature = "aarch64_neon_prefetch")]
+const PREFETCH: bool = true;
+#[cfg(not(feature = "aarch64_neon_prefetch"))]
 const PREFETCH: bool = false;
+
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!();
 algorithm_simd!();
+algorithm_simd_default_special_case_fns!();

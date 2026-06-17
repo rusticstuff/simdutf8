@@ -91,33 +91,8 @@ impl SimdU8Value {
     }
 
     #[inline]
-    #[flexpect::e(clippy::too_many_arguments)]
-    unsafe fn lookup_16(
-        self,
-        v0: u8,
-        v1: u8,
-        v2: u8,
-        v3: u8,
-        v4: u8,
-        v5: u8,
-        v6: u8,
-        v7: u8,
-        v8: u8,
-        v9: u8,
-        v10: u8,
-        v11: u8,
-        v12: u8,
-        v13: u8,
-        v14: u8,
-        v15: u8,
-    ) -> Self {
-        Self::from(u8x16_swizzle(
-            Self::repeat_16(
-                v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15,
-            )
-            .0,
-            self.0,
-        ))
+    unsafe fn lookup_16(self, tbl: Self) -> Self {
+        Self::from(u8x16_swizzle(tbl.0, self.0))
     }
 
     #[inline]
@@ -246,15 +221,6 @@ impl From<v128> for SimdU8Value {
     }
 }
 
-impl Utf8CheckAlgorithm<SimdU8Value> {
-    #[inline]
-    unsafe fn must_be_2_3_continuation(prev2: SimdU8Value, prev3: SimdU8Value) -> SimdU8Value {
-        let is_third_byte = prev2.saturating_sub(SimdU8Value::splat(0xe0 - 0x80));
-        let is_fourth_byte = prev3.saturating_sub(SimdU8Value::splat(0xf0 - 0x80));
-        is_third_byte.or(is_fourth_byte)
-    }
-}
-
 #[inline]
 const fn simd_prefetch(_ptr: *const u8) {
     // no-op
@@ -264,3 +230,4 @@ const PREFETCH: bool = false;
 use crate::implementation::helpers::TempSimdChunkA16 as TempSimdChunk;
 simd_input_128_bit!(#[target_feature(enable = "simd128")]);
 algorithm_simd!(#[target_feature(enable = "simd128")]);
+algorithm_simd_default_special_case_fns!(#[target_feature(enable = "simd128")]);

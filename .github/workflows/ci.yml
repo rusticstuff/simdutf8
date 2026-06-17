@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+  merge_group:
   schedule:
     - cron: "17 3 * * *"
 
@@ -41,11 +41,13 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
       - name: Run tests
         run: |
+          set -x
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
           done
       - name: Run with SSE4.2 + AVX2 target features, all native CPU features
         run: |
+          set -x
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean
             RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --no-default-features $features --all-targets --verbose
@@ -61,6 +63,7 @@ jobs:
         if: ${{ matrix.toolchain == 'nightly'}}
       - name: Run test with all features and with SSE4.2 + AVX2 target features, all native CPU features on nightly
         run: |
+          set -x
           cargo clean
           RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --all-features --all-targets --verbose
           cargo clean
@@ -89,11 +92,13 @@ jobs:
           targets: "i686-pc-windows-msvc"
       - name: Run tests
         run: |
+          set -x
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean; cargo test --release --no-default-features $features --all-targets --verbose
           done
       - name: Run with SSE4.2 + AVX2 target features, all native CPU features
         run: |
+          set -x
           for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
             cargo clean
             RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --no-default-features $features --all-targets --verbose
@@ -108,6 +113,7 @@ jobs:
         if: ${{ matrix.toolchain == 'nightly'}}
       - name: Run test with all features and with SSE4.2 + AVX2 target features, all native CPU features on nightly
         run: |
+          set -x
           cargo clean
           RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --all-features --all-targets --verbose
           cargo clean
@@ -116,6 +122,37 @@ jobs:
           RUSTFLAGS="-D warnings -C target-cpu=native" cargo test --release --all-features --all-targets --verbose
         shell: bash
         if: ${{ matrix.toolchain == 'nightly' }}
+
+  miri:
+    name: miri (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: x86-64 SSE4.2
+            os: ubuntu-latest
+            rustflags: "-C target-feature=+sse4.2"
+          - name: x86-64 AVX2
+            os: ubuntu-latest
+            rustflags: "-C target-feature=+avx2"
+          - name: aarch64 NEON
+            os: macos-latest
+            rustflags: ""
+    env:
+      RUSTFLAGS: ${{ matrix.rustflags }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: miri
+      - name: Run Miri
+        run: |
+          set -x
+          cargo miri test
 
   test-inlining:
     runs-on: ubuntu-latest
@@ -138,11 +175,24 @@ jobs:
         run: cargo +stable install rustfilt
       - name: Check x86_64 inlining
         run: |
-          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt
-          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt "--features public_imp"
-          RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx2.txt
+          set -x
           RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx2.txt --no-default-features
           RUSTFLAGS="-C target-feature=+sse4.2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-sse42.txt --no-default-features
+      - name: Check x86_64 inlining with avx2 autoselection
+        run: |
+          set -x
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-old.txt
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-old.txt "--features public_imp"
+          RUSTFLAGS="-C target-feature=+avx2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx2.txt
+        if: ${{ matrix.toolchain == '1.38.0' }}
+      - name: Check x86_64 inlining with avx512 autoselection
+        run: |
+          set -x
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt
+          ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std.txt "--features public_imp"
+          RUSTFLAGS="-C target-feature=+avx512f,+avx512bw,+avx512vbmi,+avx512vbmi2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-std-avx512.txt
+          RUSTFLAGS="-C target-feature=+avx512f,+avx512bw,+avx512vbmi,+avx512vbmi2" ./check-inlining.sh x86_64-unknown-linux-gnu expected-methods-x86-nostd-avx512.txt --no-default-features
+        if: ${{ matrix.toolchain != '1.38.0' }}
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
@@ -151,6 +201,7 @@ jobs:
         if: ${{ matrix.toolchain != '1.38.0' }}
       - name: Check aarch64 inlining
         run: |
+          set -x
           for target in aarch64-unknown-linux-gnu aarch64-apple-darwin
           do
             ./check-inlining.sh $target expected-methods-aarch64-neon.txt
@@ -160,6 +211,7 @@ jobs:
         if: ${{ matrix.toolchain != '1.38.0' }}
       - name: Check armv7 neon inlining
         run: |
+          set -x
           ./check-inlining.sh armv7-unknown-linux-gnueabihf expected-methods-armv7-std.txt "--features armv7_neon"
           ./check-inlining.sh armv7-unknown-linux-gnueabihf expected-methods-armv7-std.txt "--features armv7_neon,public_imp"
           RUSTFLAGS="-C target-feature=+neon" ./check-inlining.sh armv7-unknown-linux-gnueabihf expected-methods-armv7-neon.txt "--features armv7_neon"
@@ -217,6 +269,7 @@ jobs:
           targets: "thumbv7neon-unknown-linux-gnueabihf, armv7-unknown-linux-gnueabihf, armv7-linux-androideabi"
       - name: Run Clippy
         run: |
+          set -x
           for target in thumbv7neon-unknown-linux-gnueabihf armv7-unknown-linux-gnueabihf armv7-linux-androideabi; do
             cargo clippy --target $target --all-targets
             cargo clippy --target $target --all-targets --all-features

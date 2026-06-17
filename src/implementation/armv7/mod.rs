@@ -46,6 +46,7 @@ pub(crate) unsafe fn validate_utf8_basic(
 // validate_utf8_basic() no-std: implementation selection by config
 
 #[cfg(all(feature = "armv7_neon", target_feature = "neon"))]
+#[inline]
 pub(crate) unsafe fn validate_utf8_basic(
     input: &[u8],
 ) -> core::result::Result<(), crate::basic::Utf8Error> {
@@ -112,6 +113,7 @@ pub(crate) unsafe fn validate_utf8_compat(
 // validate_utf8_basic() no-std: implementation selection by config
 
 #[cfg(all(feature = "armv7_neon", target_feature = "neon"))]
+#[inline]
 pub(crate) unsafe fn validate_utf8_compat(
     input: &[u8],
 ) -> core::result::Result<(), crate::compat::Utf8Error> {
