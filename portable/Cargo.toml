@@ -1,6 +1,6 @@
 [package]
 name = "simdutf8-portable"
-version = "0.0.1"
+version = "0.0.0"
 authors = ["Hans Kratz <hans@appfour.com>"]
 edition = "2024"
 description = "SIMD-accelerated UTF-8 validation using core::simd (experimental)"
