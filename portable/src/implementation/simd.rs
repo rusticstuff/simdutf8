@@ -1,6 +1,6 @@
 use core::simd::u8x32;
 use core::simd::{
-    LaneCount, Simd, SupportedLaneCount,
+    Simd,
     cmp::SimdPartialOrd,
     num::{SimdInt, SimdUint},
     simd_swizzle, u8x16,
@@ -25,10 +25,7 @@ const HAS_FAST_REDUCE_MAX: bool = false;
 const HAS_FAST_MASKED_LOAD: bool = false; // FIXME avx512
 
 #[repr(C)]
-struct SimdInput<const N: usize, const O: usize>
-where
-    LaneCount<N>: SupportedLaneCount,
-{
+struct SimdInput<const N: usize, const O: usize> {
     vals: [Simd<u8, N>; O],
 }
 
@@ -142,10 +139,7 @@ impl SimdInputTrait for SimdInput<32, 2> {
 }
 
 #[inline]
-fn load_masked_opt<const N: usize>(slice: &[u8]) -> Simd<u8, N>
-where
-    LaneCount<N>: SupportedLaneCount,
-{
+fn load_masked_opt<const N: usize>(slice: &[u8]) -> Simd<u8, N> {
     if slice.len() > N - 1 {
         Simd::<u8, N>::from_slice(&slice[..N])
     } else {
@@ -153,10 +147,7 @@ where
     }
 }
 
-struct Utf8CheckAlgorithm<const N: usize, const O: usize>
-where
-    LaneCount<N>: SupportedLaneCount,
-{
+struct Utf8CheckAlgorithm<const N: usize, const O: usize> {
     pub(crate) prev: Simd<u8, N>,
     pub(crate) incomplete: Simd<u8, N>, // FIXME: could be a mask?
     pub(crate) error: Simd<u8, N>,      // FIXME: could be a mask?
@@ -187,7 +178,6 @@ trait Lookup16 {
 
 trait SimdU8Value<const N: usize>
 where
-    LaneCount<N>: SupportedLaneCount,
     Self: Copy,
 {
     #[expect(clippy::too_many_arguments)]
@@ -360,7 +350,6 @@ impl SimdU8Value<16> for u8x16 {
 impl<const N: usize> Lookup16 for Simd<u8, N>
 where
     Self: SimdU8Value<N>,
-    LaneCount<N>: SupportedLaneCount,
 {
     #[inline]
     fn lookup_16(
@@ -507,7 +496,6 @@ impl SimdU8Value<32> for u8x32 {
 
 impl<const N: usize, const O: usize> Utf8CheckAlgorithm<N, O>
 where
-    LaneCount<N>: SupportedLaneCount,
     Simd<u8, N>: SimdU8Value<N>,
     SimdInput<N, O>: SimdInputTrait,
 {
@@ -638,8 +626,8 @@ where
 
     #[inline]
     fn must_be_2_3_continuation(prev2: Simd<u8, N>, prev3: Simd<u8, N>) -> Simd<u8, N> {
-        let is_third_byte = prev2.simd_gt(Simd::<u8, N>::splat(0xe0 - 0x80)).to_int();
-        let is_fourth_byte = prev3.simd_gt(Simd::<u8, N>::splat(0xf0 - 0x80)).to_int();
+        let is_third_byte = prev2.simd_gt(Simd::<u8, N>::splat(0xe0 - 0x80)).to_simd();
+        let is_fourth_byte = prev3.simd_gt(Simd::<u8, N>::splat(0xf0 - 0x80)).to_simd();
 
         (is_third_byte | is_fourth_byte).cast()
     }
