@@ -4,7 +4,6 @@ version = "0.0.0"
 authors = ["Hans Kratz <hans@appfour.com>"]
 edition = "2024"
 description = "SIMD-accelerated UTF-8 validation using core::simd (experimental)"
-documentation = "https://docs.rs/simdutf8-portable/"
 homepage = "https://github.com/rusticstuff/simdutf8/tree/main/portable"
 repository = "https://github.com/rusticstuff/simdutf8"
 readme = "README.md"
