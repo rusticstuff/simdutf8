@@ -1,0 +1,132 @@
+name: Portable
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "portable/**"
+      - ".github/workflows/portable.yml"
+  pull_request:
+    paths:
+      - "portable/**"
+      - ".github/workflows/portable.yml"
+  merge_group:
+  schedule:
+    - cron: "31 3 * * *"
+
+env:
+  CARGO_TERM_COLOR: always
+
+defaults:
+  run:
+    working-directory: portable
+
+jobs:
+  test:
+    name: test (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86-64
+            os: ubuntu-latest
+            arch: x86_64
+          - name: linux-aarch64
+            os: ubuntu-26.04-arm
+            arch: aarch64
+    env:
+      RUSTFLAGS: "-D warnings"
+    defaults:
+      run:
+        shell: bash
+        working-directory: portable
+    steps:
+      - uses: actions/checkout@v4
+      # The portable crate requires nightly (portable_simd, edition 2024).
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Run tests (default target features)
+        run: |
+          set -x
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
+            cargo clean
+            cargo test --release --no-default-features $features --all-targets --verbose
+          done
+      - name: Run tests (forced implementations)
+        run: |
+          set -x
+          for force in force_fallback force_simd128 force_simd256; do
+            cargo clean
+            cargo test --release --features "std,$force" --all-targets --verbose
+            cargo clean
+            cargo test --release --no-default-features --features "public_imp,$force" --all-targets --verbose
+          done
+      - name: Run tests with x86-64 target features
+        if: ${{ matrix.arch == 'x86_64' }}
+        run: |
+          set -x
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
+            cargo clean
+            RUSTFLAGS="-D warnings -C target-feature=+sse4.2" cargo test --release --no-default-features $features --all-targets --verbose
+            cargo clean
+            RUSTFLAGS="-D warnings -C target-feature=+avx2" cargo test --release --no-default-features $features --all-targets --verbose
+            cargo clean
+            RUSTFLAGS="-D warnings -C target-cpu=native" cargo test --release --no-default-features $features --all-targets --verbose
+          done
+      - name: Run tests with aarch64 target features
+        if: ${{ matrix.arch == 'aarch64' }}
+        run: |
+          set -x
+          for features in "" "--features std" "--features public_imp" "--features std,public_imp"; do
+            cargo clean
+            RUSTFLAGS="-D warnings -C target-cpu=native" cargo test --release --no-default-features $features --all-targets --verbose
+          done
+
+  fmt_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - name: Check formatting
+        run: cargo fmt -- --check
+
+  clippy_check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86-64
+            os: ubuntu-latest
+          - name: linux-aarch64
+            os: ubuntu-26.04-arm
+    env:
+      RUSTFLAGS: "-D warnings"
+    defaults:
+      run:
+        working-directory: portable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+      - name: Clippy - default
+        run: cargo clippy --all-targets
+      - name: Clippy - all features enabled
+        run: cargo clippy --all-targets --all-features
+      - name: Clippy - all features disabled
+        run: cargo clippy --all-targets --no-default-features
+      - name: Clippy - public_imp (no_std)
+        run: cargo clippy --all-targets --no-default-features --features public_imp
+
+  test-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Run cargo doc
+        run: cargo doc --features public_imp
+        env:
+          RUSTDOCFLAGS: --cfg docsrs
