@@ -1,6 +1,4 @@
 [![CI](https://github.com/rusticstuff/simdutf8/actions/workflows/portable.yml/badge.svg)](https://github.com/rusticstuff/simdutf8/actions/workflows/portable.yml)
-[![crates.io](https://img.shields.io/crates/v/simdutf8-portable.svg)](https://crates.io/crates/simdutf8-portable)
-[![docs.rs](https://docs.rs/simdutf8-portable/badge.svg)](https://docs.rs/simdutf8-portable)
 
 # simdutf8-portable – Fast UTF-8 validation using `core::simd` (portable SIMD)
 
@@ -8,6 +6,8 @@ Fast API-compatible UTF-8 validation for Rust using the experimental
 [`core::simd`](https://doc.rust-lang.org/core/simd/index.html) (portable SIMD) module from the
 standard library. An up-to-date nightly Rust compiler is required. The API and the algorithm are the
 same as in the [simdutf8](https://crates.io/crates/simdutf8) crate.
+
+It is not planned to release this crate on crates.io until `core::simd` is stabilized.
 
 ## Features
 
@@ -21,7 +21,7 @@ same as in the [simdutf8](https://crates.io/crates/simdutf8) crate.
 
 ## Limitations
 
-The functions in `core::simd` are marked as `#[inline]`. This way they are compiled to MIR  Code generation is deferred until they are actually used in a crate.
+The functions in `core::simd` are marked as `#[inline]`. This way they are compiled to MIR Code generation is deferred until they are actually used in a crate.
 - target-feature required
 - no runtime implementation selection
 - slower
@@ -57,7 +57,7 @@ Add the dependency to your Cargo.toml file:
 
 ```toml
 [dependencies]
-simdutf8-portable = "0.0.1"
+simdutf8-portable = { git = "https://github.com/rusticstuff/simdutf8" }
 ```
 
 Use `simdutf8-portable::basic::from_utf8()` as a drop-in replacement for `std::str::from_utf8()`.
@@ -81,11 +81,11 @@ assert_eq!(err.error_len(), Some(2));
 
 ## APIs
 
-See docs or [simdutf8](https://crates.io/crates/simdutf8).
+See docs for the main [simdutf8](https://crates.io/crates/simdutf8) crate.
 
 ## Minimum Supported Rust Version (MSRV)
 
-Rust nightly as of xx xx
+Rust nightly as of 2026-06-22.
 
 ## Thanks
 
