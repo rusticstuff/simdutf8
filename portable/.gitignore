@@ -1,0 +1,6 @@
+/target
+/.vscode
+/.idea
+/.zed
+/.cargo
+/Cargo.lock

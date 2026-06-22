@@ -30,6 +30,7 @@ simdutf8_wasmtime = ["wasmtime"]
 core_affinity = "0.8.1"
 criterion = "0.8.1"
 simdutf8 = { version = "*", path = "..", features = ["aarch64_neon"] }
+simdutf8-portable = { version = "*", path = "../portable" }
 simdjson-utf8 = { version = "*", path = "simdjson-utf8", optional = true }
 # default is cranelift which is not as performant as the llvm backend
 wasmer = { version = "2.1", optional = true, default-features = false }
@@ -45,6 +46,14 @@ harness = false
 
 [[bench]]
 name = "throughput_compat"
+harness = false
+
+[[bench]]
+name = "throughput_basic_portable"
+harness = false
+
+[[bench]]
+name = "throughput_compat_portable"
 harness = false
 
 [[bench]]
