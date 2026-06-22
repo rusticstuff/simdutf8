@@ -202,29 +202,29 @@ pub mod imp {
     /// in order of precedence.
     ///
     pub mod auto {
-        pub use crate::implementation::auto::validate_utf8_basic as validate_utf8;
         pub use crate::implementation::auto::ChunkedUtf8ValidatorImp;
         pub use crate::implementation::auto::Utf8ValidatorImp;
+        pub use crate::implementation::auto::validate_utf8_basic as validate_utf8;
     }
 
     /// Includes the scalar fallback implementation using 128-bit portable SIMD.
     pub mod fallback {
-        pub use crate::implementation::fallback::validate_utf8_basic as validate_utf8;
         pub use crate::implementation::fallback::ChunkedUtf8ValidatorImp;
         pub use crate::implementation::fallback::Utf8ValidatorImp;
+        pub use crate::implementation::fallback::validate_utf8_basic as validate_utf8;
     }
 
     /// Includes the validation implementation using 128-bit portable SIMD.
     pub mod v128 {
-        pub use crate::implementation::simd::v128::validate_utf8_basic as validate_utf8;
         pub use crate::implementation::simd::v128::ChunkedUtf8ValidatorImp;
         pub use crate::implementation::simd::v128::Utf8ValidatorImp;
+        pub use crate::implementation::simd::v128::validate_utf8_basic as validate_utf8;
     }
 
     /// Includes the validation implementation using 256-bit portable SIMD.
     pub mod v256 {
-        pub use crate::implementation::simd::v256::validate_utf8_basic as validate_utf8;
         pub use crate::implementation::simd::v256::ChunkedUtf8ValidatorImp;
         pub use crate::implementation::simd::v256::Utf8ValidatorImp;
+        pub use crate::implementation::simd::v256::validate_utf8_basic as validate_utf8;
     }
 }

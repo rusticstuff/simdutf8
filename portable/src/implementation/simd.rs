@@ -50,7 +50,7 @@ trait SimdInputTrait {
 impl SimdInputTrait for SimdInput<16, 4> {
     #[inline]
     fn new(s: &[u8]) -> Self {
-        assert!(s.len() == 64);
+        assert_eq!(s.len(), 64);
         Self {
             vals: [
                 u8x16::from_slice(&s[..16]),
@@ -106,7 +106,7 @@ impl SimdInputTrait for SimdInput<16, 4> {
 impl SimdInputTrait for SimdInput<32, 2> {
     #[inline]
     fn new(s: &[u8]) -> Self {
-        assert!(s.len() == 64);
+        assert_eq!(s.len(), 64);
         Self {
             vals: [u8x32::from_slice(&s[..32]), u8x32::from_slice(&s[32..64])],
         }
@@ -886,7 +886,7 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
     #[inline]
     fn update_from_chunks(&mut self, input: &[u8]) {
         assert!(
-            input.len() % SIMD_CHUNK_SIZE == 0,
+            input.len().is_multiple_of(SIMD_CHUNK_SIZE),
             "Input size must be a multiple of 64."
         );
         for chunk in input.chunks_exact(SIMD_CHUNK_SIZE) {
@@ -900,17 +900,17 @@ impl basic::imp::ChunkedUtf8Validator for ChunkedUtf8ValidatorImp {
         mut self,
         remaining_input: core::option::Option<&[u8]>,
     ) -> core::result::Result<(), basic::Utf8Error> {
-        if let Some(remaining_input) = remaining_input {
-            if !remaining_input.is_empty() {
-                let mut chunks = remaining_input.chunks_exact(SIMD_CHUNK_SIZE);
-                for chunk in &mut chunks {
-                    let input = SimdInput::new(chunk);
-                    self.algorithm.check_utf8(&input);
-                }
-                if !chunks.remainder().is_empty() {
-                    let simd_input = SimdInput::new_partial(chunks.remainder());
-                    self.algorithm.check_utf8(&simd_input);
-                }
+        if let Some(remaining_input) = remaining_input
+            && !remaining_input.is_empty()
+        {
+            let mut chunks = remaining_input.chunks_exact(SIMD_CHUNK_SIZE);
+            for chunk in &mut chunks {
+                let input = SimdInput::new(chunk);
+                self.algorithm.check_utf8(&input);
+            }
+            if !chunks.remainder().is_empty() {
+                let simd_input = SimdInput::new_partial(chunks.remainder());
+                self.algorithm.check_utf8(&simd_input);
             }
         }
         self.algorithm.check_incomplete_pending();
