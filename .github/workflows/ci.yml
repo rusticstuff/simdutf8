@@ -3,7 +3,11 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "portable/**"
   pull_request:
+    paths-ignore:
+      - "portable/**"
   merge_group:
   schedule:
     - cron: "17 3 * * *"
